@@ -59,6 +59,8 @@ const Drawer = styled(MuiDrawer, {
     position: "relative",
     whiteSpace: "nowrap",
     width: drawerWidth,
+    backgroundColor: "#3e4760",
+    color: "#ffffff",
     transition: theme.transitions.create("width", {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
@@ -79,7 +81,21 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 // TODO remove, this demo shouldn't need to reset the theme.
-const defaultTheme = createTheme();
+const defaultTheme = createTheme({
+  palette: {
+    mode: "light",
+    primary: {
+      main: "#2196f3",
+    },
+    secondary: {
+      main: "#f50057",
+    },
+    background: {
+      default: "#121212", // Màu nền mặc định
+      paper: "#1f1f1f", // Màu nền giấy
+    },
+  },
+});
 
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
@@ -125,13 +141,7 @@ export default function Dashboard() {
           </IconButton>
         </Toolbar>
       </AppBar>
-      <Drawer
-        variant="permanent"
-        open={open}
-        sx={{
-          backgroundColor: "#1976d2",
-        }}
-      >
+      <Drawer variant="permanent" open={open}>
         <Toolbar
           sx={{
             display: "flex",
@@ -205,6 +215,6 @@ export default function Dashboard() {
         </Container>
       </Box>
     </Box>
-    // </ThemeProvider>
+    // {/* </ThemeProvider> */}
   );
 }

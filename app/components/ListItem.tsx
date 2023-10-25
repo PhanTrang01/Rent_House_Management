@@ -1,4 +1,5 @@
 import * as React from "react";
+import styled from "@emotion/styled";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -10,35 +11,40 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import LayersIcon from "@mui/icons-material/Layers";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 
+// const ItemIcon = styled(ListItemIcon)`
+//   background-color: white;
+//   /* border-radius: 50%; // Để làm cho nền hình tròn */
+// `;
+
 export const mainListItems = (
   <React.Fragment>
     <ListItemButton>
       <ListItemIcon>
-        <DashboardIcon />
+        <DashboardIcon sx={{ color: "white" }} />
       </ListItemIcon>
       <ListItemText primary="Dashboard" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
-        <ShoppingCartIcon />
+        <ShoppingCartIcon sx={{ color: "white" }} />
       </ListItemIcon>
       <ListItemText primary="Orders" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
-        <PeopleIcon />
+        <PeopleIcon sx={{ color: "white" }} />
       </ListItemIcon>
       <ListItemText primary="Customers" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
-        <BarChartIcon />
+        <BarChartIcon sx={{ color: "white" }} />
       </ListItemIcon>
       <ListItemText primary="Reports" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
-        <LayersIcon />
+        <LayersIcon sx={{ color: "white" }} />
       </ListItemIcon>
       <ListItemText primary="Integrations" />
     </ListItemButton>
