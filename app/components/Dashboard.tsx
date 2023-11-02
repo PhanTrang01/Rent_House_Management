@@ -14,7 +14,6 @@ import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
@@ -34,23 +33,23 @@ interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
 }
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})<AppBarProps>(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
+// const AppBar = styled(MuiAppBar, {
+//   shouldForwardProp: (prop) => prop !== "open",
+// })<AppBarProps>(({ theme, open }) => ({
+//   zIndex: theme.zIndex.drawer + 1,
+//   transition: theme.transitions.create(["width", "margin"], {
+//     easing: theme.transitions.easing.sharp,
+//     duration: theme.transitions.duration.leavingScreen,
+//   }),
+//   ...(open && {
+//     marginLeft: drawerWidth,
+//     width: `calc(100% - ${drawerWidth}px)`,
+//     transition: theme.transitions.create(["width", "margin"], {
+//       easing: theme.transitions.easing.sharp,
+//       duration: theme.transitions.duration.enteringScreen,
+//     }),
+//   }),
+// }));
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -105,43 +104,17 @@ export default function Dashboard() {
 
   return (
     // <ThemeProvider theme={defaultTheme}>
-    <Box sx={{ display: "flex" }}>
+    <Box position="relative" sx={{ display: "flex", height: "100hv" }}>
       <CssBaseline />
-      <AppBar position="absolute" open={open}>
+      {/* <AppBar position="absolute" open={open}>
         <Toolbar
           sx={{
             pr: "24px", // keep right padding when drawer closed
           }}
-        >
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            onClick={toggleDrawer}
-            sx={{
-              marginRight: "36px",
-              ...(open && { display: "none" }),
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            component="h1"
-            variant="h6"
-            color="inherit"
-            noWrap
-            sx={{ flexGrow: 1 }}
-          >
-            Dashboard
-          </Typography>
-          <IconButton color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <NotificationsIcon />
-            </Badge>
-          </IconButton>
+        > 
         </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open}>
+      </AppBar> */}
+      <Drawer variant="permanent" open={open} sx={{ height: "100vh" }}>
         <Toolbar
           sx={{
             display: "flex",
@@ -151,7 +124,23 @@ export default function Dashboard() {
           }}
         >
           <IconButton onClick={toggleDrawer}>
-            <ChevronLeftIcon />
+            <ChevronLeftIcon
+              sx={{
+                ...(!open && { display: "none" }),
+              }}
+            />
+          </IconButton>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+            onClick={toggleDrawer}
+            sx={{
+              marginRight: "10px",
+              ...(open && { display: "none" }),
+            }}
+          >
+            <MenuIcon />
           </IconButton>
         </Toolbar>
         <Divider />
@@ -161,7 +150,7 @@ export default function Dashboard() {
           {secondaryListItems}
         </List>
       </Drawer>
-      <Box
+      {/* <Box
         component="main"
         sx={{
           backgroundColor: (theme) =>
@@ -173,47 +162,7 @@ export default function Dashboard() {
           overflow: "auto",
         }}
       >
-        <Toolbar />
-        container
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Grid container spacing={3}>
-            {/* Chart */}
-            <Grid item xs={12} md={8} lg={9}>
-              <Paper
-                sx={{
-                  p: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  height: 240,
-                }}
-              >
-                Chartttttttt
-                {/* <Chart /> */}
-              </Paper>
-            </Grid>
-            {/* Recent Deposits */}
-            <Grid item xs={12} md={4} lg={3}>
-              <Paper
-                sx={{
-                  p: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  height: 240,
-                }}
-              >
-                {/* <Deposits /> */}
-              </Paper>
-            </Grid>
-            {/* Recent Orders */}
-            <Grid item xs={12}>
-              <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
-                Orderrrr
-                {/* <Orders /> */}
-              </Paper>
-            </Grid>
-          </Grid>
-        </Container>
-      </Box>
+      </Box> */}
     </Box>
     // {/* </ThemeProvider> */}
   );

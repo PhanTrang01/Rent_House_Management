@@ -10,6 +10,7 @@ import PeopleIcon from "@mui/icons-material/People";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import LayersIcon from "@mui/icons-material/Layers";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import Link from "next/link";
 
 // const ItemIcon = styled(ListItemIcon)`
 //   background-color: white;
@@ -18,35 +19,39 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 
 export const mainListItems = (
   <React.Fragment>
-    <ListItemButton>
-      <ListItemIcon>
-        <DashboardIcon sx={{ color: "white" }} />
-      </ListItemIcon>
-      <ListItemText primary="Dashboard" />
-    </ListItemButton>
-    <ListItemButton>
-      <ListItemIcon>
-        <ShoppingCartIcon sx={{ color: "white" }} />
-      </ListItemIcon>
-      <ListItemText primary="Orders" />
-    </ListItemButton>
+    <Link href="/homepage">
+      <ListItemButton>
+        <ListItemIcon>
+          <DashboardIcon sx={{ color: "white" }} />
+        </ListItemIcon>
+        <ListItemText primary="Tổng quát" />
+      </ListItemButton>
+    </Link>
+    <Link href="/ListRent">
+      <ListItemButton>
+        <ListItemIcon>
+          <ShoppingCartIcon sx={{ color: "white" }} />
+        </ListItemIcon>
+        <ListItemText primary="Quản lý cho thuê BĐS" />
+      </ListItemButton>
+    </Link>
     <ListItemButton>
       <ListItemIcon>
         <PeopleIcon sx={{ color: "white" }} />
       </ListItemIcon>
-      <ListItemText primary="Customers" />
+      <ListItemText primary="Quản lý chủ nhà" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
         <BarChartIcon sx={{ color: "white" }} />
       </ListItemIcon>
-      <ListItemText primary="Reports" />
+      <ListItemText primary="Quản lý khách thuê" />
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>
         <LayersIcon sx={{ color: "white" }} />
       </ListItemIcon>
-      <ListItemText primary="Integrations" />
+      <ListItemText primary="Hệ Thống" />
     </ListItemButton>
   </React.Fragment>
 );

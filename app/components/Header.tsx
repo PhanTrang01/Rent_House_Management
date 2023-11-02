@@ -5,14 +5,15 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
+import Badge from "@mui/material/Badge";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 
 export default function Header() {
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
+      <AppBar position="static" sx={{ background: "#8083a6" }}>
         <Toolbar>
-          <IconButton
+          {/* <IconButton
             size="large"
             edge="start"
             color="inherit"
@@ -20,10 +21,15 @@ export default function Header() {
             sx={{ mr: 2 }}
           >
             <MenuIcon />
-          </IconButton>
+          </IconButton> */}
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             News
           </Typography>
+          <IconButton color="inherit">
+            <Badge badgeContent={3} color="secondary">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
           <Button color="inherit">Login</Button>
         </Toolbar>
       </AppBar>

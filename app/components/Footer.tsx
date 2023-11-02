@@ -8,7 +8,7 @@ const Footer = () => {
       <FooterContainer>
         <FooterText>
           <p>
-            Powered & Designed by <span>Phan Trang</span>
+            Powered & Designed with 💚 by <span>Phan Trang</span>
           </p>
           <Typography>
             {"Copyright © "}
@@ -28,8 +28,11 @@ const Footer = () => {
 };
 
 const FooterWrapper = styled.div`
-  background-color: rgb(130, 79, 202);
+  background-color: #9fb1de;
   margin-top: 80px;
+  position: fixed;
+  bottom: 0;
+  width: 100vw;
 `;
 
 const FooterContainer = styled.div`
