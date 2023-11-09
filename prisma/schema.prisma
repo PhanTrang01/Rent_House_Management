@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,71 +7,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// schema.prisma
+model guests {
+  guestsId         Int                @id @default(autoincrement())
+  name             String
+  phone            String?
+  fullname         String?
+  cittizenId       String?
+  createdAt        DateTime
+  updatedAt        DateTime
+  homecontracts    homecontracts[]
+  servicecontracts servicecontracts[]
+}
 
-model Homeowners {
-  homeOwnerId          Int       @id @default(autoincrement())
-  name                String   
-  phone               String?  
-  metaAccessToken      String?
+model homecontracts {
+  homeContractsId Int      @id @default(autoincrement())
+  homeId          Int
+  guestsId        Int
+  datePayment     DateTime
+  total           Float?
+  statusPayment   Boolean  @default(false)
+  createdAt       DateTime
+  updatedAt       DateTime
+  guests          guests   @relation(fields: [guestsId], references: [guestsId], map: "HomeContracts_guestsId_fkey")
+  homes           homes    @relation(fields: [homeId], references: [homeId], map: "HomeContracts_homeId_fkey")
+
+  @@index([guestsId], map: "HomeContracts_guestsId_fkey")
+  @@index([homeId], map: "HomeContracts_homeId_fkey")
+}
+
+model homeowners {
+  homeOwnerId               Int       @id @default(autoincrement())
+  name                      String
+  phone                     String?
+  metaAccessToken           String?
   metaAccessTokenExpireDate DateTime?
-  fullname             String?  
-  cittizenId           String?  
-  active              Boolean   @default(true)
-  createdAt           DateTime
-  updatedAt           DateTime
-  homes               Homes[]   
+  fullname                  String?
+  cittizenId                String?
+  active                    Boolean   @default(true)
+  createdAt                 DateTime
+  updatedAt                 DateTime
+  homes                     homes[]   @relation("homeownerstohomes")
 }
 
-model Homes {
-  homeId             Int      @id @default(autoincrement())
-  homeOwnerId        Int
-  address             String    
-  fullname             String?  
-  active              Boolean   @default(false)
-  createdAt           DateTime
-  updatedAt           DateTime
-  homeOwners          Homeowners[] 
-  homeContracts       HomeContracts[] 
-  serviceContracts    ServiceContracts[] 
+model homes {
+  homeId           Int                @id @default(autoincrement())
+  homeOwnerId      Int
+  address          String
+  fullname         String?
+  active           Boolean            @default(false)
+  createdAt        DateTime
+  updatedAt        DateTime
+  homecontracts    homecontracts[]
+  servicecontracts servicecontracts[]
+  homeowners       homeowners[]       @relation("homeownerstohomes")
 }
 
-model Guests {
-  guestsId            Int       @id @default(autoincrement())
-  name                String    
-  phone               String?  
-  fullname             String?   
-  cittizenId           String?   
-  createdAt           DateTime
-  updatedAt           DateTime
-  homeContracts       HomeContracts[] 
-  serviceContracts    ServiceContracts[] 
-}
+model servicecontracts {
+  serviceContractsId Int       @id @default(autoincrement())
+  homeId             Int
+  guestsId           Int
+  signDate           DateTime?
+  payCycle           Int
+  duration           Int
+  unitCost           Float
+  statusPayment      Boolean   @default(false)
+  createdAt          DateTime
+  updatedAt          DateTime
+  guests             guests    @relation(fields: [guestsId], references: [guestsId], map: "ServiceContracts_guestsId_fkey")
+  homes              homes     @relation(fields: [homeId], references: [homeId], map: "ServiceContracts_homeId_fkey")
 
-model HomeContracts {
-  homeContractsId     Int       @id @default(autoincrement())
-  homeId              Int
-  guestsId            Int
-  datePayment         DateTime
-  total               Float?
-  statusPayment       Boolean   @default(false)
-  createdAt           DateTime
-  updatedAt           DateTime
-  home                Homes @relation(fields: [homeId], references: [homeId])
-  guest               Guests @relation(fields: [guestsId], references: [guestsId])
-}
-
-model ServiceContracts {
-  serviceContractsId  Int       @id @default(autoincrement())
-  homeId              Int
-  guestsId            Int
-  signDate            DateTime?
-  payCycle            Int
-  duration            Int
-  unitCost            Float
-  statusPayment       Boolean   @default(false)
-  createdAt           DateTime
-  updatedAt           DateTime
-  home                Homes @relation(fields: [homeId], references: [homeId]) 
-  guest               Guests @relation(fields: [guestsId], references: [guestsId])
+  @@index([guestsId], map: "ServiceContracts_guestsId_fkey")
+  @@index([homeId], map: "ServiceContracts_homeId_fkey")
 }

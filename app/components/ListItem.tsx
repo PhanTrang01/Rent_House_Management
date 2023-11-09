@@ -35,12 +35,14 @@ export const mainListItems = (
         <ListItemText primary="Quản lý cho thuê BĐS" />
       </ListItemButton>
     </Link>
-    <ListItemButton>
-      <ListItemIcon>
-        <PeopleIcon sx={{ color: "white" }} />
-      </ListItemIcon>
-      <ListItemText primary="Quản lý chủ nhà" />
-    </ListItemButton>
+    <Link href="/owners">
+      <ListItemButton>
+        <ListItemIcon>
+          <PeopleIcon sx={{ color: "white" }} />
+        </ListItemIcon>
+        <ListItemText primary="Quản lý chủ nhà" />
+      </ListItemButton>
+    </Link>
     <ListItemButton>
       <ListItemIcon>
         <BarChartIcon sx={{ color: "white" }} />
