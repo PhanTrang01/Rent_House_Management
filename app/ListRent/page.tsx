@@ -10,7 +10,15 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Header from "../components/Header";
-import { Checkbox, Toolbar, Typography } from "@mui/material";
+import {
+  Checkbox,
+  IconButton,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import { useMemo, useState } from "react";
 
 const Wrapper = styled.div`
@@ -93,7 +101,7 @@ export default function ListRent() {
       <Dashboard />
       <WrapperContainer>
         <Header />
-        <Toolbar />
+
         <Typography
           sx={{ margin: "20px" }}
           variant="h5"
@@ -102,6 +110,25 @@ export default function ListRent() {
         >
           Quản lý danh sách BĐS
         </Typography>
+        <Toolbar>
+          {selected.length > 0 && (
+            <Typography
+              sx={{ flex: "1 1 100%" }}
+              color="inherit"
+              variant="subtitle1"
+              component="div"
+            >
+              {selected.length} selected
+            </Typography>
+          )}
+          {selected.length > 0 && (
+            <Tooltip title="Delete">
+              <IconButton>
+                <DeleteIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Toolbar>
         <TableContainer component={Paper}>
           <Table
             sx={{ minWidth: 750 }}
