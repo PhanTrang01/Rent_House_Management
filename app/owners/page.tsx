@@ -1,5 +1,5 @@
 "use client";
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -8,9 +8,15 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
+import TextField from "@mui/material/TextField";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import Dashboard from "../components/Dashboard";
 import Header from "../components/Header";
-import { Toolbar } from "@mui/material";
+import { Button, Toolbar } from "@mui/material";
 import styled from "@emotion/styled";
 import { homeowners } from "@prisma/client";
 import axios from "axios";
@@ -26,84 +32,76 @@ const WrapperContainer = styled.div`
 
 type Owner = homeowners;
 
+type CreateOwner = {
+  name: string;
+  phone: string;
+  cittizenId: string;
+  actvive: boolean;
+};
+
 interface Column {
-  id: "name" | "code" | "population" | "size" | "density";
+  id: "name" | "phone" | "cittizenId" | "active";
   label: string;
   minWidth?: number;
   align?: "right";
-  format?: (value: number) => string;
 }
 
 const columns: readonly Column[] = [
-  { id: "name", label: "Name", minWidth: 170 },
-  { id: "code", label: "ISO\u00a0Code", minWidth: 100 },
+  { id: "name", label: "Tên chủ nhà", minWidth: 170 },
+  { id: "phone", label: "Số Điện thoại", minWidth: 100 },
   {
-    id: "population",
-    label: "Population",
+    id: "cittizenId",
+    label: "cittizenID",
     minWidth: 170,
     align: "right",
-    format: (value: number) => value.toLocaleString("en-US"),
   },
   {
-    id: "size",
-    label: "Size\u00a0(km\u00b2)",
+    id: "active",
+    label: "Trạng thái",
     minWidth: 170,
     align: "right",
-    format: (value: number) => value.toLocaleString("en-US"),
-  },
-  {
-    id: "density",
-    label: "Density",
-    minWidth: 170,
-    align: "right",
-    format: (value: number) => value.toFixed(2),
   },
 ];
 
-interface Data {
-  name: string;
-  code: string;
-  population: number;
-  size: number;
-  density: number;
-}
-
-function createData(
-  name: string,
-  code: string,
-  population: number,
-  size: number
-): Data {
-  const density = population / size;
-  return { name, code, population, size, density };
-}
-
-const rows = [
-  createData("India", "IN", 1324171354, 3287263),
-  createData("China", "CN", 1403500365, 9596961),
-  createData("Italy", "IT", 60483973, 301340),
-  createData("United States", "US", 327167434, 9833520),
-  createData("Canada", "CA", 37602103, 9984670),
-  createData("Australia", "AU", 25475400, 7692024),
-  createData("Germany", "DE", 83019200, 357578),
-  createData("Ireland", "IE", 4857000, 70273),
-  createData("Mexico", "MX", 126577691, 1972550),
-  createData("Japan", "JP", 126317000, 377973),
-  createData("France", "FR", 67022000, 640679),
-  createData("United Kingdom", "GB", 67545757, 242495),
-  createData("Russia", "RU", 146793744, 17098246),
-  createData("Nigeria", "NG", 200962417, 923768),
-  createData("Brazil", "BR", 210147125, 8515767),
-];
-
-export default function StickyHeadTable() {
+export default function Owners() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [owners, setOwners] = React.useState<Owner[]>([]);
+  const [open, setOpen] = React.useState(false);
 
-  axios.get("/api/owner").then(function (response) {
-    const owner: Owner = response.data;
-    console.log(owner);
+  const [dataCreateOwner, setCreateOwner] = React.useState<CreateOwner>({
+    name: "",
+    phone: "",
+    cittizenId: "",
+    actvive: true,
   });
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleSubmit = () => {
+    setOpen(false);
+    axios
+      .post("/api/owner", dataCreateOwner)
+      .then(function (response) {
+        console.log(response);
+        window.location.reload();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  React.useEffect(() => {
+    axios.get("/api/owner").then(function (response) {
+      setOwners(response.data);
+      console.log(response.data);
+    });
+  }, []);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -122,8 +120,61 @@ export default function StickyHeadTable() {
       <WrapperContainer>
         <Header />
         <Toolbar />
-
-        <Paper sx={{ width: "100%", overflow: "hidden" }}>
+        <Button
+          sx={{ position: "absolute", right: "20px" }}
+          variant="outlined"
+          onClick={handleClickOpen}
+        >
+          Add Owner
+        </Button>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle>Add Owner</DialogTitle>
+          <DialogContent>
+            {/* <DialogContentText>
+              To subscribe to this website, please enter your email address
+              here. We will send updates occasionally.
+            </DialogContentText> */}
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Email Address"
+              type="email"
+              fullWidth
+              onChange={(e) => {
+                setCreateOwner({ ...dataCreateOwner, name: e.target.value });
+              }}
+            />
+            <TextField
+              margin="dense"
+              id="phone"
+              label="Number phone"
+              type="text"
+              fullWidth
+              onChange={(e) => {
+                setCreateOwner({ ...dataCreateOwner, phone: e.target.value });
+              }}
+            />
+            <TextField
+              margin="dense"
+              id="cittizen"
+              label="CittizenID"
+              type="text"
+              fullWidth
+              onChange={(e) => {
+                setCreateOwner({
+                  ...dataCreateOwner,
+                  cittizenId: e.target.value,
+                });
+              }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button onClick={handleSubmit}>Submit</Button>
+          </DialogActions>
+        </Dialog>
+        <Paper sx={{ marginTop: "60px", width: "100%", overflow: "hidden" }}>
           <TableContainer sx={{ maxHeight: 800 }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
@@ -140,7 +191,7 @@ export default function StickyHeadTable() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows
+                {owners
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row) => {
                     return (
@@ -148,15 +199,13 @@ export default function StickyHeadTable() {
                         hover
                         role="checkbox"
                         tabIndex={-1}
-                        key={row.code}
+                        key={row.name}
                       >
                         {columns.map((column) => {
                           const value = row[column.id];
                           return (
                             <TableCell key={column.id} align={column.align}>
-                              {column.format && typeof value === "number"
-                                ? column.format(value)
-                                : value}
+                              {value}
                             </TableCell>
                           );
                         })}
@@ -169,7 +218,7 @@ export default function StickyHeadTable() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={rows.length}
+            count={owners.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

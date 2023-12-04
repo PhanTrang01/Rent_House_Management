@@ -25,16 +25,17 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: Request) {
   try {
-    const { homeOwnerId, name, phone, fullname, cittizenId, active } =
-      await req.json();
+    const { name, phone, cittizenId, active } = await req.json();
+    if (!name || !phone || !cittizenId) {
+      throw new Error("Invalid name, phone, or cittizenId information");
+    }
 
     const newHomeowner = await prisma.homeowners.create({
       data: {
-        homeOwnerId: Number(homeOwnerId),
         name,
         phone,
-        fullname,
         cittizenId,
+        active,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
