@@ -35,23 +35,23 @@ type Owner = homeowners;
 type CreateOwner = {
   name: string;
   phone: string;
-  cittizenId: string;
-  actvive: boolean;
+  citizenId: string;
+  active: boolean;
 };
 
 interface Column {
-  id: "name" | "phone" | "cittizenId" | "active";
+  id: "fullName" | "phone" | "citizenId" | "active";
   label: string;
   minWidth?: number;
   align?: "right";
 }
 
 const columns: readonly Column[] = [
-  { id: "name", label: "Tên chủ nhà", minWidth: 170 },
+  { id: "fullName", label: "Tên chủ nhà", minWidth: 170 },
   { id: "phone", label: "Số Điện thoại", minWidth: 100 },
   {
-    id: "cittizenId",
-    label: "cittizenID",
+    id: "citizenId",
+    label: "citizenID",
     minWidth: 170,
     align: "right",
   },
@@ -72,8 +72,8 @@ export default function Owners() {
   const [dataCreateOwner, setCreateOwner] = React.useState<CreateOwner>({
     name: "",
     phone: "",
-    cittizenId: "",
-    actvive: true,
+    citizenId: "",
+    active: true,
   });
   const handleClickOpen = () => {
     setOpen(true);
@@ -157,14 +157,14 @@ export default function Owners() {
             />
             <TextField
               margin="dense"
-              id="cittizen"
-              label="CittizenID"
+              id="citizen"
+              label="CitizenID"
               type="text"
               fullWidth
               onChange={(e) => {
                 setCreateOwner({
                   ...dataCreateOwner,
-                  cittizenId: e.target.value,
+                  citizenId: e.target.value,
                 });
               }}
             />
@@ -199,7 +199,7 @@ export default function Owners() {
                         hover
                         role="checkbox"
                         tabIndex={-1}
-                        key={row.name}
+                        key={row.fullName}
                       >
                         {columns.map((column) => {
                           const value = row[column.id];

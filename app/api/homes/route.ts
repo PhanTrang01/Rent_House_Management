@@ -25,16 +25,16 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: Request) {
   try {
-    const { homeOwnerId, address, active } = await req.json();
-    if (!homeOwnerId || !address) {
+    const { _homeOwnerId, address, fullName } = await req.json();
+    if (!_homeOwnerId || !address) {
       throw new Error("Invalid address or homeOwnerId information");
     }
 
     const newHomeowner = await prisma.homes.create({
       data: {
-        homeOwnerId,
+        homeOwnerId: Number(_homeOwnerId),
         address,
-        active,
+        fullName,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    const { _homeId, _active, address, fullname } = await req.json();
+    const { _homeId, _active, address, fullName } = await req.json();
 
     if (!_homeId) {
       throw new Error("Invalid homeId information");
@@ -59,7 +59,7 @@ export async function PUT(req: Request) {
       where: { homeId: Number(_homeId) },
       data: {
         address,
-        fullname,
+        fullName,
         active: Boolean(_active),
       },
     });

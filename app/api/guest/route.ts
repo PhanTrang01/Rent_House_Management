@@ -1,20 +1,14 @@
 import { NextResponse, NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL, // Make sure this URL is correctly set
-    },
-  },
-});
+const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   try {
-    const Homeowners = await prisma.homeowners.findMany();
+    const Homeowners = await prisma.guests.findMany();
     return NextResponse.json(Homeowners);
   } catch (error) {
-    console.error("Error creating Home Contract:", error);
+    console.error("Error find Guest:", error);
   } finally {
     await prisma.$disconnect();
   }
@@ -25,24 +19,23 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: Request) {
   try {
-    const { name, phone, citizenId, active } = await req.json();
-    if (!name || !phone || !citizenId) {
+    const { fullname, phone, citizenId } = await req.json();
+    if (!fullname || !phone || !citizenId) {
       throw new Error("Invalid name, phone, or citizenId information");
     }
 
-    const newHomeowner = await prisma.homeowners.create({
+    const newHomeowner = await prisma.guests.create({
       data: {
-        fullName: name,
         phone,
+        fullname,
         citizenId,
-        active,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     });
     return NextResponse.json(newHomeowner);
   } catch (error) {
-    console.error("Error creating Home Contract:", error);
+    console.error("Error creating Guest:", error);
   } finally {
     await prisma.$disconnect();
   }

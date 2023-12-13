@@ -28,24 +28,3 @@ export async function GET(
     await prisma.$disconnect();
   }
 }
-
-// export async function PUT(req: Request) {
-//   try {
-//     const { _homeId, active, address } = await req.json();
-
-//     if (!_homeId || !active) {
-//       throw new Error("Invalid status or orderId information");
-//     }
-
-//     const home = await prisma.homes.update({
-//       where: { homeId: _homeId },
-//       data: { active, address },
-//     });
-
-//     return NextResponse.json({ home });
-//   } catch (error) {
-//     console.error("Error find Home:", error);
-//   } finally {
-//     await prisma.$disconnect();
-//   }
-// }

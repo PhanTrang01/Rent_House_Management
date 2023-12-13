@@ -8,41 +8,60 @@ datasource db {
 }
 
 model guests {
-  guestsId         Int                @id @default(autoincrement())
-  name             String
+  guestId          Int                @id @default(autoincrement())
   phone            String?
-  fullname         String?
-  cittizenId       String?
+  fullname         String
+  citizenId        String?
   createdAt        DateTime
   updatedAt        DateTime
-  homecontracts    homecontracts[]
-  servicecontracts servicecontracts[]
+  homecontracts    homeContracts[]
+  servicecontracts serviceContracts[]
+  homeInvoice      homeInvoice[]
 }
 
-model homecontracts {
-  homeContractsId Int      @id @default(autoincrement())
+model homeContracts {
+  homeContractsId Int           @id @default(autoincrement())
   homeId          Int
-  guestsId        Int
-  datePayment     DateTime
-  total           Float?
-  statusPayment   Boolean  @default(false)
+  guestId         Int
+  dateRent        DateTime
+  rental          Float?
+  cyclePayment    Int
   createdAt       DateTime
   updatedAt       DateTime
-  guests          guests   @relation(fields: [guestsId], references: [guestsId], map: "HomeContracts_guestsId_fkey")
-  homes           homes    @relation(fields: [homeId], references: [homeId], map: "HomeContracts_homeId_fkey")
+  homeInvoices    homeInvoice[]
+  guests          guests        @relation(fields: [guestId], references: [guestId], map: "HomeContracts_guestsId_fkey")
+  homes           homes         @relation(fields: [homeId], references: [homeId], map: "HomeContracts_homeId_fkey")
 
-  @@index([guestsId], map: "HomeContracts_guestsId_fkey")
+  @@index([guestId], map: "HomeContracts_guestId_fkey")
   @@index([homeId], map: "HomeContracts_homeId_fkey")
+}
+
+model homeInvoice {
+  homeInvoiceId                Int            @id @default(autoincrement())
+  homeId                       Int
+  guestId                      Int
+  datePayment                  DateTime
+  totalPayment                 Float?
+  cyclePayment                 Int
+  statusPayment                Boolean        @default(false)
+  createdAt                    DateTime
+  updatedAt                    DateTime
+  guests                       guests         @relation(fields: [guestId], references: [guestId], map: "HomeInvoices_guestsId_fkey")
+  homes                        homes          @relation(fields: [homeId], references: [homeId], map: "HomeInvoices_homeId_fkey")
+  homeContracts                homeContracts? @relation(fields: [homeContractsHomeContractsId], references: [homeContractsId])
+  homeContractsHomeContractsId Int?
+
+  @@index([guestId], map: "HomeInvoices_guestsId_fkey")
+  @@index([homeId], map: "HomeInvoices_homeId_fkey")
 }
 
 model homeowners {
   homeOwnerId               Int       @id @default(autoincrement())
-  name                      String
   phone                     String?
   metaAccessToken           String?
   metaAccessTokenExpireDate DateTime?
-  fullname                  String?
-  cittizenId                String?
+  fullName                  String
+  citizenId                 String?
   active                    Boolean   @default(true)
   createdAt                 DateTime
   updatedAt                 DateTime
@@ -53,19 +72,20 @@ model homes {
   homeId           Int                @id @default(autoincrement())
   homeOwnerId      Int
   address          String
-  fullname         String?
+  fullName         String?
   active           Boolean            @default(false)
   createdAt        DateTime
   updatedAt        DateTime
-  homecontracts    homecontracts[]
-  servicecontracts servicecontracts[]
+  homecontracts    homeContracts[]
+  servicecontracts serviceContracts[]
   homeowners       homeowners[]       @relation("homeownerstohomes")
+  homeInvoice      homeInvoice[]
 }
 
-model servicecontracts {
+model serviceContracts {
   serviceContractsId Int       @id @default(autoincrement())
   homeId             Int
-  guestsId           Int
+  guestId            Int
   signDate           DateTime?
   payCycle           Int
   duration           Int
@@ -73,9 +93,9 @@ model servicecontracts {
   statusPayment      Boolean   @default(false)
   createdAt          DateTime
   updatedAt          DateTime
-  guests             guests    @relation(fields: [guestsId], references: [guestsId], map: "ServiceContracts_guestsId_fkey")
+  guests             guests    @relation(fields: [guestId], references: [guestId], map: "ServiceContracts_guestsId_fkey")
   homes              homes     @relation(fields: [homeId], references: [homeId], map: "ServiceContracts_homeId_fkey")
 
-  @@index([guestsId], map: "ServiceContracts_guestsId_fkey")
+  @@index([guestId], map: "ServiceContracts_guestsId_fkey")
   @@index([homeId], map: "ServiceContracts_homeId_fkey")
 }
