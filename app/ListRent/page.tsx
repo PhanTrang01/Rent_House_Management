@@ -11,6 +11,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Header from "../components/Header";
 import {
+  Button,
   Checkbox,
   IconButton,
   Toolbar,
@@ -20,6 +21,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Wrapper = styled.div`
   display: flex;
@@ -32,41 +34,127 @@ const WrapperContainer = styled.div`
 
 interface Data {
   id: number;
-  calories: number;
-  carbs: number;
-  fat: number;
-  name: string;
-  protein: number;
+  guest: string;
+  owner: string;
+  home: string;
+  duration: number;
+  rental: number;
+  cycle: number;
 }
 
 function createData(
   id: number,
-  name: string,
-  calories: number,
-  fat: number,
-  carbs: number,
-  protein: number
+  guest: string,
+  owner: string,
+  home: string,
+  duration: number,
+  rental: number,
+  cycle: number
 ): Data {
   return {
     id,
-    name,
-    calories,
-    fat,
-    carbs,
-    protein,
+    guest,
+    owner,
+    home,
+    duration,
+    rental,
+    cycle,
   };
 }
 
 const rows = [
-  createData(1, "Cupcake", 305, 3.7, 67, 4.3),
-  createData(2, "Donut", 452, 25.0, 51, 4.9),
-  createData(3, "Eclair", 262, 16.0, 24, 6.0),
-  createData(4, "Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData(5, "Gingerbread", 356, 16.0, 49, 3.9),
-  createData(6, "Honeycomb", 408, 3.2, 87, 6.5),
+  createData(1, "Cupcake1", "Cupcake", "305", 3.7, 67, 4.3),
+  createData(2, "Cupcake", "Donut", "452", 25.0, 51, 4.9),
+  createData(3, "Cupcake", "Eclair", "262", 16.0, 24, 6.0),
+  createData(4, "Cupcake", "Frozen yoghurt", "159", 6.0, 24, 4.0),
+  createData(5, "Cupcake", "Gingerbread", "356", 16.0, 49, 3.9),
+  createData(6, "Cupcake", "Honeycomb", "408", 3.2, 87, 6.5),
 ];
 
+interface HeadCell {
+  disablePadding: boolean;
+  id: keyof Data;
+  label: string;
+  numeric: boolean;
+}
+
+const headCells: readonly HeadCell[] = [
+  {
+    id: "guest",
+    numeric: false,
+    disablePadding: true,
+    label: "Tên khách thuê",
+  },
+  {
+    id: "owner",
+    numeric: true,
+    disablePadding: false,
+    label: "Tên chủ nhà",
+  },
+  {
+    id: "home",
+    numeric: true,
+    disablePadding: false,
+    label: "Địa chỉ nhà",
+  },
+  {
+    id: "duration",
+    numeric: true,
+    disablePadding: false,
+    label: "Hạn thuê",
+  },
+  {
+    id: "rental",
+    numeric: true,
+    disablePadding: false,
+    label: "Giá thuê (1 tháng)",
+  },
+  {
+    id: "cycle",
+    numeric: true,
+    disablePadding: false,
+    label: "Chu kỳ thanh toán",
+  },
+];
+interface EnhancedTableProps {
+  numSelected: number;
+  onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  rowCount: number;
+}
+
+function EnhancedTableHead(props: EnhancedTableProps) {
+  const { onSelectAllClick, numSelected, rowCount } = props;
+
+  return (
+    <TableHead>
+      <TableRow>
+        <TableCell padding="checkbox">
+          <Checkbox
+            color="primary"
+            indeterminate={numSelected > 0 && numSelected < rowCount}
+            checked={rowCount > 0 && numSelected === rowCount}
+            onChange={onSelectAllClick}
+            inputProps={{
+              "aria-label": "select all desserts",
+            }}
+          />
+        </TableCell>
+        {headCells.map((headCell) => (
+          <TableCell
+            key={headCell.id}
+            align={headCell.numeric ? "right" : "left"}
+            padding={headCell.disablePadding ? "none" : "normal"}
+          >
+            {headCell.label}
+          </TableCell>
+        ))}
+      </TableRow>
+    </TableHead>
+  );
+}
+
 export default function ListRent() {
+  const router = useRouter();
   const [selected, setSelected] = useState<readonly number[]>([]);
   // const visibleRows = useMemo(
   //     () =>
@@ -77,6 +165,15 @@ export default function ListRent() {
   //     [order, orderBy, page, rowsPerPage],
   //   );
   const isSelected = (id: number) => selected.indexOf(id) !== -1;
+
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelected = rows.map((n) => n.id);
+      setSelected(newSelected);
+      return;
+    }
+    setSelected([]);
+  };
 
   const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
     const selectedIndex = selected.indexOf(id);
@@ -101,7 +198,6 @@ export default function ListRent() {
       <Dashboard />
       <WrapperContainer>
         <Header />
-
         <Typography
           sx={{ margin: "20px" }}
           variant="h5"
@@ -109,7 +205,15 @@ export default function ListRent() {
           component="div"
         >
           Quản lý danh sách BĐS
+          <Button
+            sx={{ position: "absolute", right: "20px" }}
+            variant="outlined"
+            onClick={() => router.push("/homepage")}
+          >
+            Add Owner
+          </Button>
         </Typography>
+
         <Toolbar>
           {selected.length > 0 && (
             <Typography
@@ -135,14 +239,11 @@ export default function ListRent() {
             aria-labelledby="tableTitle"
             // size={dense ? 'small' : 'medium'}
           >
-            {/* <EnhancedTableHead
+            <EnhancedTableHead
               numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
               rowCount={rows.length}
-            /> */}
+            />
             <TableBody>
               {rows.map((row, index) => {
                 const isItemSelected = isSelected(row.id);
@@ -174,12 +275,13 @@ export default function ListRent() {
                       scope="row"
                       padding="none"
                     >
-                      {row.name}
+                      {row.guest}
                     </TableCell>
-                    <TableCell align="right">{row.calories}</TableCell>
-                    <TableCell align="right">{row.fat}</TableCell>
-                    <TableCell align="right">{row.carbs}</TableCell>
-                    <TableCell align="right">{row.protein}</TableCell>
+                    <TableCell align="right">{row.owner}</TableCell>
+                    <TableCell align="right">{row.home}</TableCell>
+                    <TableCell align="right">{row.rental}</TableCell>
+                    <TableCell align="right">{row.duration}</TableCell>
+                    <TableCell align="right">{row.cycle}</TableCell>
                   </TableRow>
                 );
               })}
