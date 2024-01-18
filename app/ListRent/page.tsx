@@ -208,7 +208,7 @@ export default function ListRent() {
           <Button
             sx={{ position: "absolute", right: "20px" }}
             variant="outlined"
-            onClick={() => router.push("/homepage")}
+            onClick={() => router.push("ListRent/AddRent")}
           >
             Add Owner
           </Button>
