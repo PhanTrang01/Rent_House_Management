@@ -17,16 +17,15 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const { _homeId, _guestId, _dateRent, _cyclePayment, _rental } =
-      await req.json();
+    const { homeId, guestId, cycle, rental, duration } = await req.json();
 
     const Rent = await prisma.homeContracts.create({
       data: {
-        homeId: Number(_homeId),
-        guestId: Number(_guestId),
-        dateRent: new Date(_dateRent),
-        cyclePayment: Number(_cyclePayment),
-        rental: Number(_rental),
+        homeId,
+        guestId,
+        dateRent: new Date(),
+        cyclePayment: Number(cycle),
+        rental: Number(rental),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
