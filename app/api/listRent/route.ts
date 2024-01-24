@@ -21,11 +21,12 @@ export async function POST(req: Request) {
 
     const Rent = await prisma.homeContracts.create({
       data: {
-        homeId,
-        guestId,
+        homeId: Number(homeId),
+        guestId: Number(guestId),
         dateRent: new Date(),
         cyclePayment: Number(cycle),
         rental: Number(rental),
+        duration: Number(duration),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -35,5 +36,6 @@ export async function POST(req: Request) {
     console.error("Error create Home Contract:", error);
   } finally {
     await prisma.$disconnect();
+    // return NextResponse.json({ message: "Operation completed successfully" });
   }
 }

@@ -24,6 +24,7 @@ model homeContracts {
   homeId          Int
   guestId         Int
   dateRent        DateTime
+  duration        Int
   rental          Float?
   cyclePayment    Int
   createdAt       DateTime
