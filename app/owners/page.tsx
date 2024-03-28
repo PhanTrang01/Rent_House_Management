@@ -18,7 +18,7 @@ import Dashboard from "../components/Dashboard";
 import Header from "../components/Header";
 import { Button, Toolbar } from "@mui/material";
 import styled from "@emotion/styled";
-import { homeowners } from "@prisma/client";
+import { Homeowners } from "@prisma/client";
 import axios from "axios";
 
 const Wrapper = styled.div`
@@ -30,7 +30,7 @@ const WrapperContainer = styled.div`
   height: 100hv;
 `;
 
-type Owner = homeowners;
+type Owner = Homeowners;
 
 type CreateOwner = {
   name: string;
@@ -40,17 +40,17 @@ type CreateOwner = {
 };
 
 interface Column {
-  id: "fullName" | "phone" | "citizenId" | "active";
+  id: "fullname" | "phone" | "cittizenId" | "active";
   label: string;
   minWidth?: number;
   align?: "right";
 }
 
 const columns: readonly Column[] = [
-  { id: "fullName", label: "Tên chủ nhà", minWidth: 170 },
+  { id: "fullname", label: "Tên chủ nhà", minWidth: 170 },
   { id: "phone", label: "Số Điện thoại", minWidth: 100 },
   {
-    id: "citizenId",
+    id: "cittizenId",
     label: "citizenID",
     minWidth: 170,
     align: "right",
@@ -199,7 +199,7 @@ export default function Owners() {
                         hover
                         role="checkbox"
                         tabIndex={-1}
-                        key={row.fullName}
+                        key={row.fullname}
                       >
                         {columns.map((column) => {
                           const value = row[column.id];

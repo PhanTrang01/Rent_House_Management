@@ -32,7 +32,7 @@ export const mainListItems = (
         <ListItemIcon>
           <ShoppingCartIcon sx={{ color: "white" }} />
         </ListItemIcon>
-        <ListItemText primary="Quản lý cho thuê BĐS" />
+        <ListItemText primary="Quản lý Căn hộ" />
       </ListItemButton>
     </Link>
     <Link href="/owners">

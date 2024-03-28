@@ -11,9 +11,12 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Header from "../components/Header";
 import {
+  Box,
   Button,
   Checkbox,
   IconButton,
+  Tab,
+  Tabs,
   Toolbar,
   Tooltip,
   Typography,
@@ -40,6 +43,30 @@ interface Data {
   duration: number;
   rental: number;
   cycle: number;
+}
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+function CustomTabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          <Typography>{children}</Typography>
+        </Box>
+      )}
+    </div>
+  );
 }
 
 function createData(
@@ -164,6 +191,12 @@ export default function ListRent() {
   //       ),
   //     [order, orderBy, page, rowsPerPage],
   //   );
+
+  const [valueTab, setValueTab] = useState(0);
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    setValueTab(newValue);
+  };
   const isSelected = (id: number) => selected.indexOf(id) !== -1;
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -210,82 +243,93 @@ export default function ListRent() {
             variant="outlined"
             onClick={() => router.push("ListRent/AddRent")}
           >
-            Add Owner
+            Thêm hợp đồng thuê nhà mới
           </Button>
         </Typography>
 
-        <Toolbar>
-          {selected.length > 0 && (
-            <Typography
-              sx={{ flex: "1 1 100%" }}
-              color="inherit"
-              variant="subtitle1"
-              component="div"
+        <Box sx={{ width: "100%" }}>
+          <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <Tabs
+              value={valueTab}
+              onChange={handleChange}
+              aria-label="basic tabs example"
             >
-              {selected.length} selected
-            </Typography>
-          )}
-          {selected.length > 0 && (
-            <Tooltip title="Delete">
-              <IconButton>
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-        </Toolbar>
-        <TableContainer component={Paper}>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            // size={dense ? 'small' : 'medium'}
-          >
-            <EnhancedTableHead
-              numSelected={selected.length}
-              onSelectAllClick={handleSelectAllClick}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {rows.map((row, index) => {
-                const isItemSelected = isSelected(row.id);
-                const labelId = `enhanced-table-checkbox-${index}`;
+              <Tab label="Căn hộ đã thuê" />
+              <Tab label="Căn hộ chưa thuê" />
+            </Tabs>
+          </Box>
+          <CustomTabPanel value={valueTab} index={0}>
+            <Toolbar>
+              {selected.length > 0 && (
+                <Typography
+                  sx={{ flex: "1 1 100%" }}
+                  color="inherit"
+                  component="div"
+                >
+                  {selected.length} selected
+                </Typography>
+              )}
+              {selected.length > 0 && (
+                <Tooltip title="Delete">
+                  <IconButton>
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Toolbar>
+            <TableContainer component={Paper}>
+              <Table
+                sx={{ minWidth: 750 }}
+                aria-labelledby="tableTitle"
+                // size={dense ? 'small' : 'medium'}
+              >
+                <EnhancedTableHead
+                  numSelected={selected.length}
+                  onSelectAllClick={handleSelectAllClick}
+                  rowCount={rows.length}
+                />
+                <TableBody>
+                  {rows.map((row, index) => {
+                    const isItemSelected = isSelected(row.id);
+                    const labelId = `enhanced-table-checkbox-${index}`;
 
-                return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, row.id)}
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    key={row.id}
-                    selected={isItemSelected}
-                    sx={{ cursor: "pointer" }}
-                  >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          "aria-labelledby": labelId,
-                        }}
-                      />
-                    </TableCell>
-                    <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
-                      {row.guest}
-                    </TableCell>
-                    <TableCell align="right">{row.owner}</TableCell>
-                    <TableCell align="right">{row.home}</TableCell>
-                    <TableCell align="right">{row.rental}</TableCell>
-                    <TableCell align="right">{row.duration}</TableCell>
-                    <TableCell align="right">{row.cycle}</TableCell>
-                  </TableRow>
-                );
-              })}
-              {/* {emptyRows > 0 && (
+                    return (
+                      <TableRow
+                        hover
+                        onClick={(event) => handleClick(event, row.id)}
+                        role="checkbox"
+                        aria-checked={isItemSelected}
+                        tabIndex={-1}
+                        key={row.id}
+                        selected={isItemSelected}
+                        sx={{ cursor: "pointer" }}
+                      >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            color="primary"
+                            checked={isItemSelected}
+                            inputProps={{
+                              "aria-labelledby": labelId,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell
+                          component="th"
+                          id={labelId}
+                          scope="row"
+                          padding="none"
+                        >
+                          {row.guest}
+                        </TableCell>
+                        <TableCell align="right">{row.owner}</TableCell>
+                        <TableCell align="right">{row.home}</TableCell>
+                        <TableCell align="right">{row.rental}</TableCell>
+                        <TableCell align="right">{row.duration}</TableCell>
+                        <TableCell align="right">{row.cycle}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                  {/* {emptyRows > 0 && (
                 <TableRow
                   style={{
                     // height: (dense ? 33 : 53) * emptyRows,
@@ -294,9 +338,15 @@ export default function ListRent() {
                   <TableCell colSpan={6} />
                 </TableRow>
               )} */}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </CustomTabPanel>
+          <CustomTabPanel value={valueTab} index={1}>
+            Item Two
+          </CustomTabPanel>
+        </Box>
+
         <Footer />
       </WrapperContainer>
     </Wrapper>

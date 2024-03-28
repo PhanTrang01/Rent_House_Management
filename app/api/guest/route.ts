@@ -27,8 +27,9 @@ export async function POST(req: Request) {
     const newHomeowner = await prisma.guests.create({
       data: {
         phone,
+        name: fullname,
         fullname,
-        citizenId,
+        citizenId: citizenId,
         createdAt: new Date(),
         updatedAt: new Date(),
       },

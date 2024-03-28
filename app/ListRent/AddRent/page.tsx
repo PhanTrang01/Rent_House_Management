@@ -18,15 +18,15 @@ import {
   Typography,
 } from "@mui/material";
 import Autocomplete, { AutocompleteProps } from "@mui/material/Autocomplete";
-import { homeContracts, homeowners, guests, homes } from "@prisma/client";
+import { HomeContract, Homeowners, Guests, Homes } from "@prisma/client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { SyntheticEvent, useEffect, useState } from "react";
 
-type contractRent = homeContracts;
-type Owner = homeowners;
-type Guest = guests;
-type Home = homes;
+type ContractRent = HomeContract;
+type Owner = Homeowners;
+type Guest = Guests;
+type Home = Homes;
 
 type DataCreateHomeContracts = {
   guestId: number;
@@ -35,6 +35,7 @@ type DataCreateHomeContracts = {
   duration: number;
   rental: number;
   cycle: number;
+  dateRent: Date;
 };
 
 export default function AddRent() {
@@ -55,6 +56,7 @@ export default function AddRent() {
       duration: 6,
       rental: 1,
       cycle: 1,
+      dateRent: new Date(),
     });
 
   const initialOwner = owners.length > 0 ? owners[0] : null;
@@ -91,6 +93,15 @@ export default function AddRent() {
       .catch(function (error) {
         console.log(error);
       });
+
+    axios
+      .post("/api/homeInvoice", dataCreateHomeContracts)
+      .then(function (response) {
+        // console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
     console.log(dataCreateHomeContracts);
   };
 
@@ -118,7 +129,6 @@ export default function AddRent() {
         ...dataCreateHomeContracts,
         [name]: value,
       });
-      console.log(value);
     }
   };
 
@@ -172,7 +182,7 @@ export default function AddRent() {
                   >
                     {homes.map((home) => (
                       <MenuItem key={home.homeId} value={home.homeId}>
-                        {home.fullName} - {home.address}
+                        {home.fullname} - {home.address}
                       </MenuItem>
                     ))}
                   </Select>
@@ -199,7 +209,7 @@ export default function AddRent() {
                   getOptionKey={(option: { homeOwnerId: number }) =>
                     option.homeOwnerId
                   }
-                  getOptionLabel={(option) => option.fullName}
+                  getOptionLabel={(option) => option.fullname ?? ""}
                   renderInput={(params) => (
                     <TextField {...params} label="Name of Owner" />
                   )}
@@ -224,7 +234,7 @@ export default function AddRent() {
                   id="controllable-states-demo"
                   options={guests}
                   getOptionKey={(option: { guestId: number }) => option.guestId}
-                  getOptionLabel={(option) => option.fullname}
+                  getOptionLabel={(option) => option.fullname ?? ""}
                   renderInput={(params) => (
                     <TextField {...params} label="Name of Guest" />
                   )}

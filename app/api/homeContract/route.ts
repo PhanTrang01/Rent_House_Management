@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { PrismaClient, homeInvoice } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { type } from "os";
 import { useState } from "react";
 
@@ -14,7 +14,7 @@ const prisma = new PrismaClient({
 export async function POST(req: Request) {
   try {
     let lastInvoice;
-    const { homeId, guestId, cycle, datePayment, rental, duration } =
+    const { homeId, guestId, cycle, dateRent, rental, duration } =
       await req.json();
 
     const times = duration / cycle;
@@ -22,16 +22,15 @@ export async function POST(req: Request) {
     for (let index = 0; index < times; index++) {
       // Create a new Date object and add cycle*index months
       // const datePayment = new Date();
-      const newDatePayment = new Date(datePayment);
+      const newDatePayment = new Date(dateRent);
       newDatePayment.setMonth(newDatePayment.getMonth() + cycle * index);
 
-      const Invoice = await prisma.homeInvoice.create({
+      const Invoice = await prisma.homeContract.create({
         data: {
           homeId: Number(homeId),
           guestId: Number(guestId),
           datePayment: new Date(newDatePayment),
-          cyclePayment: Number(cycle),
-          totalPayment: Number(totalPay),
+          total: Number(totalPay),
           statusPayment: Boolean(false),
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -41,7 +40,7 @@ export async function POST(req: Request) {
     }
     return NextResponse.json(lastInvoice);
   } catch (error) {
-    console.error("Error create Home Invoice:", error);
+    console.error("Error create Home Contract:", error);
   } finally {
     await prisma.$disconnect();
     // return NextResponse.json({ message: "Operation completed successfully" });
