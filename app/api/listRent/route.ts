@@ -5,7 +5,12 @@ const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    const allRents = await prisma.homeContracts.findMany();
+    const allRents = await prisma.homeContract.findMany({
+      include: {
+        guest: true,
+        home: true,
+      },
+    });
     //   console.dir(allUsers, { depth: null });
     return NextResponse.json(allRents);
   } catch (error) {
@@ -19,12 +24,12 @@ export async function POST(req: Request) {
   try {
     const { homeId, guestId, cycle, rental, duration } = await req.json();
 
-    const Rent = await prisma.homeContracts.create({
+    const Rent = await prisma.homeContract.create({
       data: {
         homeId: Number(homeId),
         guestId: Number(guestId),
-        dateRent: new Date(),
-        cyclePayment: Number(cycle),
+        datePayment: new Date(),
+        payCycle: Number(cycle),
         rental: Number(rental),
         duration: Number(duration),
         createdAt: new Date(),

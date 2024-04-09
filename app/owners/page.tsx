@@ -99,7 +99,7 @@ export default function Owners() {
   React.useEffect(() => {
     axios.get("/api/owner").then(function (response) {
       setOwners(response.data);
-      console.log(response.data);
+      // console.log(response.data);
     });
   }, []);
 

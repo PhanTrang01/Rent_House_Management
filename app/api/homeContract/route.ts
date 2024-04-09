@@ -14,24 +14,45 @@ const prisma = new PrismaClient({
 export async function POST(req: Request) {
   try {
     let lastInvoice;
-    const { homeId, guestId, cycle, dateRent, rental, duration } =
-      await req.json();
+    const {
+      serviceContractId,
+      homeContractId,
+      homeId,
+      dateStart,
+      limit,
+      receiverId,
+      duration,
+      cycle,
+      rental,
+      datePaymentRemind,
+      datePaymentReal,
+    } = await req.json();
 
     const times = duration / cycle;
     const totalPay = rental * cycle;
     for (let index = 0; index < times; index++) {
       // Create a new Date object and add cycle*index months
       // const datePayment = new Date();
-      const newDatePayment = new Date(dateRent);
+      const newDatePayment = new Date(dateStart);
       newDatePayment.setMonth(newDatePayment.getMonth() + cycle * index);
+      const nextDatePayment = new Date(newDatePayment);
+      nextDatePayment.setMonth(newDatePayment.getMonth() + cycle);
 
-      const Invoice = await prisma.homeContract.create({
+      const Invoice = await prisma.invoicesPayment.create({
         data: {
+          serviceContractId: Number(serviceContractId),
+          homeContractId: Number(homeContractId),
           homeId: Number(homeId),
-          guestId: Number(guestId),
-          datePayment: new Date(newDatePayment),
+          type: "EVN",
+          dateStart: newDatePayment,
+          dateEnd: nextDatePayment,
           total: Number(totalPay),
-          statusPayment: Boolean(false),
+          limit: Number(duration),
+          receiverId: Number(receiverId),
+          datePaymentExpect: newDatePayment,
+          datePaymentRemind: new Date(datePaymentRemind),
+          datePaymentReal: new Date(datePaymentReal),
+          statusPayment: false,
           createdAt: new Date(),
           updatedAt: new Date(),
         },

@@ -11,7 +11,14 @@ const prisma = new PrismaClient({
 
 export async function GET(req: NextRequest) {
   try {
-    const Homeowners = await prisma.homes.findMany();
+    const Homeowners = await prisma.homes.findMany({
+      where: {
+        active: false,
+      },
+      include: {
+        homeowner: true,
+      },
+    });
     return NextResponse.json(Homeowners);
   } catch (error) {
     console.error("Error find Home:", error);
@@ -34,7 +41,7 @@ export async function POST(req: Request) {
       data: {
         homeOwnerId: Number(_homeOwnerId),
         address,
-        fullName,
+        fullname: String(fullName),
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -59,7 +66,7 @@ export async function PUT(req: Request) {
       where: { homeId: Number(_homeId) },
       data: {
         address,
-        fullName,
+        fullname: String(fullName),
         active: Boolean(_active),
       },
     });

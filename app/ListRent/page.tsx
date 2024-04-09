@@ -22,9 +22,12 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { Guests, HomeContract, Homeowners, Homes } from "@prisma/client";
 
 const Wrapper = styled.div`
   display: flex;
@@ -35,14 +38,27 @@ const WrapperContainer = styled.div`
   height: 100hv;
 `;
 
+type ContractHome = HomeContract & {
+  home: Homes;
+  guest: Guests;
+};
+type InfoHome = Homes & {
+  homeowner: Homeowners;
+};
+
 interface Data {
   id: number;
   guest: string;
-  owner: string;
   home: string;
   duration: number;
   rental: number;
   cycle: number;
+}
+interface Data2 {
+  owner: string;
+  namehome: string;
+  address: string;
+  active: boolean;
 }
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -62,17 +78,16 @@ function CustomTabPanel(props: TabPanelProps) {
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
-          <Typography>{children}</Typography>
+          <div>{children}</div>
         </Box>
       )}
     </div>
   );
 }
-
+//Data hien thi tab Can ho da thue
 function createData(
   id: number,
   guest: string,
-  owner: string,
   home: string,
   duration: number,
   rental: number,
@@ -81,23 +96,21 @@ function createData(
   return {
     id,
     guest,
-    owner,
     home,
     duration,
     rental,
     cycle,
   };
 }
-
-const rows = [
-  createData(1, "Cupcake1", "Cupcake", "305", 3.7, 67, 4.3),
-  createData(2, "Cupcake", "Donut", "452", 25.0, 51, 4.9),
-  createData(3, "Cupcake", "Eclair", "262", 16.0, 24, 6.0),
-  createData(4, "Cupcake", "Frozen yoghurt", "159", 6.0, 24, 4.0),
-  createData(5, "Cupcake", "Gingerbread", "356", 16.0, 49, 3.9),
-  createData(6, "Cupcake", "Honeycomb", "408", 3.2, 87, 6.5),
-];
-
+//Data hien thi tab Can ho chua thue
+function createDataHome(
+  owner: string,
+  namehome: string,
+  address: string,
+  active: boolean
+) {
+  return { owner, namehome, address, active };
+}
 interface HeadCell {
   disablePadding: boolean;
   id: keyof Data;
@@ -113,12 +126,6 @@ const headCells: readonly HeadCell[] = [
     label: "Tên khách thuê",
   },
   {
-    id: "owner",
-    numeric: true,
-    disablePadding: false,
-    label: "Tên chủ nhà",
-  },
-  {
     id: "home",
     numeric: true,
     disablePadding: false,
@@ -128,19 +135,19 @@ const headCells: readonly HeadCell[] = [
     id: "duration",
     numeric: true,
     disablePadding: false,
-    label: "Hạn thuê",
+    label: "Thời hạn thuê(tháng)",
   },
   {
     id: "rental",
     numeric: true,
     disablePadding: false,
-    label: "Giá thuê (1 tháng)",
+    label: "Giá thuê (VND/tháng)",
   },
   {
     id: "cycle",
     numeric: true,
     disablePadding: false,
-    label: "Chu kỳ thanh toán",
+    label: "Chu kỳ thanh toán (tháng/lần)",
   },
 ];
 interface EnhancedTableProps {
@@ -183,6 +190,10 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 export default function ListRent() {
   const router = useRouter();
   const [selected, setSelected] = useState<readonly number[]>([]);
+  const [homeContracts, setHomeContracts] = useState<ContractHome[]>([]);
+  const [homes, setHomes] = useState<InfoHome[]>([]);
+  const [rows, setRows] = useState<Data[]>([]);
+  const [rowHomes, setRowHomes] = useState<Data2[]>([]);
   // const visibleRows = useMemo(
   //     () =>
   //       stableSort(rows, getComparator(order, orderBy)).slice(
@@ -193,6 +204,40 @@ export default function ListRent() {
   //   );
 
   const [valueTab, setValueTab] = useState(0);
+
+  useEffect(() => {
+    axios.get("/api/listRent").then(function (response) {
+      setHomeContracts(response.data);
+    });
+    axios.get("/api/homes").then(function (response) {
+      setHomes(response.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    const newRows = homeContracts.map((homeContract, index) => {
+      let nameGuest: string = homeContract.guest.fullname;
+      let addrHome: string = homeContract.home?.address;
+      return createData(
+        index + 1,
+        nameGuest,
+        addrHome,
+        homeContract.duration,
+        homeContract.rental,
+        homeContract.payCycle
+      );
+    });
+    setRows(newRows);
+  }, [homeContracts]);
+
+  useEffect(() => {
+    const newRowHome = homes.map((home, index) => {
+      let nameowner: string = home.homeowner.fullname;
+      let nameHome: string = home.fullname ? home.fullname : "Unknown";
+      return createDataHome(nameowner, nameHome, home.address, home.active);
+    });
+    setRowHomes(newRowHome);
+  }, [homes]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValueTab(newValue);
@@ -278,11 +323,7 @@ export default function ListRent() {
               )}
             </Toolbar>
             <TableContainer component={Paper}>
-              <Table
-                sx={{ minWidth: 750 }}
-                aria-labelledby="tableTitle"
-                // size={dense ? 'small' : 'medium'}
-              >
+              <Table sx={{ minWidth: 750 }}>
                 <EnhancedTableHead
                   numSelected={selected.length}
                   onSelectAllClick={handleSelectAllClick}
@@ -292,7 +333,6 @@ export default function ListRent() {
                   {rows.map((row, index) => {
                     const isItemSelected = isSelected(row.id);
                     const labelId = `enhanced-table-checkbox-${index}`;
-
                     return (
                       <TableRow
                         hover
@@ -321,10 +361,9 @@ export default function ListRent() {
                         >
                           {row.guest}
                         </TableCell>
-                        <TableCell align="right">{row.owner}</TableCell>
                         <TableCell align="right">{row.home}</TableCell>
-                        <TableCell align="right">{row.rental}</TableCell>
                         <TableCell align="right">{row.duration}</TableCell>
+                        <TableCell align="right">{row.rental}</TableCell>
                         <TableCell align="right">{row.cycle}</TableCell>
                       </TableRow>
                     );
@@ -343,7 +382,44 @@ export default function ListRent() {
             </TableContainer>
           </CustomTabPanel>
           <CustomTabPanel value={valueTab} index={1}>
-            Item Two
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Tên Căn hộ</TableCell>
+                    <TableCell align="right">Tên Chủ nhà</TableCell>
+                    <TableCell align="right">Địa chỉ Căn hộ</TableCell>
+                    <TableCell align="right">Hành động</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rowHomes.map((row, index) => (
+                    <TableRow
+                      key={index}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell component="th" scope="row">
+                        {row.namehome}
+                      </TableCell>
+                      <TableCell align="right">{row.owner}</TableCell>
+                      <TableCell align="right">{row.address}</TableCell>
+                      <TableCell align="right">
+                        <Tooltip title="Edit">
+                          <IconButton>
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <IconButton>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </CustomTabPanel>
         </Box>
 
