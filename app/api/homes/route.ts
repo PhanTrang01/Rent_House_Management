@@ -11,9 +11,12 @@ const prisma = new PrismaClient({
 
 export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.nextUrl);
+    // const status = Boolean(searchParams.get("status"));
+    const status = searchParams.get("status") === "true";
     const Homeowners = await prisma.homes.findMany({
       where: {
-        active: false,
+        active: status,
       },
       include: {
         homeowner: true,

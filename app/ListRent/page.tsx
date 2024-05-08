@@ -27,7 +27,13 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { Guests, HomeContract, Homeowners, Homes } from "@prisma/client";
+import {
+  Guests,
+  HomeContract,
+  Homeowners,
+  Homes,
+  StatusContract,
+} from "@prisma/client";
 
 const Wrapper = styled.div`
   display: flex;
@@ -37,9 +43,12 @@ const WrapperContainer = styled.div`
   flex: 1;
   height: 100hv;
 `;
+// const { StatusContract } = new PrismaClient();
 
 type ContractHome = HomeContract & {
-  home: Homes;
+  home: Homes & {
+    homeowner: Homeowners;
+  };
   guest: Guests;
 };
 type InfoHome = Homes & {
@@ -50,9 +59,11 @@ interface Data {
   id: number;
   guest: string;
   home: string;
+  address: string;
   duration: number;
   rental: number;
   cycle: number;
+  status: StatusContract;
 }
 interface Data2 {
   owner: string;
@@ -89,17 +100,21 @@ function createData(
   id: number,
   guest: string,
   home: string,
+  address: string,
   duration: number,
   rental: number,
-  cycle: number
+  cycle: number,
+  status: StatusContract
 ): Data {
   return {
     id,
     guest,
     home,
+    address,
     duration,
     rental,
     cycle,
+    status,
   };
 }
 //Data hien thi tab Can ho chua thue
@@ -129,6 +144,12 @@ const headCells: readonly HeadCell[] = [
     id: "home",
     numeric: true,
     disablePadding: false,
+    label: "Tên chủ nhà",
+  },
+  {
+    id: "address",
+    numeric: true,
+    disablePadding: false,
     label: "Địa chỉ nhà",
   },
   {
@@ -148,6 +169,12 @@ const headCells: readonly HeadCell[] = [
     numeric: true,
     disablePadding: false,
     label: "Chu kỳ thanh toán (tháng/lần)",
+  },
+  {
+    id: "status",
+    numeric: true,
+    disablePadding: false,
+    label: "Trạng thái hợp đồng nhà",
   },
 ];
 interface EnhancedTableProps {
@@ -204,12 +231,13 @@ export default function ListRent() {
   //   );
 
   const [valueTab, setValueTab] = useState(0);
+  const [typeStatusHome, setTypeStatusHome] = useState(false);
 
   useEffect(() => {
     axios.get("/api/listRent").then(function (response) {
       setHomeContracts(response.data);
     });
-    axios.get("/api/homes").then(function (response) {
+    axios.get(`/api/homes?status=${typeStatusHome}`).then(function (response) {
       setHomes(response.data);
     });
   }, []);
@@ -217,14 +245,17 @@ export default function ListRent() {
   useEffect(() => {
     const newRows = homeContracts.map((homeContract, index) => {
       let nameGuest: string = homeContract.guest.fullname;
+      let ownerHome: string = homeContract.home?.homeowner?.fullname;
       let addrHome: string = homeContract.home?.address;
       return createData(
         index + 1,
         nameGuest,
+        ownerHome,
         addrHome,
         homeContract.duration,
         homeContract.rental,
-        homeContract.payCycle
+        homeContract.payCycle,
+        homeContract.status
       );
     });
     setRows(newRows);
@@ -241,6 +272,8 @@ export default function ListRent() {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValueTab(newValue);
+    if (valueTab === 1) setTypeStatusHome(true);
+    else if (valueTab === 0) setTypeStatusHome(false);
   };
   const isSelected = (id: number) => selected.indexOf(id) !== -1;
 
@@ -299,8 +332,8 @@ export default function ListRent() {
               onChange={handleChange}
               aria-label="basic tabs example"
             >
-              <Tab label="Căn hộ đã thuê" />
-              <Tab label="Căn hộ chưa thuê" />
+              <Tab label="Căn hộ đã thuê" value={0} />
+              <Tab label="Căn hộ chưa thuê" value={1} />
             </Tabs>
           </Box>
           <CustomTabPanel value={valueTab} index={0}>
@@ -362,9 +395,11 @@ export default function ListRent() {
                           {row.guest}
                         </TableCell>
                         <TableCell align="right">{row.home}</TableCell>
+                        <TableCell align="right">{row.address}</TableCell>
                         <TableCell align="right">{row.duration}</TableCell>
                         <TableCell align="right">{row.rental}</TableCell>
                         <TableCell align="right">{row.cycle}</TableCell>
+                        <TableCell align="right">{row.status}</TableCell>
                       </TableRow>
                     );
                   })}

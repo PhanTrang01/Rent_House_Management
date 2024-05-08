@@ -18,10 +18,15 @@ import {
   Typography,
 } from "@mui/material";
 import Autocomplete, { AutocompleteProps } from "@mui/material/Autocomplete";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateField } from "@mui/x-date-pickers/DateField";
 import { HomeContract, Homeowners, Guests, Homes } from "@prisma/client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { SyntheticEvent, useEffect, useState } from "react";
+import dayjs, { Dayjs } from "dayjs";
 
 type ContractRent = HomeContract;
 type Owner = Homeowners;
@@ -47,6 +52,8 @@ export default function AddRent() {
   const [homes, setHomes] = useState<Home[]>([]);
   const [InputValueGuest, setInputValueGuest] = useState("");
   const [inputValue, setInputValue] = useState("");
+  const [dateStart, setDateStart] = useState<Dayjs | null>(dayjs("2025-01-01"));
+  const [dateEnd, setDateEnd] = useState<Dayjs | null>(dayjs("2025-01-01"));
 
   const [dataCreateHomeContracts, setCreateHomeContracts] =
     useState<DataCreateHomeContracts>({
@@ -143,9 +150,8 @@ export default function AddRent() {
           sx={{
             // width: "1000px",
             textAlign: "center",
-
-            padding: " 20px 50px",
-            margin: "50px",
+            padding: " 20px 30px",
+            margin: "10px",
           }}
         >
           <Typography variant="h5">Thêm hợp đồng thuê nhà mới</Typography>
@@ -154,15 +160,14 @@ export default function AddRent() {
             rowSpacing={1}
             columnSpacing={{ xs: 1, sm: 2, md: 3 }}
             sx={{
-              maxWidth: "1200px",
               textAlign: "center",
               display: "flex",
               justifyContent: "center",
             }}
           >
-            <Grid item lg={10}>
+            <Grid item lg={5}>
               <Item>
-                <FormControl fullWidth>
+                <FormControl fullWidth size="small">
                   <InputLabel id="demo-simple-select-label">
                     Address Home
                   </InputLabel>
@@ -189,10 +194,11 @@ export default function AddRent() {
                 </FormControl>
               </Item>
             </Grid>
-            <Grid item lg={10}>
+            <Grid item lg={5}>
               <Item>
                 <Autocomplete
                   value={_owner !== null ? _owner : null}
+                  size="small"
                   onChange={(e, value) =>
                     handleChange(
                       e as any,
@@ -216,10 +222,11 @@ export default function AddRent() {
                 />
               </Item>
             </Grid>
-            <Grid item lg={10}>
+            <Grid item lg={5}>
               <Item>
                 <Autocomplete
                   value={_guest !== null ? _guest : null}
+                  size="small"
                   onChange={(e, value) =>
                     handleChange(
                       e as any,
@@ -241,7 +248,7 @@ export default function AddRent() {
                 />
               </Item>
             </Grid>
-            <Grid item lg={5}>
+            <Grid item lg={2.5}>
               <Item>
                 <FormControl fullWidth>
                   <InputLabel id="duration-select-label">
@@ -252,6 +259,7 @@ export default function AddRent() {
                     id="duration-select"
                     value={dataCreateHomeContracts.duration}
                     label="Thời thạn thuê"
+                    size="small"
                     onChange={(e) => {
                       const value = e.target.value;
                       handleChange(
@@ -268,7 +276,7 @@ export default function AddRent() {
                 </FormControl>
               </Item>
             </Grid>
-            <Grid item lg={5}>
+            <Grid item lg={2.5}>
               <Item>
                 <FormControl fullWidth>
                   <InputLabel id="cycle-select-label1">
@@ -279,6 +287,7 @@ export default function AddRent() {
                     id="cycle-select"
                     value={dataCreateHomeContracts.cycle}
                     label="Chu kỳ thanh toán tiền"
+                    size="small"
                     onChange={(e) => {
                       const value = e.target.value;
                       handleChange(
@@ -295,7 +304,35 @@ export default function AddRent() {
                 </FormControl>
               </Item>
             </Grid>
-            <Grid item lg={10}>
+            <Grid item lg={2.5}>
+              <Item>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={["DateField"]}>
+                    <DateField
+                      size="small"
+                      label="Ngày nhận nhà"
+                      value={dateStart}
+                      onChange={(newValue) => setDateStart(newValue)}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
+              </Item>
+            </Grid>
+            <Grid item lg={2.5}>
+              <Item>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={["DateField"]}>
+                    <DateField
+                      size="small"
+                      label="Ngày trả nhà"
+                      value={dateEnd}
+                      onChange={(newValue) => setDateEnd(newValue)}
+                    />
+                  </DemoContainer>
+                </LocalizationProvider>
+              </Item>
+            </Grid>
+            <Grid item lg={5}>
               <Item>
                 <TextField
                   margin="dense"
@@ -303,6 +340,7 @@ export default function AddRent() {
                   label="Giá thuê nhà (000 VNĐ/tháng)"
                   type="number"
                   fullWidth
+                  size="small"
                   onChange={(e) => {
                     const value = e.target.value; // Extract the value from the event
                     handleChange(
@@ -314,6 +352,56 @@ export default function AddRent() {
                 />
               </Item>
             </Grid>
+            <Grid item lg={5}>
+              <Item>
+                <TextField
+                  margin="dense"
+                  id="rental"
+                  label="Số tiền đặt cọc"
+                  type="number"
+                  fullWidth
+                  size="small"
+                  onChange={(e) => {
+                    const value = e.target.value; // Extract the value from the event
+                    handleChange(
+                      e as any,
+                      value as Owner | Guest | number | string | null,
+                      "rental_o"
+                    );
+                  }}
+                />
+              </Item>
+            </Grid>
+            <Grid item lg={5}>
+              <Item>
+                <FormControl fullWidth size="small">
+                  <InputLabel id="demo-simple-select-label">
+                    Thông tin STK người nhận
+                  </InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={dataCreateHomeContracts.homeId}
+                    label="Thông tin STK người nhận"
+                    // onChange={(newValue) => setDateEnd(newValue)}
+                    // onChange={(e) => {
+                    //   const value = e.target.value;
+                    //   handleChange(
+                    //     e as any,
+                    //     value as Owner | Guest | number | string | null,
+                    //     "homeId"
+                    //   );
+                    // }}
+                  >
+                    {homes.map((home) => (
+                      <MenuItem key={home.homeId} value={home.homeId}>
+                        {home.fullname} - {home.address}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Item>
+            </Grid>
           </Grid>
           <br />
           <Button variant="outlined" size="large" onClick={handleClose}>
@@ -322,6 +410,9 @@ export default function AddRent() {
           <ColorButton variant="contained" size="large" onClick={handleSubmit}>
             Submit
           </ColorButton>
+        </Paper>
+        <Paper>
+          <Typography variant="h6">Danh sách hóa đơn thanh toán</Typography>
         </Paper>
       </WrapperContainer>
     </Wrapper>
@@ -333,13 +424,13 @@ const ColorButton = styled(Button)<ButtonProps>(() => ({
   backgroundColor: "#bd8cfe",
   margin: "0px 10px",
   "&:hover": {
-    backgroundColor: "#94b9f2",
+    backgroundColor: "#cfe0fa",
   },
 }));
 
 const Item = styled(Paper)(() => ({
-  backgroundColor: "#e8e8e9",
-  padding: "20px",
+  backgroundColor: "#f5f5fb",
+  padding: "7px",
   textAlign: "center",
 }));
 

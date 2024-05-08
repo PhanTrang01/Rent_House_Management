@@ -29,7 +29,7 @@ const Footer = () => {
 
 const FooterWrapper = styled.div`
   background-color: #9fb1de;
-  margin-top: 80px;
+  margin-top: 50px;
   position: fixed;
   bottom: 0;
   width: 100vw;
@@ -50,7 +50,7 @@ const FooterContainer = styled.div`
 `;
 
 const FooterText = styled.div`
-  padding: 25px 80px;
+  padding: 10px 80px;
   text-align: center;
 `;
 

@@ -8,7 +8,11 @@ export async function GET() {
     const allRents = await prisma.homeContract.findMany({
       include: {
         guest: true,
-        home: true,
+        home: {
+          include: {
+            homeowner: true,
+          },
+        },
       },
     });
     //   console.dir(allUsers, { depth: null });
@@ -22,16 +26,20 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const { homeId, guestId, cycle, rental, duration } = await req.json();
+    const { homeId, guestId, cycle, rental, duration, deposit } =
+      await req.json();
 
     const Rent = await prisma.homeContract.create({
       data: {
         homeId: Number(homeId),
         guestId: Number(guestId),
-        datePayment: new Date(),
+        dateStart: new Date(),
+        dateEnd: new Date(),
         payCycle: Number(cycle),
         rental: Number(rental),
+        deposit: Number(deposit),
         duration: Number(duration),
+        status: "ACTIVE",
         createdAt: new Date(),
         updatedAt: new Date(),
       },

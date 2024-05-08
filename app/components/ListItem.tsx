@@ -2,6 +2,7 @@ import * as React from "react";
 import styled from "@emotion/styled";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
+import SearchIcon from "@mui/icons-material/Search";
 import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -49,6 +50,14 @@ export const mainListItems = (
       </ListItemIcon>
       <ListItemText primary="Quản lý khách thuê" />
     </ListItemButton>
+    <Link href="/searchPage ">
+      <ListItemButton>
+        <ListItemIcon>
+          <SearchIcon sx={{ color: "white" }} />
+        </ListItemIcon>
+        <ListItemText primary="Tra cứu hợp đồng" />
+      </ListItemButton>
+    </Link>
     <ListItemButton>
       <ListItemIcon>
         <LayersIcon sx={{ color: "white" }} />

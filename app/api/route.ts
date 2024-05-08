@@ -13,7 +13,7 @@ export async function GET() {
   try {
     const newHomeowner = await prisma.homeowners.create({
       data: {
-        fullName: "Alice",
+        fullname: "Alice",
         phone: "0123456",
         createdAt: new Date(), // Đảm bảo rằng bạn cung cấp dữ liệu cho createdAt và updatedAt
         updatedAt: new Date(),

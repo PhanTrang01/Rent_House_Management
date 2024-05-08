@@ -14,9 +14,11 @@ import {
   Box,
   Button,
   Checkbox,
+  Grid,
   IconButton,
   Tab,
   Tabs,
+  TextField,
   Toolbar,
   Tooltip,
   Typography,
@@ -35,6 +37,11 @@ const WrapperContainer = styled.div`
   flex: 1;
   height: 100hv;
 `;
+const Item = styled(Paper)(() => ({
+  backgroundColor: "#f5f5fb",
+  padding: "7px",
+  textAlign: "center",
+}));
 
 type Invoice = InvoicesPayment;
 
@@ -133,51 +140,120 @@ export default function ContractDetail({ params }: { params: { id: string } }) {
               onChange={handleChange}
               aria-label="basic tabs example"
             >
-              <Tab label="Hợp đồng Thuê Căn hộ" />
-              <Tab label="Hợp đồng dịch vụ" />
+              <Tab label="Danh sách Hợp đồng Căn hộ" />
+              <Tab label="Danh sách Thanh toán" />
             </Tabs>
           </Box>
           <CustomTabPanel value={valueTab} index={0}>
-            <TableContainer component={Paper}>
-              <Table stickyHeader aria-label="sticky table">
-                <TableHead>
-                  <TableRow>
-                    {columns.map((column) => (
-                      <TableCell
-                        key={column.id}
-                        align={column.align}
-                        style={{ minWidth: column.minWidth }}
-                      >
-                        {column.label}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {invoices
-                    // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => {
-                      return (
-                        <TableRow
-                          hover
-                          role="checkbox"
-                          tabIndex={-1}
-                          key={row.homeContractId}
-                        >
-                          {/* {columns.map((column) => {
-                          const value = row[column.id];
-                          return (
-                            <TableCell key={column.id} align={column.align}>
-                              {value}
-                            </TableCell>
-                          );
-                        })} */}
-                        </TableRow>
-                      );
-                    })}
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <Paper
+              sx={{
+                textAlign: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Typography variant="h6">Chi tiết hợp đồng thuê nhà</Typography>
+              <Grid
+                container
+                rowSpacing={1}
+                columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+                sx={{
+                  textAlign: "center",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Grid item lg={5}>
+                  <Item>
+                    <TextField
+                      id="outlined-read-only-input"
+                      label="Read Only"
+                      defaultValue="Hello World"
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </Item>
+                </Grid>
+                <Grid item lg={5}>
+                  <Item>
+                    <TextField
+                      id="outlined-read-only-input"
+                      label="Read Only"
+                      defaultValue="Hello World"
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </Item>
+                </Grid>
+                <Grid item lg={5}>
+                  <Item>
+                    <TextField
+                      id="outlined-read-only-input"
+                      label="Read Only"
+                      defaultValue="Hello World"
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </Item>
+                </Grid>
+                <Grid item lg={2.5}>
+                  <Item>
+                    <TextField
+                      id="outlined-read-only-input"
+                      label="Read Only"
+                      defaultValue="Hello World"
+                      InputProps={{
+                        readOnly: true,
+                      }}
+                    />
+                  </Item>
+                </Grid>
+                <Grid item lg={2.5}>
+                  <Item></Item>
+                </Grid>
+                <Grid item lg={2.5}>
+                  <Item></Item>
+                </Grid>
+                <Grid item lg={2.5}>
+                  <Item></Item>
+                </Grid>
+                <Grid item lg={5}>
+                  <Item>
+                    <TextField
+                      margin="dense"
+                      id="rental"
+                      label="Giá thuê nhà (000 VNĐ/tháng)"
+                      type="number"
+                      fullWidth
+                      size="small"
+                    />
+                  </Item>
+                </Grid>
+                <Grid item lg={5}>
+                  <Item>
+                    <TextField
+                      margin="dense"
+                      id="rental"
+                      label="Số tiền đặt cọc"
+                      type="number"
+                      fullWidth
+                      size="small"
+                    />
+                  </Item>
+                </Grid>
+                <Grid item lg={5}>
+                  <Item></Item>
+                </Grid>
+              </Grid>
+            </Paper>
+            <br />
+            <Paper>
+              <Typography variant="h6">
+                Chi tiết các hợp đồng dịch vụ
+              </Typography>
+            </Paper>
           </CustomTabPanel>
           <CustomTabPanel value={valueTab} index={1}>
             Item Two
