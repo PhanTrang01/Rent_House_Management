@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     const Homeowners = await prisma.homeowners.findMany();
     return NextResponse.json(Homeowners);
   } catch (error) {
-    console.error("Error creating Home Contract:", error);
+    console.error("Error read HomeOwner:", error);
   } finally {
     await prisma.$disconnect();
   }
@@ -25,16 +25,35 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: Request) {
   try {
-    const { name, phone, citizenId, active } = await req.json();
-    if (!name || !phone || !citizenId) {
+    const {
+      name,
+      phone,
+      email,
+      cittizenId,
+      cittizen_ngaycap,
+      cittizen_noicap,
+      birthday,
+      STK,
+      TenTK,
+      bank,
+      active,
+    } = await req.json();
+    if (!name || !phone || !cittizenId) {
       throw new Error("Invalid name, phone, or citizenId information");
     }
 
     const newHomeowner = await prisma.homeowners.create({
       data: {
-        fullName: name,
+        fullname: name,
         phone,
-        citizenId,
+        email,
+        cittizenId,
+        cittizen_ngaycap,
+        cittizen_noicap,
+        birthday,
+        STK,
+        TenTK,
+        bank,
         active,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -42,7 +61,72 @@ export async function POST(req: Request) {
     });
     return NextResponse.json(newHomeowner);
   } catch (error) {
-    console.error("Error creating Home Contract:", error);
+    console.error("Error creating Home Owner:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json(); // Đọc dữ liệu từ req.
+
+    const {
+      homeownerId,
+      name,
+      phone,
+      email,
+      cittizenId,
+      cittizen_ngaycap,
+      cittizen_noicap,
+      birthday,
+      STK,
+      TenTK,
+      bank,
+      active,
+    } = body;
+
+    if (!homeownerId) {
+      throw new Error("Missing homeowner ID");
+    }
+
+    const updatedHomeowner = await prisma.homeowners.update({
+      where: { homeOwnerId: homeownerId },
+      data: {
+        fullname: name,
+        phone,
+        email,
+        cittizenId,
+        cittizen_ngaycap,
+        cittizen_noicap,
+        birthday,
+        STK,
+        TenTK,
+        bank,
+        active,
+        updatedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json(updatedHomeowner);
+  } catch (error) {
+    console.error("Error updating Home Owner:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { homeownerId } = await req.json();
+
+    if (!homeownerId) return NextResponse.json({ deleted: false });
+    const deletedHomeowner = await prisma.homeowners.delete({
+      where: { homeOwnerId: parseInt(homeownerId as string, 10) },
+    });
+    return NextResponse.json(deletedHomeowner);
+  } catch (error) {
+    console.error("Error read HomeOwner:", error);
   } finally {
     await prisma.$disconnect();
   }

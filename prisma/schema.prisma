@@ -14,14 +14,19 @@ model AccountAdmin {
 
 model Homeowners {
   homeOwnerId               Int       @id @default(autoincrement())
-  name                      String
-  phone                     String   @map("phone") // note: 'SDT'
-  username                  String
-  password                  String
+  fullname                  String    @map("fullname") // note: 'Tên chủ nhà'
+  birthday                  DateTime  @map("birthday") // note: 'Ngày sinh'
+  email                     String
+  phone                     String    @map("phone") // note: 'SDT'
   metaAccessToken           String?
   metaAccessTokenExpireDate DateTime?
-  fullname                  String   @map("fullname") // note: 'Tên chủ nhà'
-  cittizenId                String   @map("cittizenId") // note: 'CCCD'
+  cittizenId                String    @map("cittizenId") // note: 'CCCD'
+  cittizen_ngaycap          DateTime  @map("cittizen_ngaycap")
+  cittizen_noicap           String
+  TenTK                     String
+  STK                       String
+  bank                      String
+  Note                      String?
   active                    Boolean   @default(true) // note: 'Ngừng sử dụng dịch vụ'
   createdAt                 DateTime  @default(now())
   updatedAt                 DateTime  @updatedAt
@@ -32,8 +37,13 @@ model Homes {
   homeId          Int               @id @default(autoincrement())
   homeOwnerId     Int?
   address         String
-  fullname        String?           @map("fullname") // note: 'Tên chủ nhà'
+  Ward            String
+  District        String
+  Province        String
+  apartmentNo     String             //note: 'căn hộ số'
+  building        String?           @map("building") // note: 'Tên tòa nhà'
   active          Boolean           @default(false) // note: 'Đang trống'
+  Note            String?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   homeowner       Homeowners?        @relation(fields: [homeOwnerId], references: [homeOwnerId])
@@ -43,15 +53,19 @@ model Homes {
 }
 
 model Guests {
-  guestId        Int                @id @default(autoincrement())
-  name           String
-  phone          String             @map("phone") // Chú ý: 'SDT'
-  fullname       String             @map("fullname") // Chú ý: 'Tên khách thuê'
-  citizenId      String             @map("citizenId") // Chú ý: 'CCCD'
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
-  homeContracts  HomeContract[]
-  serviceContracts ServiceContract[]
+  guestId           Int                @id @default(autoincrement())
+  fullname          String             @map("fullname") // Chú ý: 'Tên khách thuê'
+  birthday          DateTime           @map("birthday") // note: 'Ngày sinh'
+  email             String
+  phone             String             @map("phone") // Chú ý: 'SDT'
+  citizenId         String             @map("citizenId") // Chú ý: 'CCCD'
+  cittizen_ngaycap     DateTime        @map("cittizen_ngaycap")
+  cittizen_noicap      String
+  Note              String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  homeContracts     HomeContract[]
+  serviceContracts  ServiceContract[]
 }
 enum StatusContract {
     DRAFT
@@ -90,11 +104,16 @@ model ServiceContract {
   duration          Int           // note: 'Thời hạn hợp đồng'
   dateStart         DateTime          @map("dateStart") // Chú ý: 'Ngày nhận nhà'
   dateEnd           DateTime          @map("dateEnd") // Chú ý: 'Ngày trả nhà'
-  unitCost          Float // note: 'unitCost '
-  statusContract    Boolean            // note: 'Chưa thanh toán'
+  unitCost          Float         // note: 'Đơn giá của dịch vụ '
+  statusContract    StatusContract            // note: 'Status of contract'
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   InvoicesPayment   InvoicesPayment[]
+}
+
+enum TypeInvoice {
+    SERVICE
+    EVN
 }
 
 model InvoicesPayment {
@@ -105,7 +124,7 @@ model InvoicesPayment {
   homeContractId    Int?
   home              Homes?           @relation(fields: [homeId], references: [homeId])
   homeId            Int?
-  type              String
+  type              TypeInvoice
   datePaymentRemind DateTime        @map("datePaymentRemind") // note: 'Ngày nhắc nhở dự kiến'
   datePaymentExpect DateTime        @map("datePaymentExpect") // note: 'Ngày thanh toán dự kiến'
   datePaymentReal   DateTime        @map("datePaymentReal") // note: 'Ngày thanh toán thực tế'
@@ -113,7 +132,7 @@ model InvoicesPayment {
   dateEnd           DateTime        @map("dateEnd") // note: 'Ngày kết thúc đợt thanh toán'
   totalSend         Float
   totalReceiver     Float
-  limit             Float
+  limit             Float?
   statusPayment     Boolean         @default(false) // note: 'Chưa thanh toán'
   receiverId        Int?
   createdAt         DateTime        @default(now())
