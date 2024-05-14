@@ -29,16 +29,15 @@ export async function POST(req: Request) {
       name,
       phone,
       email,
-      cittizenId,
-      cittizen_ngaycap,
-      cittizen_noicap,
+      citizenId,
+      citizen_ngaycap,
+      citizen_noicap,
       birthday,
       STK,
       TenTK,
       bank,
-      active,
     } = await req.json();
-    if (!name || !phone || !cittizenId) {
+    if (!name || !phone || !citizenId) {
       throw new Error("Invalid name, phone, or citizenId information");
     }
 
@@ -47,14 +46,14 @@ export async function POST(req: Request) {
         fullname: name,
         phone,
         email,
-        cittizenId,
-        cittizen_ngaycap,
-        cittizen_noicap,
+        cittizenId: citizenId,
+        cittizen_ngaycap: citizen_ngaycap,
+        cittizen_noicap: citizen_noicap,
         birthday,
         STK,
         TenTK,
         bank,
-        active,
+        active: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -83,7 +82,6 @@ export async function PUT(req: Request) {
       STK,
       TenTK,
       bank,
-      active,
     } = body;
 
     if (!homeownerId) {
@@ -103,7 +101,7 @@ export async function PUT(req: Request) {
         STK,
         TenTK,
         bank,
-        active,
+        active: true,
         updatedAt: new Date(),
       },
     });

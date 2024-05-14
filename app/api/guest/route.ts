@@ -19,17 +19,36 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: Request) {
   try {
-    const { fullname, phone, citizenId } = await req.json();
-    if (!fullname || !phone || !citizenId) {
+    const {
+      fullname,
+      phone,
+      citizenId,
+      cittizen_ngaycap,
+      cittizen_noicap,
+      birthday,
+      email,
+      Note,
+    } = await req.json();
+    if (
+      !fullname ||
+      !phone ||
+      !citizenId ||
+      !cittizen_ngaycap ||
+      !cittizen_noicap
+    ) {
       throw new Error("Invalid name, phone, or citizenId information");
     }
 
     const newHomeowner = await prisma.guests.create({
       data: {
         phone,
-        name: fullname,
         fullname,
         citizenId: citizenId,
+        cittizen_ngaycap,
+        cittizen_noicap,
+        birthday,
+        email,
+        Note,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
