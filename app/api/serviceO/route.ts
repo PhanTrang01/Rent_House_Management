@@ -19,3 +19,25 @@ export async function GET(req: NextRequest) {
     await prisma.$disconnect();
   }
 }
+
+export async function POST(req: Request) {
+  try {
+    const { name, unit, description } = await req.json();
+    if (!name) {
+      throw new Error("Invalid name, phone, or citizenId information");
+    }
+
+    const newHomeowner = await prisma.service.create({
+      data: {
+        name,
+        unit,
+        description,
+      },
+    });
+    return NextResponse.json(newHomeowner);
+  } catch (error) {
+    console.error("Error creating Guest:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}

@@ -5,6 +5,10 @@ import Header from "../components/Header";
 import {
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
   Paper,
   Table,
@@ -15,6 +19,7 @@ import {
   TablePagination,
   TableRow,
   Tabs,
+  TextField,
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -25,6 +30,9 @@ import { Guests } from "@prisma/client";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useRouter } from "next/navigation";
+import { DateField, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 
 dayjs.extend(utc);
 
@@ -36,14 +44,26 @@ const WrapperContainer = styled.div`
   flex-grow: 1;
 `;
 
+type GuestForm = {
+  fullname: string;
+  phone: string;
+  birthday: Date;
+  citizenId: string;
+  citizen_ngaycap: Date;
+  citizen_noicap: String;
+  email: String;
+  hometown: String;
+  Note: String | null;
+};
+
 interface Column {
   id:
     | "fullname"
     | "phone"
     | "email"
     | "citizenId"
-    | "cittizen_ngaycap"
-    | "cittizen_noicap";
+    | "citizen_ngaycap"
+    | "citizen_noicap";
   label: string;
   minWidth?: number;
   align?: "right";
@@ -66,13 +86,13 @@ const columns: readonly Column[] = [
     align: "right",
   },
   {
-    id: "cittizen_ngaycap",
+    id: "citizen_ngaycap",
     label: "Ngày cấp CCCD",
     minWidth: 170,
     align: "right",
   },
   {
-    id: "cittizen_noicap",
+    id: "citizen_noicap",
     label: "Nơi cấp CCCD",
     minWidth: 170,
     align: "right",
@@ -81,7 +101,21 @@ const columns: readonly Column[] = [
 
 export default function OtherOption() {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [guests, setGuests] = useState<Guests[]>([]);
+  const [value, setValue] = useState<Dayjs | null>();
+
+  const [guestForm, setGuestForm] = useState<GuestForm>({
+    fullname: "",
+    phone: "",
+    birthday: new Date(),
+    citizenId: "",
+    citizen_ngaycap: new Date(),
+    citizen_noicap: "",
+    hometown: "",
+    email: "",
+    Note: "",
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -98,6 +132,27 @@ export default function OtherOption() {
     fetchData();
   }, []);
 
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleSubmit = () => {
+    setOpen(false);
+    console.log(guestForm);
+    const handleSave = async () => {
+      try {
+        const response = await axios.post("/api/guest", guestForm);
+        console.log("Data saved successfully:", response.data);
+      } catch (error) {
+        console.error("Error saving data:", error);
+      }
+    };
+    handleSave();
+    window.location.reload();
+  };
+
   return (
     <Wrapper>
       <Dashboard />
@@ -110,10 +165,158 @@ export default function OtherOption() {
           <Button
             sx={{ position: "absolute", right: "20px" }}
             variant="outlined"
-            // onClick={handleClickOpen}
+            onClick={handleClickOpen}
           >
             Thêm thông tin khách thuê
           </Button>
+          <Dialog open={open} onClose={handleClose}>
+            <DialogTitle> Thêm thông tin khách thuê</DialogTitle>
+            <DialogContent>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TextField
+                  required
+                  autoFocus
+                  margin="dense"
+                  id="name"
+                  label="Tên chủ nhà"
+                  type="text"
+                  fullWidth
+                  onChange={(e) => {
+                    setGuestForm({
+                      ...guestForm,
+                      fullname: e.target.value,
+                    });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="phone"
+                  label="Số điện thoại"
+                  type="text"
+                  fullWidth
+                  onChange={(e) => {
+                    setGuestForm({
+                      ...guestForm,
+                      phone: e.target.value,
+                    });
+                  }}
+                />
+                <DemoContainer components={["DateField"]}>
+                  <DateField
+                    fullWidth
+                    id="birthday"
+                    label="Ngày Sinh"
+                    // defaultValue={
+                    //   selectedRecord === null
+                    //     ? dayjs("2001-01-01")
+                    //     : dayjs.utc(owner?.birthday)
+                    // }
+
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        const temp = newValue?.toDate();
+                        setGuestForm({
+                          ...guestForm,
+                          birthday: temp,
+                        });
+                      }
+                    }}
+                  />
+                </DemoContainer>
+                <TextField
+                  required
+                  margin="dense"
+                  id="email"
+                  label="Email"
+                  type="email"
+                  fullWidth
+                  onChange={(e) => {
+                    setGuestForm({
+                      ...guestForm,
+                      email: e.target.value,
+                    });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="citizen"
+                  label="Số CCCD"
+                  type="text"
+                  fullWidth
+                  onChange={(e) => {
+                    setGuestForm({
+                      ...guestForm,
+                      citizenId: e.target.value,
+                    });
+                  }}
+                />
+                <DemoContainer components={["DateField"]}>
+                  <DateField
+                    fullWidth
+                    id="citizen_ngaycap"
+                    label="Ngày cấp CCCD"
+                    // value={value}
+                    // onChange={(newValue) => setValue(newValue)}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        const temp = newValue?.toDate();
+                        setGuestForm({
+                          ...guestForm,
+                          citizen_ngaycap: temp,
+                        });
+                      }
+                    }}
+                  />
+                </DemoContainer>
+                <TextField
+                  required
+                  margin="dense"
+                  id="citizen_noicap"
+                  label="Nơi cấp CCCD"
+                  type="text"
+                  fullWidth
+                  onChange={(e) => {
+                    setGuestForm({
+                      ...guestForm,
+                      citizen_noicap: e.target.value,
+                    });
+                  }}
+                />
+                <TextField
+                  margin="dense"
+                  id="hometown"
+                  label="Quê quán"
+                  type="text"
+                  fullWidth
+                  onChange={(e) => {
+                    setGuestForm({
+                      ...guestForm,
+                      hometown: e.target.value,
+                    });
+                  }}
+                />
+                <TextField
+                  margin="dense"
+                  id="Note"
+                  label="Ghi chú"
+                  type="text"
+                  fullWidth
+                  onChange={(e) => {
+                    setGuestForm({
+                      ...guestForm,
+                      Note: e.target.value,
+                    });
+                  }}
+                />
+              </LocalizationProvider>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Hủy</Button>
+              <Button onClick={handleSubmit}>Lưu</Button>
+            </DialogActions>
+          </Dialog>
           <Paper sx={{ marginTop: "60px", width: "100%", overflow: "hidden" }}>
             <TableContainer sx={{ maxHeight: 800 }}>
               <Table stickyHeader aria-label="sticky table">
@@ -160,7 +363,7 @@ export default function OtherOption() {
                           {columns.map((column) => {
                             let value: string | Date | boolean = row[column.id];
 
-                            if (column.id === "cittizen_ngaycap" && value) {
+                            if (column.id === "citizen_ngaycap" && value) {
                               value = dayjs
                                 .utc(value.toString())
                                 .format("DD/MM/YYYY");

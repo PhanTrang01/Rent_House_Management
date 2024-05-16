@@ -28,6 +28,50 @@ export async function GET(
   }
 }
 
+export async function PUT(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const body = await _req.json(); // Đọc dữ liệu từ req.
+
+    const {
+      fullname,
+      phone,
+      email,
+      hometown,
+      citizenId,
+      citizen_ngaycap,
+      citizen_noicap,
+      birthday,
+      Note,
+    } = body;
+
+    const updatedHomeowner = await prisma.guests.update({
+      where: { guestId: Number(id) },
+      data: {
+        fullname,
+        phone,
+        email,
+        citizenId,
+        citizen_ngaycap,
+        citizen_noicap,
+        birthday,
+        hometown,
+        Note,
+        updatedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json(updatedHomeowner);
+  } catch (error) {
+    console.error("Error updating Home Owner:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } }

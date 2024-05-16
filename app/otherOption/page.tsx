@@ -5,6 +5,11 @@ import Header from "../components/Header";
 import {
   Box,
   Button,
+  ButtonProps,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
   Paper,
   Stack,
@@ -22,6 +27,7 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import React, { useEffect, useState } from "react";
 import { Receiver, Service } from "@prisma/client";
@@ -56,6 +62,7 @@ const columns: readonly Column[] = [
     id: "description",
     label: "Mô tả",
     minWidth: 270,
+    align: "center",
     // format: (value: number) => value.toLocaleString("en-US"),
   },
 ];
@@ -123,12 +130,78 @@ function CustomTabPanel(props: TabPanelProps) {
 export default function OtherOption() {
   const [option, setOption] = useState(0);
   const [searchVal, setSearchval] = useState<String>("");
+  const [open1, setOpen1] = useState(false);
+  const [open2, setOpen2] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<Number | null>(null);
   const [dataServices, setDataServices] = useState<Service[]>([]);
   const [dataReceivers, setDataReceivers] = useState<Receiver[]>([]);
+  const [service, setService] = useState<Service>({
+    serviceId: 0,
+    name: "",
+    unit: "",
+    description: "",
+  });
+  const [receiver, setReceiver] = useState<Receiver>({
+    receiverId: 0,
+    name: "",
+    phone: "",
+    email: "",
+    taxcode: "",
+    STK: "",
+    TenTK: "",
+    Nganhang: "",
+    type: "",
+    note: "",
+  });
 
   const handleEdit = (id: Number) => {};
   const handleDelete = (id: Number) => {
     // setSelectedRecord(id);
+  };
+
+  const handleClickOpen1 = () => {
+    setOpen1(true);
+  };
+
+  const handleClickOpen2 = () => {
+    setOpen2(true);
+  };
+
+  const handleClose1 = () => {
+    setOpen1(false);
+    setSelectedRecord(null);
+  };
+  const handleClose2 = () => {
+    setOpen2(false);
+    setSelectedRecord(null);
+  };
+
+  const handleSubmit1 = () => {
+    setOpen1(false);
+    const handleSave = async () => {
+      try {
+        const response = await axios.post("/api/serviceO", service);
+        console.log("Data saved successfully:", response.data);
+      } catch (error) {
+        console.error("Error saving data:", error);
+      }
+    };
+    handleSave();
+    window.location.reload();
+  };
+
+  const handleSubmit2 = () => {
+    setOpen2(false);
+    const handleSave = async () => {
+      try {
+        const response = await axios.post("/api/receiver", receiver);
+        console.log("Data saved successfully:", response.data);
+      } catch (error) {
+        console.error("Error saving data:", error);
+      }
+    };
+    handleSave();
+    window.location.reload();
   };
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -183,8 +256,192 @@ export default function OtherOption() {
                 >
                   Tìm kiếm
                 </Button>
+
+                <ColorButton
+                  hidden={option !== 0}
+                  variant="contained"
+                  size="small"
+                  endIcon={<AddIcon />}
+                  onClick={handleClickOpen1}
+                >
+                  Thêm dịch vụ
+                </ColorButton>
+                <ColorButton
+                  hidden={option !== 1}
+                  variant="contained"
+                  size="small"
+                  endIcon={<AddIcon />}
+                  onClick={handleClickOpen2}
+                >
+                  {" "}
+                  Thêm người nhận
+                </ColorButton>
               </Stack>
             </Box>
+            <Dialog open={open1} onClose={handleClose1}>
+              <DialogTitle>
+                {selectedRecord === null
+                  ? "Thêm thông tin dịch vụ"
+                  : "Chỉnh sửa thông tin dịch vụ"}{" "}
+              </DialogTitle>
+              <DialogContent>
+                <TextField
+                  required
+                  autoFocus
+                  margin="dense"
+                  id="name"
+                  label="Tên dịch vụ"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : service?.name}
+                  fullWidth
+                  onChange={(e) => {
+                    setService({ ...service, name: e.target.value });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="unit"
+                  label="Đơn vị tính"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : service?.unit}
+                  fullWidth
+                  onChange={(e) => {
+                    setService({ ...service, unit: e.target.value });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="description"
+                  label="Mô tả"
+                  type="text"
+                  defaultValue={
+                    selectedRecord === null ? "" : service?.description
+                  }
+                  fullWidth
+                  onChange={(e) => {
+                    setService({ ...service, description: e.target.value });
+                  }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose1}>Hủy</Button>
+                <Button onClick={handleSubmit1}>Lưu</Button>
+              </DialogActions>
+            </Dialog>
+            <Dialog open={open2} onClose={handleClose2}>
+              <DialogTitle>
+                {selectedRecord === null
+                  ? "Thêm thông tin người nhận"
+                  : "Chỉnh sửa thông tin người nhận"}
+              </DialogTitle>
+              <DialogContent>
+                <TextField
+                  required
+                  autoFocus
+                  margin="dense"
+                  id="name"
+                  label="Tên người nhận"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : receiver.name}
+                  fullWidth
+                  onChange={(e) => {
+                    setReceiver({ ...receiver, name: e.target.value });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="phone"
+                  label="Đơn vị tính"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : receiver.phone}
+                  fullWidth
+                  onChange={(e) => {
+                    setReceiver({ ...receiver, phone: e.target.value });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="email"
+                  label="Email"
+                  type="email"
+                  defaultValue={selectedRecord === null ? "" : receiver.email}
+                  fullWidth
+                  onChange={(e) => {
+                    setReceiver({ ...receiver, email: e.target.value });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="taxcode"
+                  label="Mã số thuế"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : receiver.taxcode}
+                  fullWidth
+                  onChange={(e) => {
+                    setReceiver({ ...receiver, taxcode: e.target.value });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="STK"
+                  label="Số tài khoản"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : receiver.STK}
+                  fullWidth
+                  onChange={(e) => {
+                    setReceiver({ ...receiver, STK: e.target.value });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="TenTK"
+                  label="Tên Tài khoản"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : receiver.TenTK}
+                  fullWidth
+                  onChange={(e) => {
+                    setReceiver({ ...receiver, TenTK: e.target.value });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="Nganhang"
+                  label="Tên Ngân hàng"
+                  type="text"
+                  defaultValue={
+                    selectedRecord === null ? "" : receiver.Nganhang
+                  }
+                  fullWidth
+                  onChange={(e) => {
+                    setReceiver({ ...receiver, Nganhang: e.target.value });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="note"
+                  label="Ghi chú"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : receiver.note}
+                  fullWidth
+                  onChange={(e) => {
+                    setReceiver({ ...receiver, note: e.target.value });
+                  }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose2}>Hủy</Button>
+                <Button onClick={handleSubmit2}>Lưu</Button>
+              </DialogActions>
+            </Dialog>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
               <Tabs
                 value={option}
@@ -345,3 +602,13 @@ export default function OtherOption() {
     </Wrapper>
   );
 }
+
+const ColorButton = styled(Button)<ButtonProps>(() => ({
+  color: "black",
+  backgroundColor: "#cdbff8 !important",
+  margin: "0px 10px",
+  "&:hover": {
+    backgroundColor: "#d0aee3",
+    color: "black",
+  },
+}));

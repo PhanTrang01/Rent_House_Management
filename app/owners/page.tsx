@@ -60,9 +60,9 @@ interface Column {
     | "fullname"
     | "phone"
     | "birthday"
-    | "cittizenId"
-    | "cittizen_ngaycap"
-    | "cittizen_noicap"
+    | "citizenId"
+    | "citizen_ngaycap"
+    | "citizen_noicap"
     | "STK"
     | "bank"
     | "active";
@@ -82,19 +82,19 @@ const columns: readonly Column[] = [
     align: "right",
   },
   {
-    id: "cittizenId",
+    id: "citizenId",
     label: "Số CCCD",
     minWidth: 170,
     align: "right",
   },
   {
-    id: "cittizen_ngaycap",
+    id: "citizen_ngaycap",
     label: "Ngày cấp CCCD",
     minWidth: 170,
     align: "right",
   },
   {
-    id: "cittizen_noicap",
+    id: "citizen_noicap",
     label: "Nơi cấp CCCD",
     minWidth: 170,
     align: "right",
@@ -154,9 +154,9 @@ export default function Owners() {
           phone: response.data.phone,
           email: response.data.email,
           birthday: response.data.birthday,
-          citizenId: response.data.cittizenId,
-          citizen_ngaycap: response.data.cittizen_ngaycap,
-          citizen_noicap: response.data.cittizen_noicap,
+          citizenId: response.data.citizenId,
+          citizen_ngaycap: response.data.citizen_ngaycap,
+          citizen_noicap: response.data.citizen_noicap,
           STK: response.data.STK,
           TenTK: response.data.TenTK,
           bank: response.data.bank,
@@ -277,8 +277,6 @@ export default function Owners() {
                       ? dayjs("2001-01-01")
                       : dayjs.utc(owner?.birthday)
                   }
-                  // value={value}
-                  // onChange={(newValue) => setValue(newValue)}
                   onChange={(newValue) => {
                     if (newValue) {
                       const temp = newValue?.toDate();
@@ -308,7 +306,7 @@ export default function Owners() {
                 id="citizen"
                 label="Số CCCD"
                 type="text"
-                defaultValue={selectedRecord === null ? "" : owner?.cittizenId}
+                defaultValue={selectedRecord === null ? "" : owner?.citizenId}
                 fullWidth
                 onChange={(e) => {
                   setCreateOwner({
@@ -325,7 +323,7 @@ export default function Owners() {
                   defaultValue={
                     selectedRecord === null
                       ? dayjs("2001-01-01")
-                      : dayjs.utc(owner?.cittizen_ngaycap)
+                      : dayjs.utc(owner?.citizen_ngaycap)
                   }
                   value={value}
                   // onChange={(newValue) => setValue(newValue)}
@@ -347,7 +345,7 @@ export default function Owners() {
                 label="Nơi cấp CCCD"
                 type="text"
                 defaultValue={
-                  selectedRecord === null ? "" : owner?.cittizen_noicap
+                  selectedRecord === null ? "" : owner?.citizen_noicap
                 }
                 fullWidth
                 onChange={(e) => {
@@ -438,7 +436,7 @@ export default function Owners() {
 
                           if (
                             (column.id === "birthday" ||
-                              column.id === "cittizen_ngaycap") &&
+                              column.id === "citizen_ngaycap") &&
                             value
                           ) {
                             value = dayjs

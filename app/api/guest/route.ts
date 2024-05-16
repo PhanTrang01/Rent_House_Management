@@ -23,18 +23,19 @@ export async function POST(req: Request) {
       fullname,
       phone,
       citizenId,
-      cittizen_ngaycap,
-      cittizen_noicap,
+      citizen_ngaycap,
+      citizen_noicap,
       birthday,
       email,
+      hometown,
       Note,
     } = await req.json();
     if (
       !fullname ||
       !phone ||
       !citizenId ||
-      !cittizen_ngaycap ||
-      !cittizen_noicap
+      !citizen_ngaycap ||
+      !citizen_noicap
     ) {
       throw new Error("Invalid name, phone, or citizenId information");
     }
@@ -44,9 +45,10 @@ export async function POST(req: Request) {
         phone,
         fullname,
         citizenId: citizenId,
-        cittizen_ngaycap,
-        cittizen_noicap,
+        citizen_ngaycap,
+        citizen_noicap,
         birthday,
+        hometown,
         email,
         Note,
         createdAt: new Date(),

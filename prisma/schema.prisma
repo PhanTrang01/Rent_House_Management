@@ -20,9 +20,9 @@ model Homeowners {
   phone                     String    @map("phone") // note: 'SDT'
   metaAccessToken           String?
   metaAccessTokenExpireDate DateTime?
-  cittizenId                String    @map("cittizenId") // note: 'CCCD'
-  cittizen_ngaycap          DateTime  @map("cittizen_ngaycap")
-  cittizen_noicap           String
+  citizenId                 String    @map("citizenId") // note: 'CCCD'
+  citizen_ngaycap           DateTime  @map("citizen_ngaycap")
+  citizen_noicap            String
   TenTK                     String
   STK                       String
   bank                      String
@@ -57,10 +57,11 @@ model Guests {
   fullname          String             @map("fullname") // Chú ý: 'Tên khách thuê'
   birthday          DateTime           @map("birthday") // note: 'Ngày sinh'
   email             String
+  hometown          String
   phone             String             @map("phone") // Chú ý: 'SDT'
   citizenId         String             @map("citizenId") // Chú ý: 'CCCD'
-  cittizen_ngaycap     DateTime        @map("cittizen_ngaycap")
-  cittizen_noicap      String
+  citizen_ngaycap     DateTime        @map("citizen_ngaycap")
+  citizen_noicap      String
   Note              String?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
@@ -89,7 +90,7 @@ model HomeContract {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   invoicesPayment InvoicesPayment[]      
-}  //Note: 'Thiếu tiền cọc, ngày nhận nhà, ngày trả nhà, đổi status thành trạng thái hợp đồng: nháp, đang, kthuc'
+} 
 
 model ServiceContract {
   serviceContractId Int               @id
@@ -99,7 +100,7 @@ model ServiceContract {
   homeId            Int?
   guest             Guests?            @relation(fields: [guestId], references: [guestId])
   guestId           Int?
-  signDate          DateTime?
+  signDate          DateTime
   payCycle          Int           // note: 'Chu kỳ thanh toán'
   duration          Int           // note: 'Thời hạn hợp đồng'
   dateStart         DateTime          @map("dateStart") // Chú ý: 'Ngày nhận nhà'

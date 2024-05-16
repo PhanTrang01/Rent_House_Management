@@ -2,7 +2,7 @@
 import styled from "@emotion/styled";
 import Dashboard from "../../components/Dashboard";
 import Header from "../../components/Header";
-import { useState, useEffect } from "react";
+import { useState, useEffect, JSX } from "react";
 import axios from "axios";
 import { Guests, HomeContract, Homeowners, Homes } from "@prisma/client";
 import dayjs, { Dayjs } from "dayjs";
@@ -10,12 +10,15 @@ import utc from "dayjs/plugin/utc";
 import {
   Button,
   ButtonProps,
+  FilledTextFieldProps,
   FormControl,
   Grid,
   IconButton,
   InputLabel,
+  OutlinedTextFieldProps,
   Paper,
   Select,
+  StandardTextFieldProps,
   Table,
   TableBody,
   TableCell,
@@ -23,11 +26,14 @@ import {
   TableHead,
   TableRow,
   TextField,
+  TextFieldVariants,
   Typography,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { DateField, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { useRouter } from "next/navigation";
 
 dayjs.extend(utc);
 
@@ -44,6 +50,18 @@ type ContractInfo = HomeContract & {
     homeowner: Homeowners;
   };
   guest: Guests;
+};
+
+type GuestForm = {
+  fullname: string;
+  phone: string;
+  birthday: Date;
+  citizenId: string;
+  citizen_ngaycap: Date;
+  citizen_noicap: String;
+  email: String;
+  hometown: String;
+  Note: String | null;
 };
 
 interface Column {
@@ -92,9 +110,29 @@ const columns: readonly Column[] = [
 ];
 
 export default function StorePage({ params }: { params: { id: string } }) {
+  const route = useRouter();
   const [guest, setGuest] = useState<Guests>();
   const [contracts, setContracts] = useState<ContractInfo[]>([]);
   const [isDisabled, setIsDisabled] = useState(true);
+  const [guestForm, setGuestForm] = useState<GuestForm>({
+    fullname: "",
+    phone: "",
+    birthday: new Date(),
+    citizenId: "",
+    citizen_ngaycap: new Date(),
+    citizen_noicap: "",
+    hometown: "",
+    email: "",
+    Note: "",
+  });
+
+  // useEffect(() => {
+  //   const data = localStorage.getItem('guestData');
+  //   if (data) {
+  //     setRow(JSON.parse(data));
+  //     localStorage.removeItem('guestData'); // Optionally clear the data
+  //   }
+  // }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,27 +142,30 @@ export default function StorePage({ params }: { params: { id: string } }) {
 
         if (newGuest) {
           setGuest(newGuest);
+          const { createdAt, updatedAt, guestId, ...newGuestForm } = newGuest;
+          setGuestForm(newGuestForm);
         }
+        console.log(guestForm);
       } catch (error) {
         console.error(error);
       }
     };
     fetchData();
-  }, []);
+  }, [params.id]);
 
-  useEffect(() => {
-    const fetchDataContract = async () => {
-      try {
-        const res = await axios.get(`/api/homeContract?guestId=${params.id}`);
-        const newContract: ContractInfo[] = res.data;
+  const fetchDataContract = async () => {
+    try {
+      const res = await axios.get(`/api/homeContract?guestId=${params.id}`);
+      const newContract: ContractInfo[] = res.data;
 
-        if (newContract.length > 0) {
-          setContracts(newContract);
-        }
-      } catch (error) {
-        console.error(error);
+      if (newContract.length > 0) {
+        setContracts(newContract);
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
     fetchDataContract();
   }, []);
 
@@ -134,9 +175,21 @@ export default function StorePage({ params }: { params: { id: string } }) {
 
   const handleClose = () => {
     setIsDisabled(true);
+    window.location.reload();
   };
 
-  const handleSubmit = () => {};
+  const handleSubmit = () => {
+    const handleSave = async () => {
+      try {
+        const response = await axios.put(`/api/guest/${params.id}`, guestForm);
+        console.log("Data updated successfully:", response.data);
+      } catch (error) {
+        console.error("Error saving data:", error);
+      }
+    };
+    handleSave();
+    route.push("/guest");
+  };
   return (
     <Wrapper>
       <Dashboard />
@@ -166,15 +219,24 @@ export default function StorePage({ params }: { params: { id: string } }) {
                 <Grid item lg={5}>
                   <Item>
                     <TextField
-                      //   disabled={isDisabled}
-                      margin="dense"
+                      required
+                      disabled={isDisabled}
                       id="name"
                       label="Tên khách thuê"
                       type="text"
                       fullWidth
-                      defaultValue={guest ? guest.fullname : ""}
+                      value={guestForm.fullname}
                       size="small"
                       variant="standard"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      onChange={(e) => {
+                        setGuestForm({
+                          ...guestForm,
+                          fullname: e.target.value,
+                        });
+                      }}
                     />
                   </Item>
                 </Grid>
@@ -186,9 +248,18 @@ export default function StorePage({ params }: { params: { id: string } }) {
                       fullWidth
                       id="birthday"
                       label="Ngày Sinh"
-                      defaultValue={dayjs.utc(guest?.birthday)}
+                      value={dayjs.utc(guestForm.birthday)}
                       size="small"
                       variant="standard"
+                      onChange={(newValue) => {
+                        if (newValue) {
+                          const temp = newValue?.toDate();
+                          setGuestForm({
+                            ...guestForm,
+                            birthday: temp,
+                          });
+                        }
+                      }}
                     />
                   </Item>
                 </Grid>
@@ -196,14 +267,22 @@ export default function StorePage({ params }: { params: { id: string } }) {
                   <Item>
                     <TextField
                       disabled={isDisabled}
-                      margin="dense"
                       id="phone"
                       label="Số điện thoại"
                       type="text"
                       fullWidth
-                      defaultValue={guest ? guest.phone : ""}
+                      value={guestForm.phone}
                       size="small"
                       variant="standard"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      onChange={(e) => {
+                        setGuestForm({
+                          ...guestForm,
+                          phone: e.target.value,
+                        });
+                      }}
                     />
                   </Item>
                 </Grid>
@@ -211,14 +290,22 @@ export default function StorePage({ params }: { params: { id: string } }) {
                   <Item>
                     <TextField
                       disabled={isDisabled}
-                      margin="dense"
                       id="email"
                       label="Email"
                       type="text"
                       fullWidth
-                      defaultValue={guest?.email}
+                      value={guest?.email}
                       size="small"
                       variant="standard"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      onChange={(e) => {
+                        setGuestForm({
+                          ...guestForm,
+                          email: e.target.value,
+                        });
+                      }}
                     />
                   </Item>
                 </Grid>
@@ -226,59 +313,115 @@ export default function StorePage({ params }: { params: { id: string } }) {
                   <Item>
                     <TextField
                       disabled={isDisabled}
-                      margin="dense"
                       id=""
                       label="Số CCCD"
                       type="text"
                       fullWidth
-                      defaultValue={guest?.citizenId}
+                      value={guest?.citizenId}
                       size="small"
                       variant="standard"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      onChange={(e) => {
+                        setGuestForm({
+                          ...guestForm,
+                          citizenId: e.target.value,
+                        });
+                      }}
                     />
                   </Item>
                 </Grid>
-                <Grid item lg={5}>
+                <Grid item lg={2.5}>
                   <Item>
                     <DateField
                       disabled={isDisabled}
                       fullWidth
-                      id="cittizen_ngaycap"
+                      id="citizen_ngaycap"
                       label="Ngày cấp CCCD"
-                      defaultValue={dayjs.utc(guest?.cittizen_ngaycap)}
+                      value={dayjs.utc(guestForm.citizen_ngaycap)}
                       size="small"
                       variant="standard"
+                      onChange={(newValue) => {
+                        if (newValue) {
+                          setGuestForm({
+                            ...guestForm,
+                            citizen_ngaycap: newValue.toDate(),
+                          });
+                        }
+                      }}
                     />
                   </Item>
                 </Grid>
 
+                <Grid item lg={2.5}>
+                  <Item>
+                    <TextField
+                      disabled={isDisabled}
+                      id="citizen_noicap"
+                      label="Nơi cấp CCCD"
+                      type="text"
+                      fullWidth
+                      defaultValue={guest?.citizen_noicap}
+                      size="small"
+                      variant="standard"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      onChange={(e) => {
+                        setGuestForm({
+                          ...guestForm,
+                          citizen_noicap: e.target.value,
+                        });
+                      }}
+                    />
+                  </Item>
+                </Grid>
                 <Grid item lg={5}>
                   <Item>
                     <TextField
                       disabled={isDisabled}
-                      margin="dense"
-                      id="cittizen_noicap"
-                      label="Nơi cấp CCCD"
+                      id="hometown"
+                      label="Quê quán"
                       type="text"
                       fullWidth
-                      defaultValue={guest?.cittizen_noicap}
+                      value={guest?.hometown}
                       size="small"
                       variant="standard"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      onChange={(e) => {
+                        setGuestForm({
+                          ...guestForm,
+                          hometown: e.target.value,
+                        });
+                      }}
                     />
                   </Item>
                 </Grid>
                 <Grid item lg={10}>
                   <Item>
                     <TextField
-                      margin="dense"
+                      disabled={isDisabled}
                       id="Note"
                       label="Ghi chú"
                       type="number"
-                      defaultValue={guest?.Note}
+                      value={guest?.Note}
                       fullWidth
                       size="small"
                       variant="standard"
                       multiline
                       maxRows={4}
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      onChange={(e) => {
+                        setGuestForm({
+                          ...guestForm,
+                          Note: e.target.value,
+                        });
+                      }}
                     />
                   </Item>
                 </Grid>
@@ -286,25 +429,48 @@ export default function StorePage({ params }: { params: { id: string } }) {
             </DemoContainer>
           </LocalizationProvider>
           <br />
-          <Button variant="outlined" size="large" onClick={handleEdit}>
-            Chỉnh sửa
-          </Button>
-          <Button
-            disabled={isDisabled}
-            variant="outlined"
-            size="large"
-            onClick={handleClose}
+          <Grid
+            container
+            columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+            sx={{
+              textAlign: "right",
+              display: "flex",
+              justifyContent: "center",
+            }}
           >
-            Hủy
-          </Button>
-          <ColorButton
-            disabled={isDisabled}
-            variant="contained"
-            size="large"
-            onClick={handleSubmit}
-          >
-            Lưu
-          </ColorButton>
+            <Grid lg={6}>
+              <Button
+                hidden={!isDisabled}
+                variant="outlined"
+                size="large"
+                endIcon={<EditIcon />}
+                onClick={handleEdit}
+              >
+                Chỉnh sửa
+              </Button>
+            </Grid>
+            <Grid lg={4}>
+              <Button
+                hidden={isDisabled}
+                variant="outlined"
+                size="large"
+                sx={{
+                  textAlign: "right",
+                }}
+                onClick={handleClose}
+              >
+                Hủy
+              </Button>
+              <ColorButton
+                hidden={isDisabled}
+                variant="outlined"
+                size="large"
+                onClick={handleSubmit}
+              >
+                Lưu
+              </ColorButton>
+            </Grid>
+          </Grid>
         </Paper>
         <Paper
           sx={{
@@ -371,15 +537,16 @@ export default function StorePage({ params }: { params: { id: string } }) {
 
 const ColorButton = styled(Button)<ButtonProps>(() => ({
   color: "black",
-  backgroundColor: "#bd8cfe",
+  backgroundColor: "#a689ff !important",
   margin: "0px 10px",
   "&:hover": {
-    backgroundColor: "#cfe0fa",
+    backgroundColor: "#a18aae",
+    color: "black",
   },
 }));
 
 const Item = styled(Paper)(() => ({
-  backgroundColor: "#f5f5fb",
+  backgroundColor: "#f2e9f8",
   padding: "7px",
   textAlign: "center",
 }));
