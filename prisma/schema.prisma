@@ -40,85 +40,89 @@ model Homes {
   Ward            String
   District        String
   Province        String
-  apartmentNo     String             //note: 'căn hộ số'
+  apartmentNo     String //note: 'căn hộ số'
   building        String?           @map("building") // note: 'Tên tòa nhà'
   active          Boolean           @default(false) // note: 'Đang trống'
   Note            String?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  homeowner       Homeowners?        @relation(fields: [homeOwnerId], references: [homeOwnerId])
+  homeowner       Homeowners?       @relation(fields: [homeOwnerId], references: [homeOwnerId])
   homeContracts   HomeContract[]
   ServiceContract ServiceContract[]
   InvoicesPayment InvoicesPayment[]
 }
 
 model Guests {
-  guestId           Int                @id @default(autoincrement())
-  fullname          String             @map("fullname") // Chú ý: 'Tên khách thuê'
-  birthday          DateTime           @map("birthday") // note: 'Ngày sinh'
-  email             String
-  hometown          String
-  phone             String             @map("phone") // Chú ý: 'SDT'
-  citizenId         String             @map("citizenId") // Chú ý: 'CCCD'
-  citizen_ngaycap     DateTime        @map("citizen_ngaycap")
-  citizen_noicap      String
-  Note              String?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  homeContracts     HomeContract[]
-  serviceContracts  ServiceContract[]
+  guestId          Int               @id @default(autoincrement())
+  fullname         String            @map("fullname") // Chú ý: 'Tên khách thuê'
+  birthday         DateTime          @map("birthday") // note: 'Ngày sinh'
+  email            String
+  hometown         String
+  phone            String            @map("phone") // Chú ý: 'SDT'
+  citizenId        String            @map("citizenId") // Chú ý: 'CCCD'
+  citizen_ngaycap  DateTime          @map("citizen_ngaycap")
+  citizen_noicap   String
+  Note             String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  homeContracts    HomeContract[]
+  serviceContracts ServiceContract[]
 }
+
 enum StatusContract {
-    DRAFT
-    ACTIVE
-    FINISH
+  DRAFT
+  ACTIVE
+  FINISH
 }
 
 model HomeContract {
   homeContractsId Int               @id @default(autoincrement())
-  home            Homes?             @relation(fields: [homeId], references: [homeId])
+  home            Homes?            @relation(fields: [homeId], references: [homeId])
   homeId          Int?
-  guest           Guests?            @relation(fields: [guestId], references: [guestId])
-  guestId         Int?               // Đây là trường guestId thực sự trong mô hình HomeContract
+  guest           Guests?           @relation(fields: [guestId], references: [guestId])
+  guestId         Int? // Đây là trường guestId thực sự trong mô hình HomeContract
   dateStart       DateTime          @map("dateStart") // Chú ý: 'Ngày nhận nhà'
   dateEnd         DateTime          @map("dateEnd") // Chú ý: 'Ngày trả nhà'
-  payCycle        Int             // note: 'Chu kỳ thanh toán'
-  duration        Int             // note: 'Thời hạn hợp đồng'
+  payCycle        Int // note: 'Chu kỳ thanh toán'
+  duration        Int // note: 'Thời hạn hợp đồng'
   rental          Float
   deposit         Float
-  status          StatusContract     // Chú ý: 'Chưa thanh toán'
+  status          StatusContract // Chú ý: 'Chưa thanh toán'
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  invoicesPayment InvoicesPayment[]      
-} 
+  invoicesPayment InvoicesPayment[]
+  serviceContract ServiceContract[]
+}
 
 model ServiceContract {
-  serviceContractId Int               @id
-  serviceId         Int?
-  service           Service?           @relation(fields: [serviceId], references: [serviceId])
-  home              Homes?             @relation(fields: [homeId], references: [homeId])
-  homeId            Int?
-  guest             Guests?            @relation(fields: [guestId], references: [guestId])
-  guestId           Int?
-  signDate          DateTime
-  payCycle          Int           // note: 'Chu kỳ thanh toán'
-  duration          Int           // note: 'Thời hạn hợp đồng'
-  dateStart         DateTime          @map("dateStart") // Chú ý: 'Ngày nhận nhà'
-  dateEnd           DateTime          @map("dateEnd") // Chú ý: 'Ngày trả nhà'
-  unitCost          Float         // note: 'Đơn giá của dịch vụ '
-  statusContract    StatusContract            // note: 'Status of contract'
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  InvoicesPayment   InvoicesPayment[]
+  serviceContractId           Int               @id
+  homeContractsId             Int
+  homeContracts               HomeContract      @relation(fields: [homeContractsId], references: [homeContractsId])
+  serviceId                   Int?
+  service                     Service?          @relation(fields: [serviceId], references: [serviceId])
+  home                        Homes?            @relation(fields: [homeId], references: [homeId])
+  homeId                      Int?
+  guest                       Guests?           @relation(fields: [guestId], references: [guestId])
+  guestId                     Int?
+  signDate                    DateTime
+  payCycle                    Int // note: 'Chu kỳ thanh toán'
+  duration                    Int // note: 'Thời hạn hợp đồng'
+  dateStart                   DateTime          @map("dateStart") // Chú ý: 'Ngày nhận nhà'
+  dateEnd                     DateTime          @map("dateEnd") // Chú ý: 'Ngày trả nhà'
+  unitCost                    Float // note: 'Đơn giá của dịch vụ '
+  statusContract              StatusContract // note: 'Status of contract'
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @updatedAt
+  InvoicesPayment             InvoicesPayment[]
 }
 
 enum TypeInvoice {
-    SERVICE
-    EVN
+  SERVICE
+  EVN
 }
 
 model InvoicesPayment {
-  serviceInvoiceId  Int             @id @default(autoincrement())
+  serviceInvoiceId  Int              @id @default(autoincrement())
   serviceContract   ServiceContract? @relation(fields: [serviceContractId], references: [serviceContractId])
   serviceContractId Int?
   homeContract      HomeContract?    @relation(fields: [homeContractId], references: [homeContractsId])
@@ -126,23 +130,23 @@ model InvoicesPayment {
   home              Homes?           @relation(fields: [homeId], references: [homeId])
   homeId            Int?
   type              TypeInvoice
-  datePaymentRemind DateTime        @map("datePaymentRemind") // note: 'Ngày nhắc nhở dự kiến'
-  datePaymentExpect DateTime        @map("datePaymentExpect") // note: 'Ngày thanh toán dự kiến'
-  datePaymentReal   DateTime        @map("datePaymentReal") // note: 'Ngày thanh toán thực tế'
-  dateStart         DateTime        @map("dateStart") // note: 'Ngày bắt đầu đợt thanh toán'
-  dateEnd           DateTime        @map("dateEnd") // note: 'Ngày kết thúc đợt thanh toán'
+  datePaymentRemind DateTime         @map("datePaymentRemind") // note: 'Ngày nhắc nhở dự kiến'
+  datePaymentExpect DateTime         @map("datePaymentExpect") // note: 'Ngày thanh toán dự kiến'
+  datePaymentReal   DateTime         @map("datePaymentReal") // note: 'Ngày thanh toán thực tế'
+  dateStart         DateTime         @map("dateStart") // note: 'Ngày bắt đầu đợt thanh toán'
+  dateEnd           DateTime         @map("dateEnd") // note: 'Ngày kết thúc đợt thanh toán'
   totalSend         Float
   totalReceiver     Float
   limit             Float?
-  statusPayment     Boolean         @default(false) // note: 'Chưa thanh toán'
+  statusPayment     Boolean          @default(false) // note: 'Chưa thanh toán'
   receiverId        Int?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  receiver          Receiver?       @relation(fields: [receiverId], references: [receiverId])
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  receiver          Receiver?        @relation(fields: [receiverId], references: [receiverId])
 }
 
 model Receiver {
-  receiverId      Int               @id　@default(autoincrement())
+  receiverId      Int               @id @default(autoincrement())
   name            String
   phone           String? // note: 'SDT'
   email           String? // note: 'SDT'

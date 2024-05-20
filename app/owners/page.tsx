@@ -28,6 +28,7 @@ import { DateField, LocalizationProvider } from "@mui/x-date-pickers";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useRouter } from "next/navigation";
+import DeleteRecipientDialog from "../components/DialogWarnning";
 
 dayjs.extend(utc);
 
@@ -122,11 +123,12 @@ const columns: readonly Column[] = [
 export default function Owners() {
   const router = useRouter();
   const [page, setPage] = React.useState(0);
+  const [openDialogDetele, setOpenDialogDetele] = useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [owners, setOwners] = React.useState<Owner[]>([]);
   const [owner, setOwner] = React.useState<Owner>();
   const [open, setOpen] = React.useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<Number | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<number | null>(null);
   const [value, setValue] = React.useState<Dayjs | null>();
 
   const [dataCreateOwner, setCreateOwner] = React.useState<CreateOwner>({
@@ -142,7 +144,7 @@ export default function Owners() {
     email: "",
   });
 
-  const handleEdit = (id: Number) => {
+  const handleEdit = (id: number) => {
     setSelectedRecord(id);
     axios
       .get(`/api/owner/${id}`)
@@ -168,8 +170,7 @@ export default function Owners() {
       });
   };
 
-  const handleDelete = (id: Number) => {
-    setSelectedRecord(id);
+  const handleDelete = (id: number) => {
     axios
       .delete(`/api/owner/${id}`)
       .then(function (response) {
@@ -178,6 +179,11 @@ export default function Owners() {
       .catch(function (error) {
         console.error("Error delete owner data:", error);
       });
+  };
+
+  const handleCloseDialogDatele = () => {
+    setOpenDialogDetele(false);
+    setSelectedRecord(null);
   };
 
   const handleClickOpen = () => {
@@ -456,10 +462,19 @@ export default function Owners() {
                             <EditIcon />
                           </IconButton>
                           <IconButton
-                            onClick={() => handleDelete(row.homeOwnerId)}
+                            onClick={() => {
+                              setOpenDialogDetele(true);
+                              setSelectedRecord(row.homeOwnerId);
+                            }}
                           >
                             <DeleteIcon />
                           </IconButton>
+                          <DeleteRecipientDialog
+                            openDialogDelete={openDialogDetele}
+                            handleCloseDialogDelete={handleCloseDialogDatele}
+                            selectedRecord={selectedRecord}
+                            handleDelete={handleDelete}
+                          />
                         </TableCell>
                       </TableRow>
                     );

@@ -28,14 +28,20 @@ export async function GET(req: NextRequest) {
   } finally {
     await prisma.$disconnect();
   }
-
-  // const allUsers = await prisma.homeowners.findMany();
-  // console.dir(allUsers, { depth: null });
 }
 
 export async function POST(req: Request) {
   try {
-    const { _homeOwnerId, address, fullName } = await req.json();
+    const {
+      _homeOwnerId,
+      address,
+      building,
+      apartmentNo,
+      Ward,
+      District,
+      Province,
+      Note,
+    } = await req.json();
     if (!_homeOwnerId || !address) {
       throw new Error("Invalid address or homeOwnerId information");
     }
@@ -44,7 +50,12 @@ export async function POST(req: Request) {
       data: {
         homeOwnerId: Number(_homeOwnerId),
         address,
-        fullname: String(fullName),
+        apartmentNo,
+        building,
+        Ward,
+        District,
+        Province,
+        Note,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -59,7 +70,17 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    const { _homeId, _active, address, fullName } = await req.json();
+    const {
+      _homeId,
+      _active,
+      address,
+      building,
+      apartmentNo,
+      Ward,
+      District,
+      Province,
+      Note,
+    } = await req.json();
 
     if (!_homeId) {
       throw new Error("Invalid homeId information");
@@ -69,7 +90,12 @@ export async function PUT(req: Request) {
       where: { homeId: Number(_homeId) },
       data: {
         address,
-        fullname: String(fullName),
+        apartmentNo,
+        building,
+        Ward,
+        District,
+        Province,
+        Note,
         active: Boolean(_active),
       },
     });

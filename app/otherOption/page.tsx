@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   IconButton,
   Paper,
@@ -32,6 +33,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import React, { useEffect, useState } from "react";
 import { Receiver, Service } from "@prisma/client";
 import axios from "axios";
+import DeleteRecipientDialog from "../components/DialogWarnning";
 
 const Wrapper = styled.div`
   display: flex;
@@ -132,7 +134,10 @@ export default function OtherOption() {
   const [searchVal, setSearchval] = useState<String>("");
   const [open1, setOpen1] = useState(false);
   const [open2, setOpen2] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<Number | null>(null);
+  const [openDialogDetele1, setOpenDialogDetele1] = useState(false);
+  const [openDialogDetele2, setOpenDialogDetele2] = useState(false);
+  const [selectedRecord1, setSelectedRecord1] = useState<number | null>(null);
+  const [selectedRecord2, setSelectedRecord2] = useState<number | null>(null);
   const [dataServices, setDataServices] = useState<Service[]>([]);
   const [dataReceivers, setDataReceivers] = useState<Receiver[]>([]);
   const [service, setService] = useState<Service>({
@@ -155,8 +160,25 @@ export default function OtherOption() {
   });
 
   const handleEdit = (id: Number) => {};
-  const handleDelete = (id: Number) => {
-    // setSelectedRecord(id);
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await axios.delete(`/api/serviceO/${id}`);
+      console.log("Data deleted successfully:", response.data);
+      // Update the state or perform necessary actions to reflect the deletion
+    } catch (error) {
+      console.error("Error deleting data:", error);
+    }
+    window.location.reload(); // Consider updating state instead of reloading the page
+  };
+  const handleDelete2 = async (id: number) => {
+    try {
+      const response = await axios.delete(`/api/receiver/${id}`);
+      console.log("Data deleted successfully:", response.data);
+      // Update the state or perform necessary actions to reflect the deletion
+    } catch (error) {
+      console.error("Error deleting data:", error);
+    }
+    window.location.reload(); // Consider updating state instead of reloading the page
   };
 
   const handleClickOpen1 = () => {
@@ -167,13 +189,29 @@ export default function OtherOption() {
     setOpen2(true);
   };
 
+  const handleClickOpenDialogDatele1 = () => {
+    setOpenDialogDetele1(true);
+  };
+
+  const handleClickOpenDialogDatele2 = () => {
+    setOpenDialogDetele2(true);
+  };
+
   const handleClose1 = () => {
     setOpen1(false);
-    setSelectedRecord(null);
+    setSelectedRecord1(null);
   };
   const handleClose2 = () => {
     setOpen2(false);
-    setSelectedRecord(null);
+    setSelectedRecord2(null);
+  };
+  const handleCloseDialogDatele1 = () => {
+    setOpenDialogDetele1(false);
+    setSelectedRecord1(null);
+  };
+  const handleCloseDialogDatele2 = () => {
+    setOpenDialogDetele2(false);
+    setSelectedRecord2(null);
   };
 
   const handleSubmit1 = () => {
@@ -280,7 +318,7 @@ export default function OtherOption() {
             </Box>
             <Dialog open={open1} onClose={handleClose1}>
               <DialogTitle>
-                {selectedRecord === null
+                {selectedRecord1 === null
                   ? "Thêm thông tin dịch vụ"
                   : "Chỉnh sửa thông tin dịch vụ"}{" "}
               </DialogTitle>
@@ -292,7 +330,7 @@ export default function OtherOption() {
                   id="name"
                   label="Tên dịch vụ"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : service?.name}
+                  defaultValue={selectedRecord1 === null ? "" : service?.name}
                   fullWidth
                   onChange={(e) => {
                     setService({ ...service, name: e.target.value });
@@ -304,7 +342,7 @@ export default function OtherOption() {
                   id="unit"
                   label="Đơn vị tính"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : service?.unit}
+                  defaultValue={selectedRecord1 === null ? "" : service?.unit}
                   fullWidth
                   onChange={(e) => {
                     setService({ ...service, unit: e.target.value });
@@ -317,7 +355,7 @@ export default function OtherOption() {
                   label="Mô tả"
                   type="text"
                   defaultValue={
-                    selectedRecord === null ? "" : service?.description
+                    selectedRecord1 === null ? "" : service?.description
                   }
                   fullWidth
                   onChange={(e) => {
@@ -332,7 +370,7 @@ export default function OtherOption() {
             </Dialog>
             <Dialog open={open2} onClose={handleClose2}>
               <DialogTitle>
-                {selectedRecord === null
+                {selectedRecord2 === null
                   ? "Thêm thông tin người nhận"
                   : "Chỉnh sửa thông tin người nhận"}
               </DialogTitle>
@@ -344,7 +382,7 @@ export default function OtherOption() {
                   id="name"
                   label="Tên người nhận"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : receiver.name}
+                  defaultValue={selectedRecord2 === null ? "" : receiver.name}
                   fullWidth
                   onChange={(e) => {
                     setReceiver({ ...receiver, name: e.target.value });
@@ -354,9 +392,9 @@ export default function OtherOption() {
                   required
                   margin="dense"
                   id="phone"
-                  label="Đơn vị tính"
+                  label="Số điện thoại"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : receiver.phone}
+                  defaultValue={selectedRecord2 === null ? "" : receiver.phone}
                   fullWidth
                   onChange={(e) => {
                     setReceiver({ ...receiver, phone: e.target.value });
@@ -368,7 +406,7 @@ export default function OtherOption() {
                   id="email"
                   label="Email"
                   type="email"
-                  defaultValue={selectedRecord === null ? "" : receiver.email}
+                  defaultValue={selectedRecord2 === null ? "" : receiver.email}
                   fullWidth
                   onChange={(e) => {
                     setReceiver({ ...receiver, email: e.target.value });
@@ -380,7 +418,9 @@ export default function OtherOption() {
                   id="taxcode"
                   label="Mã số thuế"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : receiver.taxcode}
+                  defaultValue={
+                    selectedRecord2 === null ? "" : receiver.taxcode
+                  }
                   fullWidth
                   onChange={(e) => {
                     setReceiver({ ...receiver, taxcode: e.target.value });
@@ -392,7 +432,7 @@ export default function OtherOption() {
                   id="STK"
                   label="Số tài khoản"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : receiver.STK}
+                  defaultValue={selectedRecord2 === null ? "" : receiver.STK}
                   fullWidth
                   onChange={(e) => {
                     setReceiver({ ...receiver, STK: e.target.value });
@@ -404,7 +444,7 @@ export default function OtherOption() {
                   id="TenTK"
                   label="Tên Tài khoản"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : receiver.TenTK}
+                  defaultValue={selectedRecord2 === null ? "" : receiver.TenTK}
                   fullWidth
                   onChange={(e) => {
                     setReceiver({ ...receiver, TenTK: e.target.value });
@@ -417,7 +457,7 @@ export default function OtherOption() {
                   label="Tên Ngân hàng"
                   type="text"
                   defaultValue={
-                    selectedRecord === null ? "" : receiver.Nganhang
+                    selectedRecord2 === null ? "" : receiver.Nganhang
                   }
                   fullWidth
                   onChange={(e) => {
@@ -430,7 +470,7 @@ export default function OtherOption() {
                   id="note"
                   label="Ghi chú"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : receiver.note}
+                  defaultValue={selectedRecord2 === null ? "" : receiver.note}
                   fullWidth
                   onChange={(e) => {
                     setReceiver({ ...receiver, note: e.target.value });
@@ -511,10 +551,21 @@ export default function OtherOption() {
                                   <EditIcon />
                                 </IconButton>
                                 <IconButton
-                                  onClick={() => handleDelete(row.serviceId)}
+                                  onClick={() => {
+                                    setOpenDialogDetele1(true);
+                                    setSelectedRecord1(row.serviceId);
+                                  }}
                                 >
                                   <DeleteIcon />
                                 </IconButton>
+                                <DeleteRecipientDialog
+                                  openDialogDelete={openDialogDetele1}
+                                  handleCloseDialogDelete={
+                                    handleCloseDialogDatele1
+                                  }
+                                  selectedRecord={selectedRecord1}
+                                  handleDelete={handleDelete}
+                                />
                               </TableCell>
                             </TableRow>
                           );
@@ -577,16 +628,27 @@ export default function OtherOption() {
                                 );
                               })}
                               <TableCell align="center">
-                                <IconButton
+                                {/* <IconButton
                                 // onClick={() => handleEdit(row.serviceId)}
                                 >
                                   <EditIcon />
-                                </IconButton>
+                                </IconButton> */}
                                 <IconButton
-                                // onClick={() => handleDelete(row.serviceId)}
+                                  onClick={() => {
+                                    setOpenDialogDetele2(true);
+                                    setSelectedRecord2(row.receiverId);
+                                  }}
                                 >
                                   <DeleteIcon />
                                 </IconButton>
+                                <DeleteRecipientDialog
+                                  openDialogDelete={openDialogDetele2}
+                                  handleCloseDialogDelete={
+                                    handleCloseDialogDatele2
+                                  }
+                                  selectedRecord={selectedRecord2}
+                                  handleDelete={handleDelete2}
+                                />
                               </TableCell>
                             </TableRow>
                           );

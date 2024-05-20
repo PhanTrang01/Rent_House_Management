@@ -165,6 +165,7 @@ export default function AddRent() {
               justifyContent: "center",
             }}
           >
+            0
             <Grid item lg={5}>
               <Item>
                 <FormControl fullWidth size="small">

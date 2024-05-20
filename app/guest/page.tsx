@@ -99,7 +99,7 @@ const columns: readonly Column[] = [
   },
 ];
 
-export default function OtherOption() {
+export default function Guest() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [guests, setGuests] = useState<Guests[]>([]);
@@ -357,6 +357,10 @@ export default function OtherOption() {
                           tabIndex={-1}
                           key={row.guestId}
                           onClick={() => {
+                            localStorage.setItem(
+                              "guestData",
+                              JSON.stringify(row)
+                            );
                             router.push(`/guest/${row.guestId}`);
                           }}
                         >

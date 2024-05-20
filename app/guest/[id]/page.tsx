@@ -151,6 +151,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.id]);
 
   const fetchDataContract = async () => {
@@ -165,8 +166,10 @@ export default function StorePage({ params }: { params: { id: string } }) {
       console.error(error);
     }
   };
+
   useEffect(() => {
     fetchDataContract();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleEdit = () => {

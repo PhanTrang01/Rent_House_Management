@@ -14,21 +14,28 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id: homeId } = params;
-    const home = await prisma.homes.findUniqueOrThrow({
+    const { id } = params;
+    const homeContract = await prisma.homeContract.findUniqueOrThrow({
       where: {
-        homeId: Number(homeId),
+        homeContractsId: Number(id),
+      },
+      include: {
+        guest: true,
+        home: {
+          include: {
+            homeowner: true,
+          },
+        },
       },
     });
 
-    return NextResponse.json(home);
+    return NextResponse.json(homeContract);
   } catch (error) {
-    console.error("Error find Home:", error);
+    console.error("Error find HomeContract:", error);
   } finally {
     await prisma.$disconnect();
   }
 }
-
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } }
@@ -36,10 +43,10 @@ export async function DELETE(
   try {
     const { id } = params;
 
-    const deletedHome = await prisma.homes.delete({
-      where: { homeId: parseInt(id as string, 10) },
+    const deletedHomeContract = await prisma.homeContract.delete({
+      where: { homeContractsId: parseInt(id as string, 10) },
     });
-    return NextResponse.json(deletedHome);
+    return NextResponse.json(deletedHomeContract);
   } catch (error) {
     console.error("Error read HomeOwner:", error);
   } finally {

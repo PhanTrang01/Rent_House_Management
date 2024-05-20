@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.nextUrl);
     const searchKey = searchParams.get("q") ?? " ";
     const guestId = searchParams.get("guestId") ?? " ";
+    const homeId = searchParams.get("homeId") ?? " ";
 
     const allRents = await prisma.homeContract.findMany({
       include: {
@@ -47,6 +48,7 @@ export async function GET(req: NextRequest) {
           {
             home: {
               OR: [
+                { homeId: Number(homeId) },
                 {
                   address: {
                     contains: String(searchKey),

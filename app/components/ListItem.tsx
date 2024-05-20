@@ -27,7 +27,7 @@ export const mainListItems = (
         <ListItemText primary="Tổng quát" />
       </ListItemButton>
     </Link>
-    <Link href="/ListRent">
+    <Link href="/homes">
       <ListItemButton>
         <ListItemIcon>
           <ApartmentIcon sx={{ color: "white" }} />
