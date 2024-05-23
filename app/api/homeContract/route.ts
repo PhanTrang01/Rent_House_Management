@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, StatusContract } from "@prisma/client";
 import { type } from "os";
 import { useState } from "react";
 
@@ -71,6 +71,69 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(allRents);
   } catch (error) {
     console.error("Error find Home Contract:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const {
+      homeId,
+      guestId,
+      duration,
+      payCycle,
+      rental,
+      deposit,
+      status,
+      dateEnd,
+      dateStart,
+    } = await req.json();
+    if (
+      !homeId ||
+      !guestId ||
+      !duration ||
+      !payCycle ||
+      !rental ||
+      !dateStart
+    ) {
+      throw new Error("Invalid information");
+    }
+
+    // Kiểm tra xem có hợp đồng nào đang ACTIVE với homeId này không
+    const existingActiveContract = await prisma.homeContract.findFirst({
+      where: {
+        homeId: Number(homeId),
+        status: StatusContract.ACTIVE,
+      },
+    });
+
+    if (existingActiveContract) {
+      // Nếu có hợp đồng ACTIVE, trả về lỗi
+      return NextResponse.json(
+        { error: "An active contract already exists for this homeId" },
+        { status: 400 }
+      );
+    }
+
+    const newContract = await prisma.homeContract.create({
+      data: {
+        homeId: Number(homeId),
+        guestId: Number(guestId),
+        duration,
+        payCycle,
+        rental,
+        deposit,
+        status: StatusContract.ACTIVE,
+        dateEnd,
+        dateStart,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+    return NextResponse.json(newContract);
+  } catch (error) {
+    console.error("Error creating Contract:", error);
   } finally {
     await prisma.$disconnect();
   }

@@ -163,7 +163,7 @@ export default function OtherOption() {
   const handleDelete = async (id: number) => {
     try {
       const response = await axios.delete(`/api/serviceO/${id}`);
-      console.log("Data deleted successfully:", response.data);
+      // console.log("Data deleted successfully:", response.data);
       // Update the state or perform necessary actions to reflect the deletion
     } catch (error) {
       console.error("Error deleting data:", error);

@@ -44,6 +44,7 @@ const WrapperContainer = styled.div`
 type Owner = Homeowners;
 
 type CreateOwner = {
+  homeOwnerId: number | null;
   name: string;
   phone: string;
   birthday: Date;
@@ -54,6 +55,7 @@ type CreateOwner = {
   TenTK: String;
   bank: String;
   email: String;
+  Note: String | null;
 };
 
 interface Column {
@@ -132,6 +134,7 @@ export default function Owners() {
   const [value, setValue] = React.useState<Dayjs | null>();
 
   const [dataCreateOwner, setCreateOwner] = React.useState<CreateOwner>({
+    homeOwnerId: null,
     name: "",
     phone: "",
     birthday: new Date(),
@@ -142,6 +145,7 @@ export default function Owners() {
     TenTK: "",
     bank: "",
     email: "",
+    Note: null,
   });
 
   const handleEdit = (id: number) => {
@@ -152,6 +156,7 @@ export default function Owners() {
         setOwner(response.data);
         setCreateOwner({
           ...dataCreateOwner,
+          homeOwnerId: id,
           name: response.data.fullname,
           phone: response.data.phone,
           email: response.data.email,
@@ -162,6 +167,7 @@ export default function Owners() {
           STK: response.data.STK,
           TenTK: response.data.TenTK,
           bank: response.data.bank,
+          Note: response.data.Note,
         });
         setOpen(true);
       })
@@ -201,6 +207,20 @@ export default function Owners() {
     axios
       .post("/api/owner", dataCreateOwner)
       .then(function (response) {
+        window.location.reload();
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+  const handleSubmitUpdate = () => {
+    setOpen(false);
+    console.log(dataCreateOwner);
+    axios
+      .put("/api/owner", dataCreateOwner)
+      .then(function (response) {
+        console.log(dataCreateOwner);
+
         window.location.reload();
       })
       .catch(function (error) {
@@ -403,11 +423,28 @@ export default function Owners() {
                   });
                 }}
               />
+              <TextField
+                margin="dense"
+                id="Note"
+                label="Ghi chú"
+                type="text"
+                fullWidth
+                onChange={(e) => {
+                  setCreateOwner({
+                    ...dataCreateOwner,
+                    Note: e.target.value,
+                  });
+                }}
+              />
             </LocalizationProvider>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Hủy</Button>
-            <Button onClick={handleSubmit}>Lưu</Button>
+            {selectedRecord === null ? (
+              <Button onClick={handleSubmit}>Lưu</Button>
+            ) : (
+              <Button onClick={handleSubmitUpdate}>Lưu thay đổi</Button>
+            )}
           </DialogActions>
         </Dialog>
         <Paper sx={{ marginTop: "60px", width: "100%", overflow: "hidden" }}>

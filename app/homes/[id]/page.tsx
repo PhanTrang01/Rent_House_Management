@@ -4,17 +4,30 @@ import Dashboard from "../../components/Dashboard";
 import Header from "../../components/Header";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Guests, HomeContract, Homeowners, Homes } from "@prisma/client";
+import {
+  Guests,
+  HomeContract,
+  Homeowners,
+  Homes,
+  StatusContract,
+} from "@prisma/client";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {
+  Alert,
+  Autocomplete,
   Button,
   ButtonProps,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FilledTextFieldProps,
   FormControl,
   FormControlLabel,
   Grid,
   IconButton,
+  InputAdornment,
   InputLabel,
   OutlinedTextFieldProps,
   Paper,
@@ -63,6 +76,17 @@ type HomeForm = {
   Note: string | null;
 };
 
+type ContractForm = {
+  homeId: number | null;
+  guestId: number | null;
+  duration: number;
+  payCycle: number | null;
+  rental: number;
+  deposit: number;
+  dateStart: Date;
+  dateEnd: Date;
+  status: StatusContract;
+};
 interface Column {
   id:
     | "owner"
@@ -114,6 +138,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
   const [home, setHome] = useState<Homes>();
   const [contracts, setContracts] = useState<ContractInfo[]>([]);
   const [isDisabled, setIsDisabled] = useState(true);
+
   const [homeForm, setHomeForm] = useState<HomeForm>({
     homeOwnerId: null,
     address: "",
@@ -124,6 +149,23 @@ export default function StorePage({ params }: { params: { id: string } }) {
     Province: "",
     active: true,
     Note: null,
+  });
+
+  const [open, setOpen] = useState(false);
+  const [openWarn, setOpenWarn] = useState(false);
+  const [guests, setGuests] = useState<Guests[]>([]);
+  const [guest, setGuest] = useState<Guests | null>(null);
+  const [inputValue, setInputValue] = useState("");
+  const [contractForm, setContractForm] = useState<ContractForm>({
+    homeId: null,
+    guestId: null,
+    duration: 6,
+    payCycle: 1,
+    rental: 0,
+    deposit: 0,
+    dateStart: new Date(),
+    dateEnd: new Date(),
+    status: StatusContract.ACTIVE,
   });
 
   useEffect(() => {
@@ -161,26 +203,73 @@ export default function StorePage({ params }: { params: { id: string } }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`/api/guest`);
+        setGuests(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, []);
+
   const handleEdit = () => {
     setIsDisabled(false);
   };
 
-  const handleClose = () => {
+  const handleCancel = () => {
     setIsDisabled(true);
     window.location.reload();
   };
 
-  const handleSubmit = () => {
-    // const handleSave = async () => {
-    //   try {
-    //     const response = await axios.put(`/api/guest/${params.id}`, guestForm);
-    //     console.log("Data updated successfully:", response.data);
-    //   } catch (error) {
-    //     console.error("Error saving data:", error);
-    //   }
-    // };
-    // handleSave();
-    // route.push("/guest");
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleSubmitEdit = () => {
+    const handleSave = async () => {
+      try {
+        const response = await axios.put(`/api/homes`, {
+          ...homeForm,
+          _homeId: params.id,
+        });
+        console.log("Data updated successfully:", response.data);
+      } catch (error) {
+        console.error("Error saving data:", error);
+      }
+    };
+    handleSave();
+    window.location.reload();
+  };
+
+  const handleSubmitContract = () => {
+    const handleSave = async () => {
+      try {
+        const response = await axios.post(`/api/homeContract`, {
+          ...contractForm,
+          homeId: params.id,
+        });
+        console.log("Data updated successfully:", response.data);
+        window.location.reload();
+      } catch (error) {
+        console.error("Error saving data:", error);
+        if (axios.isAxiosError(error)) {
+          // Kiểm tra xem lỗi có phải là lỗi 400 không
+          if (
+            error.response &&
+            error.response.status === 400 &&
+            error.response.data.error
+          ) {
+            setOpen(false);
+            setOpenWarn(true);
+          }
+        }
+      }
+    };
+
+    handleSave();
   };
   return (
     <Wrapper>
@@ -195,6 +284,10 @@ export default function StorePage({ params }: { params: { id: string } }) {
             margin: "10px",
           }}
         >
+          <Alert hidden={!openWarn} severity="error">
+            Căn hộ đang cho thuê không thể tạo hợp đồng mới. Vui lòng kiểm tra
+            lại
+          </Alert>
           <Typography variant="h5">Thông tin Căn hộ</Typography>
           <Grid
             container
@@ -421,7 +514,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                 sx={{
                   textAlign: "right",
                 }}
-                onClick={handleClose}
+                onClick={handleCancel}
               >
                 Hủy
               </Button>
@@ -429,7 +522,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                 hidden={isDisabled}
                 variant="outlined"
                 size="large"
-                onClick={handleSubmit}
+                onClick={handleSubmitEdit}
               >
                 Lưu
               </ColorButton>
@@ -443,7 +536,179 @@ export default function StorePage({ params }: { params: { id: string } }) {
             margin: "5px",
           }}
         >
-          <Typography variant="h6">Danh sách hợp đồng căn hộ</Typography>
+          <div style={{ display: "flex", textAlign: "center", width: "100%" }}>
+            <Typography sx={{ flex: "1" }} variant="h6">
+              Danh sách hợp đồng căn hộ
+            </Typography>
+            <Button
+              sx={{ textAlign: "right", margin: "5px" }}
+              variant="outlined"
+              onClick={() => {
+                setOpen(true);
+                // router.push(`/homes/${params.id}/homeContract`);
+              }}
+            >
+              Thêm mới hợp đồng căn hộ
+            </Button>
+            <Dialog open={open} scroll="paper">
+              <DialogTitle>Tạo Hợp đồng Căn hộ</DialogTitle>
+              <DialogContent dividers>
+                <TextField
+                  disabled
+                  autoFocus
+                  margin="dense"
+                  id="apartment"
+                  label="Căn hộ"
+                  type="text"
+                  value={`${home?.apartmentNo} - ${home?.building}`}
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+
+                <TextField
+                  disabled
+                  margin="dense"
+                  id="address"
+                  label="Địa chỉ"
+                  type="text"
+                  value={`${home?.address} - ${home?.Ward} - ${home?.District} - ${home?.Province}`}
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+                <Autocomplete
+                  value={guest !== null ? guest : null}
+                  onChange={(event: any, newValue: Guests | null) => {
+                    if (newValue) {
+                      setGuest(newValue);
+                      setContractForm({
+                        ...contractForm,
+                        guestId: Number(newValue.guestId),
+                      });
+                    }
+                  }}
+                  inputValue={inputValue}
+                  onInputChange={(event, newInputValue) => {
+                    setInputValue(newInputValue);
+                  }}
+                  id="controllable-states-demo"
+                  options={guests}
+                  getOptionKey={(option: { guestId: number }) => option.guestId}
+                  getOptionLabel={(option) =>
+                    `${option.fullname} - ${option.citizenId}` ?? ""
+                  }
+                  renderInput={(params) => (
+                    <TextField {...params} label="Khách thuê" />
+                  )}
+                />
+
+                <TextField
+                  required
+                  margin="dense"
+                  id="duration"
+                  label="Thời hạn thuê (Tháng)"
+                  type="number"
+                  fullWidth
+                  onChange={(e) => {
+                    setContractForm({
+                      ...contractForm,
+                      duration: Number(e.target.value),
+                    });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="payCycle"
+                  label="Chu kỳ thanh toán (tháng)"
+                  type="number"
+                  fullWidth
+                  onChange={(e) => {
+                    setContractForm({
+                      ...contractForm,
+                      payCycle: Number(e.target.value),
+                    });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="rental"
+                  label="Giá thuê (VND/tháng)"
+                  type="number"
+                  fullWidth
+                  inputProps={{
+                    min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                    step: 10000, // Đặt bước nhảy (step)
+                  }}
+                  onChange={(e) => {
+                    setContractForm({
+                      ...contractForm,
+                      rental: Number(e.target.value),
+                    });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="deposit"
+                  label="Tiền cọc (VND)"
+                  type="number"
+                  fullWidth
+                  inputProps={{
+                    min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                    step: 10000, // Đặt bước nhảy (step)
+                  }}
+                  onChange={(e) => {
+                    setContractForm({
+                      ...contractForm,
+                      deposit: Number(e.target.value),
+                    });
+                  }}
+                />
+                {/* -------------------------- Sửa thành Date Picker */}
+                <TextField
+                  id="dateStart"
+                  label="Ngày bắt đầu"
+                  type="date"
+                  fullWidth
+                  margin="dense"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  onChange={(e) => {
+                    setContractForm({
+                      ...contractForm,
+                      dateStart: new Date(e.target.value),
+                    });
+                  }}
+                />
+                <TextField
+                  id="dateEnd"
+                  label="Ngày kết thúc"
+                  type="date"
+                  fullWidth
+                  margin="dense"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  onChange={(e) => {
+                    setContractForm({
+                      ...contractForm,
+                      dateEnd: new Date(e.target.value),
+                    });
+                  }}
+                />
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleClose}>Hủy</Button>
+                <Button onClick={handleSubmitContract}>Lưu</Button>
+              </DialogActions>
+            </Dialog>
+          </div>
           <TableContainer sx={{ maxHeight: 400 }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
@@ -471,18 +736,22 @@ export default function StorePage({ params }: { params: { id: string } }) {
                       tabIndex={-1}
                       key={row.homeContractsId}
                       onClick={() => {
-                        router.push(`/homes/${row.homeId}/homeContract`);
+                        router.push(
+                          `/homes/${row.homeId}/homeContract/${row.homeContractsId}`
+                        );
                       }}
                     >
                       <TableCell align="left">
-                        {row.home.homeowner.fullname}
+                        {row.home.homeowner?.fullname}
                       </TableCell>
                       <TableCell align="left">{row.guest.fullname}</TableCell>
                       <TableCell align="left">{row.duration} tháng</TableCell>
                       <TableCell align="center">
                         {row.deposit.toLocaleString("en-EN")}{" "}
                       </TableCell>
-                      <TableCell align="center">{row.rental}</TableCell>
+                      <TableCell align="center">
+                        {row.rental.toLocaleString("en-EN")}
+                      </TableCell>
                       <TableCell align="center">
                         {dayjs.utc(row.dateStart).format("DD/MM/YYYY")}
                       </TableCell>

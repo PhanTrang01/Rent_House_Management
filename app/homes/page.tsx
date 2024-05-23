@@ -11,6 +11,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Header from "../components/Header";
 import {
+  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -92,11 +93,15 @@ function CustomTabPanel(props: TabPanelProps) {
 
 export default function HomesList() {
   const router = useRouter();
+  const [owners, setOwners] = useState<Homeowners[]>([]);
+  const [owner, setOwner] = useState<Homeowners | null>(null);
   const [valueTab, setValueTab] = useState(0);
   const [open, setOpen] = useState(false);
   const [typeStatusHome, setTypeStatusHome] = useState(false); // false: đã thuê, true: có thể tạo HD thuê
   const [homes, setHomes] = useState<InfoHome[]>([]);
   const [rentedHomes, setRentedHomes] = useState<InfoHome[]>([]);
+  const [inputValue, setInputValue] = useState("");
+
   const [homeForm, setHomeForm] = useState<HomeForm>({
     homeOwnerId: null,
     address: "",
@@ -115,8 +120,16 @@ export default function HomesList() {
       else {
         setRentedHomes(response.data);
       }
+      if (homes.length) console.log(homes[0].homeowner.fullname);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typeStatusHome]);
+
+  useEffect(() => {
+    axios.get("/api/owner").then(function (response) {
+      setOwners(response.data);
+    });
+  }, []);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValueTab(newValue);
@@ -124,7 +137,36 @@ export default function HomesList() {
     else if (valueTab === 0) setTypeStatusHome(false);
   };
 
-  const handleSubmit = () => {};
+  const handleClose = () => {
+    setOpen(false);
+    setOwner(null);
+    setHomeForm({
+      homeOwnerId: null,
+      address: "",
+      building: "",
+      apartmentNo: "",
+      Ward: "",
+      District: "",
+      Province: "",
+      active: true,
+      Note: null,
+    });
+  };
+
+  const handleSubmit = () => {
+    setOpen(false);
+    console.log(homeForm);
+    const handleSave = async () => {
+      try {
+        const response = await axios.post("/api/homes", homeForm);
+        console.log("Data saved successfully:", response.data);
+      } catch (error) {
+        console.error("Error saving data:", error);
+      }
+    };
+    handleSave();
+    window.location.reload();
+  };
 
   return (
     <Wrapper>
@@ -156,39 +198,117 @@ export default function HomesList() {
         >
           <DialogTitle>Thêm thông tin Căn hộ mới</DialogTitle>
           <DialogContent>
+            <Autocomplete
+              value={owner !== null ? owner : null}
+              onChange={(event: any, newValue: Homeowners | null) => {
+                if (newValue) {
+                  setOwner(newValue);
+                  setHomeForm({
+                    ...homeForm,
+                    homeOwnerId: Number(newValue.homeOwnerId),
+                  });
+                }
+              }}
+              inputValue={inputValue}
+              onInputChange={(event, newInputValue) => {
+                setInputValue(newInputValue);
+              }}
+              id="controllable-states-demo"
+              options={owners}
+              getOptionKey={(option: { homeOwnerId: number }) =>
+                option.homeOwnerId
+              }
+              getOptionLabel={(option) =>
+                `${option.fullname} - ${option.citizenId}` ?? ""
+              }
+              renderInput={(params) => (
+                <TextField {...params} label="Chủ Căn hộ" />
+              )}
+            />
             <TextField
               required
               autoFocus
               margin="dense"
-              id="name"
-              label="Tên dịch vụ"
+              id="building"
+              label="Tên Tòa nhà"
               type="text"
               fullWidth
-              //   onChange={(e) => {
-              //     setService({ ...service, name: e.target.value });
-              //   }}
+              onChange={(e) => {
+                setHomeForm({ ...homeForm, building: e.target.value });
+              }}
             />
             <TextField
               required
               margin="dense"
-              id="unit"
-              label="Đơn vị tính"
+              id="apartmentNo"
+              label="Căn hộ số"
               type="text"
               fullWidth
+              onChange={(e) => {
+                setHomeForm({ ...homeForm, apartmentNo: e.target.value });
+              }}
             />
             <TextField
               required
               margin="dense"
-              id="description"
-              label="Mô tả"
+              id="address"
+              label="Địa chỉ"
               type="text"
               fullWidth
+              onChange={(e) => {
+                setHomeForm({ ...homeForm, address: e.target.value });
+              }}
+            />
+            <TextField
+              required
+              margin="dense"
+              id="Ward"
+              label="Phường/Xã"
+              type="text"
+              fullWidth
+              onChange={(e) => {
+                setHomeForm({ ...homeForm, Ward: e.target.value });
+              }}
+            />
+            <TextField
+              required
+              margin="dense"
+              id="District"
+              label="Quận/huyện"
+              type="text"
+              fullWidth
+              onChange={(e) => {
+                setHomeForm({ ...homeForm, District: e.target.value });
+              }}
+            />
+            <TextField
+              required
+              margin="dense"
+              id="Province"
+              label="Tỉnh/Thành phố"
+              type="text"
+              fullWidth
+              onChange={(e) => {
+                setHomeForm({ ...homeForm, Province: e.target.value });
+              }}
+            />
+            <TextField
+              id="Note"
+              label="Ghi chú"
+              type="number"
+              fullWidth
+              margin="dense"
+              multiline
+              maxRows={4}
+              onChange={(e) => {
+                setHomeForm({ ...homeForm, Note: e.target.value });
+              }}
             />
           </DialogContent>
           <DialogActions>
             <Button
               onClick={() => {
-                setOpen(false);
+                handleClose;
               }}
             >
               Hủy
@@ -236,7 +356,7 @@ export default function HomesList() {
                         </TableCell>
                         <TableCell align="left">{row.apartmentNo}</TableCell>
                         <TableCell align="right">
-                          {row.homeowner.fullname}
+                          {row.homeowner?.fullname}
                         </TableCell>
                         <TableCell align="right">
                           {row.address} - {row.Ward} - {row.District}
@@ -287,7 +407,7 @@ export default function HomesList() {
                         </TableCell>
                         <TableCell align="left">{row.apartmentNo}</TableCell>
                         <TableCell align="right">
-                          {row.homeowner.fullname}
+                          {row.homeowner?.fullname}
                         </TableCell>
                         <TableCell align="right">
                           {row.address} - {row.Ward} - {row.District}

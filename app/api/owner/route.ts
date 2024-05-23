@@ -71,7 +71,7 @@ export async function PUT(req: Request) {
     const body = await req.json(); // Đọc dữ liệu từ req.
 
     const {
-      homeownerId,
+      homeOwnerId,
       name,
       phone,
       email,
@@ -82,14 +82,15 @@ export async function PUT(req: Request) {
       STK,
       TenTK,
       bank,
+      Note,
     } = body;
 
-    if (!homeownerId) {
+    if (!homeOwnerId) {
       throw new Error("Missing homeowner ID");
     }
 
     const updatedHomeowner = await prisma.homeowners.update({
-      where: { homeOwnerId: homeownerId },
+      where: { homeOwnerId: homeOwnerId },
       data: {
         fullname: name,
         phone,
@@ -101,6 +102,7 @@ export async function PUT(req: Request) {
         STK,
         TenTK,
         bank,
+        Note,
         active: true,
         updatedAt: new Date(),
       },

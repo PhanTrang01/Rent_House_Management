@@ -33,6 +33,7 @@ import { useRouter } from "next/navigation";
 import { DateField, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import DeleteRecipientDialog from "../components/DialogWarnning";
 
 dayjs.extend(utc);
 
@@ -104,6 +105,8 @@ export default function Guest() {
   const [open, setOpen] = useState(false);
   const [guests, setGuests] = useState<Guests[]>([]);
   const [value, setValue] = useState<Dayjs | null>();
+  const [openDialogDetele, setOpenDialogDetele] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<number | null>(null);
 
   const [guestForm, setGuestForm] = useState<GuestForm>({
     fullname: "",
@@ -151,6 +154,22 @@ export default function Guest() {
     };
     handleSave();
     window.location.reload();
+  };
+
+  const handleDelete = (id: number) => {
+    axios
+      .delete(`/api/guest/${id}`)
+      .then(function (response) {
+        window.location.reload();
+      })
+      .catch(function (error) {
+        console.error("Error delete guest data:", error);
+      });
+  };
+
+  const handleCloseDialogDatele = () => {
+    setOpenDialogDetele(false);
+    setSelectedRecord(null);
   };
 
   return (
@@ -385,10 +404,19 @@ export default function Guest() {
                               <EditIcon />
                             </IconButton>
                             <IconButton
-                            // onClick={() => handleDelete(row.serviceId)}
+                              onClick={() => {
+                                setOpenDialogDetele(true);
+                                setSelectedRecord(row.guestId);
+                              }}
                             >
                               <DeleteIcon />
                             </IconButton>
+                            <DeleteRecipientDialog
+                              openDialogDelete={openDialogDetele}
+                              handleCloseDialogDelete={handleCloseDialogDatele}
+                              selectedRecord={selectedRecord}
+                              handleDelete={handleDelete}
+                            />
                           </TableCell>
                         </TableRow>
                       );
