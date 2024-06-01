@@ -18,6 +18,7 @@ import {
   Autocomplete,
   Button,
   ButtonProps,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -45,6 +46,7 @@ import {
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useRouter } from "next/navigation";
 
 dayjs.extend(utc);
@@ -56,6 +58,9 @@ const Wrapper = styled.div`
 const WrapperContainer = styled.div`
   flex-grow: 1;
 `;
+type HomeInfo = Homes & {
+  owner: Homeowners;
+};
 
 type ContractInfo = HomeContract & {
   home: Homes & {
@@ -135,9 +140,14 @@ const columns: readonly Column[] = [
 
 export default function StorePage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const [home, setHome] = useState<Homes>();
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const [home, setHome] = useState<HomeInfo>();
   const [contracts, setContracts] = useState<ContractInfo[]>([]);
   const [isDisabled, setIsDisabled] = useState(true);
+  const [owner, setOwner] = useState<Homeowners | null>(null);
+  const [owners, setOwners] = useState<Homeowners[]>([]);
+  const [inputValueOwner, setInputValueOwner] = useState("");
 
   const [homeForm, setHomeForm] = useState<HomeForm>({
     homeOwnerId: null,
@@ -170,20 +180,39 @@ export default function StorePage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`/api/homes/${params.id}`);
-        const newHome: Homes = res.data;
+        const newHome: HomeInfo = res.data;
         if (newHome) {
           setHome(newHome);
-          const { createdAt, updatedAt, homeId, ...newHomeForm } = newHome;
+          setOwner(newHome.owner);
+          const { createdAt, updatedAt, homeId, owner, ...newHomeForm } =
+            newHome;
           setHomeForm(newHomeForm);
+          setInputValueOwner(
+            newHome.owner
+              ? `${newHome.owner.fullname} - ${newHome.owner.citizenId}`
+              : ""
+          );
         }
+
+        const ownerRes = await axios.get("/api/owner");
+        setOwners(ownerRes.data);
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
   }, [params.id]);
+
+  // useEffect(() => {
+  //   axios.get("/api/owner").then(function (response) {
+  //     setOwners(response.data);
+  //   });
+  // }, []);
 
   const fetchDataContract = async () => {
     try {
@@ -271,6 +300,11 @@ export default function StorePage({ params }: { params: { id: string } }) {
 
     handleSave();
   };
+
+  if (loading) {
+    return <CircularProgress />;
+  }
+
   return (
     <Wrapper>
       <Dashboard />
@@ -281,14 +315,25 @@ export default function StorePage({ params }: { params: { id: string } }) {
           sx={{
             textAlign: "center",
             padding: " 20px 30px",
-            margin: "10px",
+            // margin: "10px",
           }}
         >
           <Alert hidden={!openWarn} severity="error">
             Căn hộ đang cho thuê không thể tạo hợp đồng mới. Vui lòng kiểm tra
             lại
           </Alert>
-          <Typography variant="h5">Thông tin Căn hộ</Typography>
+          <div style={{ display: "flex", textAlign: "center", width: "100%" }}>
+            <IconButton
+              onClick={() => {
+                router.push("/homes");
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" sx={{ flex: "1" }}>
+              Thông tin Căn hộ
+            </Typography>
+          </div>
           <Grid
             container
             rowSpacing={1}
@@ -299,6 +344,49 @@ export default function StorePage({ params }: { params: { id: string } }) {
               justifyContent: "center",
             }}
           >
+            <Grid item lg={10}>
+              <Item>
+                <Autocomplete
+                  disabled={isDisabled}
+                  size="small"
+                  value={owner}
+                  onChange={(event: any, newValue: Homeowners | null) => {
+                    if (newValue) {
+                      setOwner(newValue);
+                      setHomeForm({
+                        ...homeForm,
+                        homeOwnerId: Number(newValue.homeOwnerId),
+                      });
+                    }
+                  }}
+                  inputValue={inputValueOwner}
+                  onInputChange={(event, newInputValue) => {
+                    setInputValueOwner(newInputValue);
+                  }}
+                  id="controllable-owner"
+                  options={owners}
+                  getOptionKey={(option: { homeOwnerId: number }) =>
+                    option.homeOwnerId
+                  }
+                  getOptionLabel={(option) =>
+                    `${option.fullname} - ${option.citizenId}` ?? ""
+                  }
+                  isOptionEqualToValue={(option, value) =>
+                    option.homeOwnerId === value?.homeOwnerId
+                  }
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Chủ Căn hộ"
+                      variant="standard"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                    />
+                  )}
+                />
+              </Item>
+            </Grid>
             <Grid item lg={4}>
               <Item>
                 <TextField
@@ -467,7 +555,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                   label="Ghi chú"
                   type="text"
                   fullWidth
-                  value={homeForm.Note}
+                  value={homeForm.Note || ""}
                   size="small"
                   variant="standard"
                   multiline
@@ -495,7 +583,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
               justifyContent: "center",
             }}
           >
-            <Grid lg={6}>
+            <Grid item lg={6}>
               <Button
                 hidden={!isDisabled}
                 variant="outlined"
@@ -506,7 +594,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                 Chỉnh sửa
               </Button>
             </Grid>
-            <Grid lg={4}>
+            <Grid item lg={4}>
               <Button
                 hidden={isDisabled}
                 variant="outlined"
@@ -533,7 +621,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
           sx={{
             textAlign: "center",
             padding: "2px 30px",
-            margin: "5px",
+            // margin: "5px",
           }}
         >
           <div style={{ display: "flex", textAlign: "center", width: "100%" }}>
@@ -594,7 +682,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                   onInputChange={(event, newInputValue) => {
                     setInputValue(newInputValue);
                   }}
-                  id="controllable-states-demo"
+                  id="controllable-guest"
                   options={guests}
                   getOptionKey={(option: { guestId: number }) => option.guestId}
                   getOptionLabel={(option) =>
@@ -712,7 +800,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
           <TableContainer sx={{ maxHeight: 400 }}>
             <Table stickyHeader aria-label="sticky table">
               <TableHead>
-                <TableRow>
+                <TableRow hover>
                   {columns.map((column) => (
                     <TableCell
                       key={column.id}

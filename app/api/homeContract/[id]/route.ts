@@ -36,6 +36,51 @@ export async function GET(
     await prisma.$disconnect();
   }
 }
+
+export async function PUT(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const body = await _req.json(); // Đọc dữ liệu từ req.
+    const {
+      homeContractId,
+      homeId,
+      guestId,
+      duration,
+      payCycle,
+      rental,
+      deposit,
+      status,
+      dateEnd,
+      dateStart,
+    } = body;
+
+    const updatedHomeContract = await prisma.homeContract.update({
+      where: { homeContractsId: Number(id) },
+      data: {
+        homeId,
+        guestId,
+        duration,
+        payCycle,
+        rental,
+        deposit,
+        status,
+        dateEnd,
+        dateStart,
+        updatedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json(updatedHomeContract);
+  } catch (error) {
+    console.error("Error updating Home Contract:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } }

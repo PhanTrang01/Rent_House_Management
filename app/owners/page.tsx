@@ -266,42 +266,51 @@ export default function Owners() {
               ? "Thêm thông tin chủ nhà"
               : "Chỉnh sửa thông tin chủ nhà"}
           </DialogTitle>
-          <DialogContent>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <TextField
-                required
-                autoFocus
-                margin="dense"
-                id="name"
-                label="Tên chủ nhà"
-                type="text"
-                defaultValue={selectedRecord === null ? "" : owner?.fullname}
-                fullWidth
-                onChange={(e) => {
-                  setCreateOwner({ ...dataCreateOwner, name: e.target.value });
-                }}
-              />
-              <TextField
-                required
-                margin="dense"
-                id="phone"
-                label="Số điện thoại"
-                type="text"
-                defaultValue={selectedRecord === null ? "" : owner?.phone}
-                fullWidth
-                onChange={(e) => {
-                  setCreateOwner({ ...dataCreateOwner, phone: e.target.value });
-                }}
-              />
-              <DemoContainer components={["DateField"]}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={["DateField"]}>
+              <DialogContent>
+                <TextField
+                  required
+                  autoFocus
+                  margin="dense"
+                  id="name"
+                  label="Tên chủ nhà"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : owner?.fullname}
+                  fullWidth
+                  onChange={(e) => {
+                    setCreateOwner({
+                      ...dataCreateOwner,
+                      name: e.target.value,
+                    });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="phone"
+                  label="Số điện thoại"
+                  type="text"
+                  defaultValue={
+                    selectedRecord === null ? "" : dataCreateOwner?.phone
+                  }
+                  fullWidth
+                  onChange={(e) => {
+                    setCreateOwner({
+                      ...dataCreateOwner,
+                      phone: e.target.value,
+                    });
+                  }}
+                />
+
                 <DateField
                   fullWidth
                   id="birthday"
                   label="Ngày Sinh"
-                  defaultValue={
+                  value={
                     selectedRecord === null
                       ? dayjs("2001-01-01")
-                      : dayjs.utc(owner?.birthday)
+                      : dayjs.utc(dataCreateOwner?.birthday)
                   }
                   onChange={(newValue) => {
                     if (newValue) {
@@ -313,45 +322,47 @@ export default function Owners() {
                     }
                   }}
                 />
-              </DemoContainer>
-              <TextField
-                required
-                margin="dense"
-                id="email"
-                label="Email"
-                type="email"
-                defaultValue={selectedRecord === null ? "" : owner?.email}
-                fullWidth
-                onChange={(e) => {
-                  setCreateOwner({ ...dataCreateOwner, email: e.target.value });
-                }}
-              />
-              <TextField
-                required
-                margin="dense"
-                id="citizen"
-                label="Số CCCD"
-                type="text"
-                defaultValue={selectedRecord === null ? "" : owner?.citizenId}
-                fullWidth
-                onChange={(e) => {
-                  setCreateOwner({
-                    ...dataCreateOwner,
-                    citizenId: e.target.value,
-                  });
-                }}
-              />
-              <DemoContainer components={["DateField"]}>
+
+                <TextField
+                  required
+                  margin="dense"
+                  id="email"
+                  label="Email"
+                  type="email"
+                  defaultValue={selectedRecord === null ? "" : owner?.email}
+                  fullWidth
+                  onChange={(e) => {
+                    setCreateOwner({
+                      ...dataCreateOwner,
+                      email: e.target.value,
+                    });
+                  }}
+                />
+                <TextField
+                  required
+                  margin="dense"
+                  id="citizen"
+                  label="Số CCCD"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : owner?.citizenId}
+                  fullWidth
+                  onChange={(e) => {
+                    setCreateOwner({
+                      ...dataCreateOwner,
+                      citizenId: e.target.value,
+                    });
+                  }}
+                />
+
                 <DateField
                   fullWidth
                   id="citizen_ngaycap"
                   label="Ngày cấp CCCD"
-                  defaultValue={
+                  value={
                     selectedRecord === null
                       ? dayjs("2001-01-01")
-                      : dayjs.utc(owner?.citizen_ngaycap)
+                      : dayjs.utc(dataCreateOwner?.citizen_ngaycap)
                   }
-                  value={value}
                   // onChange={(newValue) => setValue(newValue)}
                   onChange={(newValue) => {
                     if (newValue) {
@@ -363,81 +374,82 @@ export default function Owners() {
                     }
                   }}
                 />
-              </DemoContainer>
-              <TextField
-                required
-                margin="dense"
-                id="citizen_noicap"
-                label="Nơi cấp CCCD"
-                type="text"
-                defaultValue={
-                  selectedRecord === null ? "" : owner?.citizen_noicap
-                }
-                fullWidth
-                onChange={(e) => {
-                  setCreateOwner({
-                    ...dataCreateOwner,
-                    citizen_noicap: e.target.value,
-                  });
-                }}
-              />
-              <TextField
-                margin="dense"
-                id="STK"
-                label="Số Tài khoản"
-                type="text"
-                defaultValue={selectedRecord === null ? "" : owner?.STK}
-                fullWidth
-                onChange={(e) => {
-                  setCreateOwner({
-                    ...dataCreateOwner,
-                    STK: e.target.value,
-                  });
-                }}
-              />
-              <TextField
-                margin="dense"
-                id="TenTK"
-                label="Tên chủ STK"
-                type="text"
-                defaultValue={selectedRecord === null ? "" : owner?.TenTK}
-                fullWidth
-                onChange={(e) => {
-                  setCreateOwner({
-                    ...dataCreateOwner,
-                    TenTK: e.target.value,
-                  });
-                }}
-              />
-              <TextField
-                margin="dense"
-                id="bank"
-                label="Tên ngân hàng"
-                type="text"
-                defaultValue={selectedRecord === null ? "" : owner?.bank}
-                fullWidth
-                onChange={(e) => {
-                  setCreateOwner({
-                    ...dataCreateOwner,
-                    bank: e.target.value,
-                  });
-                }}
-              />
-              <TextField
-                margin="dense"
-                id="Note"
-                label="Ghi chú"
-                type="text"
-                fullWidth
-                onChange={(e) => {
-                  setCreateOwner({
-                    ...dataCreateOwner,
-                    Note: e.target.value,
-                  });
-                }}
-              />
-            </LocalizationProvider>
-          </DialogContent>
+
+                <TextField
+                  required
+                  margin="dense"
+                  id="citizen_noicap"
+                  label="Nơi cấp CCCD"
+                  type="text"
+                  defaultValue={
+                    selectedRecord === null ? "" : owner?.citizen_noicap
+                  }
+                  fullWidth
+                  onChange={(e) => {
+                    setCreateOwner({
+                      ...dataCreateOwner,
+                      citizen_noicap: e.target.value,
+                    });
+                  }}
+                />
+                <TextField
+                  margin="dense"
+                  id="STK"
+                  label="Số Tài khoản"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : owner?.STK}
+                  fullWidth
+                  onChange={(e) => {
+                    setCreateOwner({
+                      ...dataCreateOwner,
+                      STK: e.target.value,
+                    });
+                  }}
+                />
+                <TextField
+                  margin="dense"
+                  id="TenTK"
+                  label="Tên chủ STK"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : owner?.TenTK}
+                  fullWidth
+                  onChange={(e) => {
+                    setCreateOwner({
+                      ...dataCreateOwner,
+                      TenTK: e.target.value,
+                    });
+                  }}
+                />
+                <TextField
+                  margin="dense"
+                  id="bank"
+                  label="Tên ngân hàng"
+                  type="text"
+                  defaultValue={selectedRecord === null ? "" : owner?.bank}
+                  fullWidth
+                  onChange={(e) => {
+                    setCreateOwner({
+                      ...dataCreateOwner,
+                      bank: e.target.value,
+                    });
+                  }}
+                />
+                <TextField
+                  margin="dense"
+                  id="Note"
+                  label="Ghi chú"
+                  type="text"
+                  fullWidth
+                  onChange={(e) => {
+                    setCreateOwner({
+                      ...dataCreateOwner,
+                      Note: e.target.value,
+                    });
+                  }}
+                />
+              </DialogContent>
+            </DemoContainer>
+          </LocalizationProvider>
           <DialogActions>
             <Button onClick={handleClose}>Hủy</Button>
             {selectedRecord === null ? (

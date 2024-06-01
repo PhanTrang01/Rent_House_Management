@@ -73,6 +73,7 @@ export async function PUT(req: Request) {
   try {
     const {
       _homeId,
+      homeOwnerId,
       active,
       address,
       building,
@@ -90,6 +91,7 @@ export async function PUT(req: Request) {
     const home = await prisma.homes.update({
       where: { homeId: Number(_homeId) },
       data: {
+        homeOwnerId: Number(homeOwnerId),
         address,
         apartmentNo,
         building,

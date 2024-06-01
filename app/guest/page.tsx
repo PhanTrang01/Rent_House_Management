@@ -196,8 +196,8 @@ export default function Guest() {
                   required
                   autoFocus
                   margin="dense"
-                  id="name"
-                  label="Tên chủ nhà"
+                  id="fullname"
+                  label="Tên khách thuê"
                   type="text"
                   fullWidth
                   onChange={(e) => {
@@ -226,12 +226,6 @@ export default function Guest() {
                     fullWidth
                     id="birthday"
                     label="Ngày Sinh"
-                    // defaultValue={
-                    //   selectedRecord === null
-                    //     ? dayjs("2001-01-01")
-                    //     : dayjs.utc(owner?.birthday)
-                    // }
-
                     onChange={(newValue) => {
                       if (newValue) {
                         const temp = newValue?.toDate();

@@ -120,7 +120,6 @@ export default function HomesList() {
       else {
         setRentedHomes(response.data);
       }
-      if (homes.length) console.log(homes[0].homeowner.fullname);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typeStatusHome]);
@@ -155,7 +154,6 @@ export default function HomesList() {
 
   const handleSubmit = () => {
     setOpen(false);
-    console.log(homeForm);
     const handleSave = async () => {
       try {
         const response = await axios.post("/api/homes", homeForm);
@@ -343,6 +341,7 @@ export default function HomesList() {
                   <TableBody>
                     {rentedHomes.map((row, index) => (
                       <TableRow
+                        hover
                         key={index}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
@@ -394,6 +393,7 @@ export default function HomesList() {
                   <TableBody>
                     {homes.map((row, index) => (
                       <TableRow
+                        hover
                         key={index}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },

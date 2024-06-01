@@ -7,22 +7,60 @@ import {
   HomeContract,
   Homeowners,
   Homes,
+  InvoicesPayment,
+  Receiver,
+  Service,
+  ServiceContract,
   StatusContract,
+  TypeInvoice,
 } from "@prisma/client";
 import {
+  Autocomplete,
   Box,
   Button,
   ButtonProps,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
   Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
+  SelectChangeEvent,
   Tab,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Tabs,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import PostAddIcon from "@mui/icons-material/PostAdd";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
+import FeedOutlinedIcon from "@mui/icons-material/FeedOutlined";
 import Dashboard from "@/app/components/Dashboard";
 import Header from "@/app/components/Header";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import { useRouter } from "next/navigation";
+
+dayjs.extend(utc);
 
 const Wrapper = styled.div`
   display: flex;
@@ -39,16 +77,54 @@ type ContractInfo = HomeContract & {
   guest: Guests;
 };
 
+type ContractSInfo = ServiceContract & {
+  home: Homes;
+  service: Service;
+};
+
 type HomeContractForm = {
   homeId: number | null;
   guestId: number | null;
   duration: number;
-  payCycle: number | null;
+  payCycle: number;
   rental: number;
   deposit: number;
   dateStart: Date;
   dateEnd: Date;
   status: StatusContract;
+};
+type ServiceContractForm = {
+  homeContractId: number | null;
+  homeId: number | null;
+  guestId: number | null;
+  serviceId: number;
+  duration: number;
+  payCycle: number;
+  unitCost: number;
+  limit: number;
+  dateStart: Date;
+  dateEnd: Date;
+  status: StatusContract;
+};
+
+type InvoiceForm = {
+  serviceContractId: number | null;
+  homeContractId: number | null;
+  homeId: number | null;
+  dateStart: Date;
+  type: TypeInvoice;
+  receiverId: number;
+  duration: number;
+  cycle: number;
+  rental: number;
+  limit: number;
+  totalSend: number;
+};
+
+type Invoice = InvoicesPayment & {
+  receiver: Receiver;
+  homeContract: HomeContract;
+  serviceContract: ServiceContract;
 };
 
 interface TabPanelProps {
@@ -67,7 +143,7 @@ function CustomTabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 1 }}>
           <div>{children}</div>
         </Box>
       )}
@@ -75,6 +151,117 @@ function CustomTabPanel(props: TabPanelProps) {
   );
 }
 
+interface Column {
+  id:
+    | "index"
+    | "dateStart"
+    | "dateEnd"
+    | "datePaymentRemind"
+    | "datePaymentExpect"
+    | "totalReceiver"
+    | "datePaymentReal"
+    | "totalSend"
+    | "receiver"
+    | "statusPayment";
+  label: string;
+  minWidth?: number;
+  align?: "right" | "center";
+  format?: (value: String) => String;
+}
+
+const columns: readonly Column[] = [
+  { id: "index", label: "Đợt", minWidth: 50 },
+  { id: "dateStart", label: "Ngày bắt đầu", minWidth: 100 },
+  { id: "dateEnd", label: "Ngày kết thúc", minWidth: 100 },
+  {
+    id: "datePaymentRemind",
+    label: "Ngày nhắc hẹn",
+    minWidth: 130,
+    align: "right",
+  },
+  {
+    id: "datePaymentExpect",
+    label: "Hạn thanh toán",
+    minWidth: 130,
+    align: "right",
+  },
+  {
+    id: "totalReceiver",
+    label: "Số tiền thu",
+    minWidth: 80,
+    align: "center",
+  },
+  {
+    id: "datePaymentReal",
+    label: "Ngày nộp tiền cho chủ nhà/dvu",
+    minWidth: 130,
+    align: "right",
+  },
+  {
+    id: "totalSend",
+    label: "Số tiền nộp (cho chủ nhà/dvu)",
+    minWidth: 80,
+    align: "center",
+  },
+  {
+    id: "receiver",
+    label: "Người nhận",
+    minWidth: 200,
+    align: "center",
+  },
+  {
+    id: "statusPayment",
+    label: "Trạng thái thanh toán",
+    minWidth: 170,
+    align: "right",
+  },
+];
+
+//Table data Service Contract
+interface ColumnService {
+  id:
+    | "service"
+    | "unitCost"
+    | "duration"
+    | "payCycle"
+    | "dateStart"
+    | "dateEnd"
+    | "statusContract";
+  label: string;
+  minWidth?: number;
+  align?: "right" | "center";
+  format?: (value: String) => String;
+}
+
+const columnService: readonly ColumnService[] = [
+  { id: "service", label: "Tên dịch vụ", minWidth: 50 },
+  { id: "unitCost", label: "Đơn giá", minWidth: 100 },
+  { id: "duration", label: "Thời hạn (Tháng)", minWidth: 100 },
+  {
+    id: "payCycle",
+    label: "Chu kỳ thanh toán (Tháng)",
+    minWidth: 130,
+    align: "right",
+  },
+  {
+    id: "dateStart",
+    label: "Ngày bắt đầu",
+    minWidth: 130,
+    align: "right",
+  },
+  {
+    id: "dateEnd",
+    label: "Ngày kết thúc",
+    minWidth: 80,
+    align: "center",
+  },
+  {
+    id: "statusContract",
+    label: "Trạng thái hợp đồng",
+    minWidth: 170,
+    align: "right",
+  },
+];
 interface HomeContractsProps {
   params: {
     id: string;
@@ -83,11 +270,69 @@ interface HomeContractsProps {
 }
 
 export default function HomeContracts({ params }: HomeContractsProps) {
+  const route = useRouter();
   const [valueTab, setValueTab] = useState(0);
   const [isDisabled, setIsDisabled] = useState(true);
   const [homeContract, setHomeContract] = useState<ContractInfo>();
-  const [homeContractForm, setHomeContractForm] = useState<HomeContractForm>();
+  const [homeContractForm, setHomeContractForm] = useState<HomeContractForm>({
+    homeId: null,
+    guestId: null,
+    duration: 6,
+    payCycle: 1,
+    rental: 0,
+    deposit: 0,
+    dateStart: new Date(),
+    dateEnd: new Date(),
+    status: StatusContract.ACTIVE,
+  });
 
+  const [openDialog, setOpenDialog] = useState(false);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [receivers, setReceivers] = useState<Receiver[]>([]);
+  const [receiver, setReceiver] = useState<Receiver>();
+  const [inputValue, setInputValue] = useState("");
+  const [isCreatedInvoice, setIsCreatedInvoice] = useState(true);
+  const [dataCreateInvoices, setDataCreateInvoice] = useState<InvoiceForm>({
+    serviceContractId: null,
+    homeContractId: null,
+    homeId: null,
+    dateStart: new Date(),
+    type: TypeInvoice.HOME,
+    receiverId: 0,
+    duration: 0,
+    cycle: 0,
+    rental: 0,
+    limit: 0,
+    totalSend: 0,
+  });
+
+  const [openDialogService, setOpenDialogService] = useState(false);
+  const [openDialogServiceInvoice, setOpenDialogServiceInvoice] =
+    useState(false);
+  const [inputValueService, setInputValueService] = useState("");
+  const [service, setService] = useState<Service | null>(null);
+  const [services, setServices] = useState<Service[]>([]);
+  const [serviceContract, setServiceContract] = useState<ContractSInfo>();
+  const [serviceContracts, setServiceContracts] = useState<ContractSInfo[]>([]);
+  const [sInvoices, setSInvoices] = useState<Invoice[]>([]);
+  const [serviceContractForm, setServiceContractForm] =
+    useState<ServiceContractForm>({
+      homeContractId: null,
+      homeId: null,
+      guestId: null,
+      serviceId: 1,
+      duration: 6,
+      payCycle: 1,
+      unitCost: 0,
+      limit: 0,
+      dateStart: new Date(),
+      dateEnd: new Date(),
+      status: StatusContract.ACTIVE,
+    });
+
+  const handleBack = () => {
+    route.push(`/homes/${params.id}`);
+  };
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValueTab(newValue);
   };
@@ -101,13 +346,117 @@ export default function HomeContracts({ params }: HomeContractsProps) {
           setHomeContract(newContract);
           const { createdAt, updatedAt, ...newHomeContractForm } = newContract;
           setHomeContractForm(newHomeContractForm);
+          setServiceContractForm({
+            ...serviceContractForm,
+            homeId: Number(params.id),
+            homeContractId: Number(params.idContract),
+            guestId: newContract.guestId,
+            dateStart: newContract.dateStart,
+            dateEnd: newContract.dateEnd,
+          });
         }
       } catch (error) {
-        console.error(error);
+        console.error("Contract fail: ", error);
       }
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.idContract]);
+
+  useEffect(() => {
+    const fetchInvoice = async () => {
+      try {
+        const response = await axios.get(
+          `/api/invoice?homeContractId=${params.idContract}`
+        );
+        setInvoices(response.data);
+        if (invoices.length === 0) setIsCreatedInvoice(false);
+        else setIsCreatedInvoice(true);
+        // console.log("Data read Invoice successfully:", response.data);
+        const res = await axios.get(
+          `/api/servicerContract?homeContractId=${params.idContract}`
+        );
+        setServiceContracts(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchInvoice();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchSInvoice = async (id: Number) => {
+    try {
+      const response = await axios.get(`/api/invoice?serviceContractId=${id}`);
+      setSInvoices(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchReceivers = async () => {
+      try {
+        const res = await axios.get("/api/receiver");
+        setReceivers(res.data);
+        const resS = await axios.get("/api/serviceO");
+        setServices(resS.data);
+      } catch (error) {
+        console.error("Receiver fail :", error);
+      }
+    };
+    fetchReceivers();
+  }, []);
+
+  const handleOpenDialog = async () => {
+    setDataCreateInvoice({
+      ...dataCreateInvoices,
+      homeId: Number(params.id),
+      homeContractId: Number(params.idContract),
+      duration: homeContractForm.duration,
+      cycle: homeContractForm.payCycle,
+      rental: homeContractForm.rental,
+      dateStart: homeContractForm.dateStart,
+      type: TypeInvoice.HOME,
+    });
+    setOpenDialog(true);
+  };
+  //-------------------------------------------------Lỗi This-------------------------------------------------
+
+  const handleOpenDialogServiceInvoice = async (SContract: ContractSInfo) => {
+    // const res = await axios.get(`/api/servicerContract/${idContractS}`);
+    setServiceContract(SContract);
+    console.log(serviceContract);
+    // if (serviceContract) {
+    setDataCreateInvoice({
+      ...dataCreateInvoices,
+      serviceContractId: Number(SContract.serviceContractId),
+      homeId: Number(params.id),
+      homeContractId: Number(params.idContract),
+      duration: Number(SContract.duration),
+      cycle: SContract.payCycle,
+      limit: SContract.limit ? SContract.limit : 0,
+      dateStart: SContract.dateStart,
+      type: TypeInvoice.SERVICE,
+    });
+    // }
+    setOpenDialogServiceInvoice(true);
+    console.log(dataCreateInvoices);
+  };
+
+  const handleCreateInvoice = () => {
+    const create = async () => {
+      try {
+        const response = await axios.post("/api/invoice", dataCreateInvoices);
+        console.log("Data saved successfully:", response.data);
+      } catch (error) {
+        console.error("Error: ", error);
+      }
+    };
+    create();
+    console.log("data: ", dataCreateInvoices);
+    window.location.reload();
+  };
 
   const handleEdit = () => {
     setIsDisabled(false);
@@ -118,13 +467,36 @@ export default function HomeContracts({ params }: HomeContractsProps) {
     window.location.reload();
   };
 
-  const formatDate = (date: Date | null) => {
-    if (date instanceof Date) {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng từ 0-11, cần cộng thêm 1
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    }
+  const handleSubmitEdit = () => {
+    const handleSave = async () => {
+      try {
+        const response = await axios.put(
+          `/api/homeContract/${params.idContract}`,
+          homeContractForm
+        );
+        console.log("Data updated successfully:", response.data);
+      } catch (error) {
+        console.error("Error saving data:", error);
+      }
+    };
+    handleSave();
+    window.location.reload();
+  };
+
+  const handleCreateServiceContract = () => {
+    const create = async () => {
+      try {
+        const response = await axios.post(
+          "/api/servicerContract",
+          serviceContractForm
+        );
+        console.log("Data saved successfully:", response.data);
+      } catch (error) {
+        console.error("Error: ", error);
+      }
+    };
+    create();
+    console.log(serviceContractForm);
   };
 
   return (
@@ -136,11 +508,24 @@ export default function HomeContracts({ params }: HomeContractsProps) {
           elevation={3}
           sx={{
             textAlign: "center",
-            padding: " 20px 30px",
-            margin: "10px",
+            padding: " 20px",
+            // margin: "10px",
           }}
         >
-          <Typography variant="h6">Hợp đồng căn hộ </Typography>
+          <div
+            style={{
+              display: "flex",
+              textAlign: "center",
+              width: "100%",
+            }}
+          >
+            <IconButton onClick={handleBack}>
+              <ArrowBackIcon />
+            </IconButton>
+            <Typography variant="h5" sx={{ flex: "1" }}>
+              Hợp đồng căn hộ{" "}
+            </Typography>
+          </div>
           <Box sx={{ width: "100%" }}>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
               <Tabs
@@ -152,268 +537,269 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                 <Tab label="Danh sách hợp đồng dịch vụ" value={1} />
               </Tabs>
             </Box>
-
             <CustomTabPanel value={valueTab} index={0}>
               <Paper
                 elevation={3}
                 sx={{
                   textAlign: "center",
                   padding: " 5px",
-                  margin: "0px",
                 }}
               >
-                <Typography variant="h5">
+                <Typography variant="h6">
                   Thông tin chi tiết hợp đồng
                 </Typography>
-                <Grid
-                  container
-                  rowSpacing={1}
-                  columnSpacing={{ xs: 1, sm: 2, md: 3 }}
-                  sx={{
-                    textAlign: "center",
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Grid item lg={5}>
-                    <Item>
-                      <TextField
-                        disabled
-                        id="apartment"
-                        label="Căn hộ"
-                        type="text"
-                        fullWidth
-                        value={`${homeContract?.home.apartmentNo} - ${homeContract?.home.building}`}
-                        size="small"
-                        variant="standard"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                      />
-                    </Item>
-                  </Grid>
-                  <Grid item lg={6}>
-                    <Item>
-                      <TextField
-                        disabled
-                        id="address"
-                        label="Địa chỉ"
-                        type="text"
-                        fullWidth
-                        value={`${homeContract?.home.address} - ${homeContract?.home.Ward} - ${homeContract?.home.District} - ${homeContract?.home.Province}`}
-                        size="small"
-                        variant="standard"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                      />
-                    </Item>
-                  </Grid>
-                  <Grid item lg={5}>
-                    <Item>
-                      <TextField
-                        disabled
-                        id="guest"
-                        label="Khách thuê (Tên - Số CCCD)"
-                        type="text"
-                        fullWidth
-                        value={`${homeContract?.guest.fullname} - ${homeContract?.guest.citizenId}`}
-                        size="small"
-                        variant="standard"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        //   onChange={(e) => {
-                        //     setHomeForm({
-                        //       ...homeForm,
-                        //       apartmentNo: e.target.value,
-                        //     });
-                        //   }}
-                      />
-                    </Item>
-                  </Grid>
-                  <Grid item lg={3}>
-                    <Item>
-                      <TextField
-                        disabled={isDisabled}
-                        id="rental"
-                        label="Giá thuê (VND/Tháng)"
-                        type="number"
-                        fullWidth
-                        value={homeContractForm?.rental}
-                        size="small"
-                        variant="standard"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        inputProps={{
-                          min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
-                          step: 10000, // Đặt bước nhảy (step)
-                        }}
-                        onChange={(e) => {
-                          // setHomeForm({
-                          //   ...homeForm,
-                          //   address: e.target.value,
-                          // });
-                        }}
-                      />
-                    </Item>
-                  </Grid>
-                  <Grid item lg={3}>
-                    <Item>
-                      <TextField
-                        disabled={isDisabled}
-                        id="deposit"
-                        label="Tiền cọc (VND)"
-                        type="number"
-                        fullWidth
-                        value={homeContractForm?.deposit}
-                        size="small"
-                        variant="standard"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        inputProps={{
-                          min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
-                          step: 10000, // Đặt bước nhảy (step)
-                        }}
-                        onChange={(e) => {
-                          // setHomeForm({
-                          //   ...homeForm,
-                          //   Ward: e.target.value,
-                          // });
-                        }}
-                      />
-                    </Item>
-                  </Grid>
-                  <Grid item lg={2.5}>
-                    <Item>
-                      <TextField
-                        disabled={isDisabled}
-                        id="duration"
-                        label="Thời hạn thuê (tháng)"
-                        type="number"
-                        fullWidth
-                        value={homeContractForm?.duration}
-                        size="small"
-                        variant="standard"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        inputProps={{
-                          min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
-                          step: 10000, // Đặt bước nhảy (step)
-                        }}
-                        onChange={(e) => {
-                          // setHomeForm({
-                          //   ...homeForm,
-                          //   Ward: e.target.value,
-                          // });
-                        }}
-                      />
-                    </Item>
-                  </Grid>
-                  <Grid item lg={2.5}>
-                    <Item>
-                      <TextField
-                        disabled={isDisabled}
-                        id="payCycle"
-                        label="chu kỳ thanh toán"
-                        type="number"
-                        fullWidth
-                        value={homeContractForm?.payCycle}
-                        size="small"
-                        variant="standard"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        inputProps={{
-                          min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
-                          step: 10000, // Đặt bước nhảy (step)
-                        }}
-                        onChange={(e) => {
-                          // setHomeForm({
-                          //   ...homeForm,
-                          //   Ward: e.target.value,
-                          // });
-                        }}
-                      />
-                    </Item>
-                  </Grid>
-                  <Grid item lg={3}>
-                    <Item>
-                      <TextField
-                        disabled={isDisabled}
-                        id="dateStart"
-                        label="Ngày bắt đầu"
-                        type="date"
-                        fullWidth
-                        value={
-                          homeContractForm
-                            ? formatDate(homeContractForm.dateStart)
-                            : "10-10-2001"
-                        }
-                        size="small"
-                        variant="standard"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        onChange={(e) => {
-                          // setHomeForm({
-                          //   ...homeForm,
-                          //   Ward: e.target.value,
-                          // });
-                        }}
-                      />
-                    </Item>
-                  </Grid>
-                  <Grid item lg={3}>
-                    <Item>
-                      <TextField
-                        disabled={isDisabled}
-                        id="dateEnd"
-                        label="Ngày kết thúc"
-                        type="date"
-                        fullWidth
-                        value={homeContractForm?.dateEnd}
-                        size="small"
-                        variant="standard"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        onChange={(e) => {
-                          // setHomeForm({
-                          //   ...homeForm,
-                          //   Ward: e.target.value,
-                          // });
-                        }}
-                      />
-                    </Item>
-                  </Grid>
-                  <Grid item lg={5}>
-                    <Item>
-                      <TextField
-                        disabled={isDisabled}
-                        id="Ward"
-                        label="Trạng Thái hợp đồng"
-                        type="radio"
-                        fullWidth
-                        value={homeContractForm?.status}
-                        size="small"
-                        variant="standard"
-                        InputLabelProps={{
-                          shrink: true,
-                        }}
-                        onChange={(e) => {
-                          // setHomeForm({
-                          //   ...homeForm,
-                          //   Ward: e.target.value,
-                          // });
-                        }}
-                      />
-                    </Item>
-                  </Grid>
-                </Grid>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={["DatePicker", "DatePicker"]}>
+                    <Grid
+                      container
+                      rowSpacing={1}
+                      columnSpacing={{ xs: 1, sm: 2, md: 3 }}
+                      sx={{
+                        textAlign: "center",
+                        display: "flex",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Grid item lg={5}>
+                        <Item>
+                          <TextField
+                            disabled
+                            id="apartment"
+                            label="Căn hộ"
+                            type="text"
+                            fullWidth
+                            value={`${homeContract?.home.apartmentNo} - ${homeContract?.home.building}`}
+                            size="small"
+                            variant="standard"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Item>
+                      </Grid>
+                      <Grid item lg={6}>
+                        <Item>
+                          <TextField
+                            disabled
+                            id="address"
+                            label="Địa chỉ"
+                            type="text"
+                            fullWidth
+                            value={`${homeContract?.home.address} - ${homeContract?.home.Ward} - ${homeContract?.home.District} - ${homeContract?.home.Province}`}
+                            size="small"
+                            variant="standard"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                        </Item>
+                      </Grid>
+                      <Grid item lg={5}>
+                        <Item>
+                          <TextField
+                            disabled
+                            id="guest"
+                            label="Khách thuê (Tên - Số CCCD)"
+                            type="text"
+                            fullWidth
+                            value={`${homeContract?.guest.fullname} - ${homeContract?.guest.citizenId}`}
+                            size="small"
+                            variant="standard"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            //   onChange={(e) => {
+                            //     setHomeForm({
+                            //       ...homeForm,
+                            //       apartmentNo: e.target.value,
+                            //     });
+                            //   }}
+                          />
+                        </Item>
+                      </Grid>
+                      <Grid item lg={3}>
+                        <Item>
+                          <TextField
+                            disabled={isDisabled}
+                            id="rental"
+                            label="Giá thuê (VND/Tháng)"
+                            type="number"
+                            fullWidth
+                            value={homeContractForm?.rental}
+                            size="small"
+                            variant="standard"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            inputProps={{
+                              min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                              step: 10000, // Đặt bước nhảy (step)
+                            }}
+                            onChange={(e) => {
+                              setHomeContractForm({
+                                ...homeContractForm,
+                                rental: Number(e.target.value),
+                              });
+                            }}
+                          />
+                        </Item>
+                      </Grid>
+                      <Grid item lg={3}>
+                        <Item>
+                          <TextField
+                            disabled={isDisabled}
+                            id="deposit"
+                            label="Tiền cọc (VND)"
+                            type="number"
+                            fullWidth
+                            value={homeContractForm?.deposit}
+                            size="small"
+                            variant="standard"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            inputProps={{
+                              min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                              step: 10000, // Đặt bước nhảy (step)
+                            }}
+                            onChange={(e) => {
+                              setHomeContractForm({
+                                ...homeContractForm,
+                                deposit: Number(e.target.value),
+                              });
+                            }}
+                          />
+                        </Item>
+                      </Grid>
+                      <Grid item lg={2.5}>
+                        <Item>
+                          <TextField
+                            disabled={isDisabled}
+                            id="duration"
+                            label="Thời hạn thuê (tháng)"
+                            type="number"
+                            fullWidth
+                            value={homeContractForm?.duration}
+                            size="small"
+                            variant="standard"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            inputProps={{
+                              min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                              step: 1, // Đặt bước nhảy (step)
+                            }}
+                            onChange={(e) => {
+                              setHomeContractForm({
+                                ...homeContractForm,
+                                duration: Number(e.target.value),
+                              });
+                            }}
+                          />
+                        </Item>
+                      </Grid>
+                      <Grid item lg={2.5}>
+                        <Item>
+                          <TextField
+                            disabled={isDisabled}
+                            id="payCycle"
+                            label="chu kỳ thanh toán"
+                            type="number"
+                            fullWidth
+                            value={homeContractForm?.payCycle}
+                            size="small"
+                            variant="standard"
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                            inputProps={{
+                              min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                              step: 1, // Đặt bước nhảy (step)
+                            }}
+                            onChange={(e) => {
+                              setHomeContractForm({
+                                ...homeContractForm,
+                                payCycle: Number(e.target.value),
+                              });
+                            }}
+                          />
+                        </Item>
+                      </Grid>
+                      <Grid item lg={3}>
+                        <Item>
+                          <DatePicker
+                            disabled={isDisabled}
+                            label="Ngày bắt đầu"
+                            value={dayjs(homeContractForm?.dateStart)}
+                            onChange={(newValue) => {
+                              if (newValue) {
+                                const temp = newValue?.toDate();
+                                setHomeContractForm({
+                                  ...homeContractForm,
+                                  dateStart: temp,
+                                });
+                              }
+                            }}
+                          />
+                        </Item>
+                      </Grid>
+                      <Grid item lg={3}>
+                        <Item>
+                          <DatePicker
+                            disabled={isDisabled}
+                            label="Ngày kết thúc"
+                            value={dayjs(homeContractForm?.dateEnd)}
+                            onChange={(newValue) => {
+                              if (newValue) {
+                                const temp = newValue?.toDate();
+                                setHomeContractForm({
+                                  ...homeContractForm,
+                                  dateEnd: temp,
+                                });
+                              }
+                            }}
+                          />
+                        </Item>
+                      </Grid>
+                      <Grid item lg={5}>
+                        <Item>
+                          <FormControl
+                            fullWidth
+                            disabled={isDisabled}
+                            size="small"
+                            variant="standard"
+                          >
+                            <InputLabel id="status-label">
+                              Trạng thái hợp đồng
+                            </InputLabel>
+                            <Select
+                              labelId="status-label"
+                              id="status"
+                              value={homeContractForm.status}
+                              label="Trạng thái hợp đồng"
+                              onChange={(event: SelectChangeEvent) => {
+                                setHomeContractForm({
+                                  ...homeContractForm,
+                                  status: event.target.value as StatusContract,
+                                });
+                              }}
+                            >
+                              <MenuItem value={StatusContract.ACTIVE}>
+                                ACTIVE
+                              </MenuItem>
+                              <MenuItem value={StatusContract.DRAFT}>
+                                DRAFT
+                              </MenuItem>
+                              <MenuItem value={StatusContract.FINISH}>
+                                FINISH
+                              </MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Item>
+                      </Grid>
+                    </Grid>
+                  </DemoContainer>
+                </LocalizationProvider>
                 <br />
                 <Grid
                   container
@@ -428,7 +814,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                     <Button
                       hidden={!isDisabled}
                       variant="outlined"
-                      size="large"
+                      size="medium"
                       endIcon={<EditIcon />}
                       onClick={handleEdit}
                     >
@@ -439,7 +825,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                     <Button
                       hidden={isDisabled}
                       variant="outlined"
-                      size="large"
+                      size="medium"
                       sx={{
                         textAlign: "right",
                       }}
@@ -450,16 +836,686 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                     <ColorButton
                       hidden={isDisabled}
                       variant="outlined"
-                      size="large"
-                      // onClick={handleSubmit}
+                      size="medium"
+                      onClick={handleSubmitEdit}
                     >
-                      Lưu
+                      Lưu thay đổi
                     </ColorButton>
                   </Grid>
                 </Grid>
               </Paper>
+              <Paper>
+                <div
+                  style={{
+                    display: "flex",
+                    textAlign: "center",
+                    width: "100%",
+                  }}
+                >
+                  <Typography variant="h6" sx={{ flex: "1" }}>
+                    Thông tin chi tiết các đợt thanh toán
+                  </Typography>
+                  <Button
+                    hidden={isCreatedInvoice}
+                    sx={{ textAlign: "right", margin: "5px" }}
+                    variant="outlined"
+                    size="small"
+                    endIcon={<PostAddIcon />}
+                    onClick={handleOpenDialog}
+                  >
+                    Tạo các đợt thanh toán
+                  </Button>
+                </div>
+                <Dialog open={openDialog} maxWidth="md" fullWidth>
+                  <DialogTitle>Tạo thông tin các đợt thanh toán</DialogTitle>
+                  <DialogContent>
+                    <Autocomplete
+                      value={receiver !== null ? receiver : null}
+                      onChange={(event: any, newValue: Receiver | null) => {
+                        if (newValue) {
+                          setReceiver(newValue);
+                          setDataCreateInvoice({
+                            ...dataCreateInvoices,
+                            receiverId: Number(newValue.receiverId),
+                          });
+                        }
+                      }}
+                      inputValue={inputValue}
+                      onInputChange={(event, newInputValue) => {
+                        setInputValue(newInputValue);
+                      }}
+                      id="controllable-states-demo"
+                      options={receivers}
+                      getOptionKey={(option: { receiverId: number }) =>
+                        option.receiverId
+                      }
+                      getOptionLabel={(option) =>
+                        `${option.name} - ${option.TenTK} - ${option.STK} - ${option.Nganhang}` ??
+                        ""
+                      }
+                      renderInput={(params) => (
+                        <TextField {...params} label="Người nhận" />
+                      )}
+                    />
+                    <TextField
+                      autoFocus
+                      margin="dense"
+                      id="totalSend"
+                      label="Số tiền nộp cho chủ nhà"
+                      type="number"
+                      value={dataCreateInvoices.totalSend}
+                      fullWidth
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      inputProps={{
+                        min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                        step: 10000, // Đặt bước nhảy (step)
+                      }}
+                      onChange={(e) => {
+                        setDataCreateInvoice({
+                          ...dataCreateInvoices,
+                          totalSend: Number(e.target.value),
+                        });
+                      }}
+                    />
+                  </DialogContent>
+                  <DialogActions>
+                    <Button
+                      onClick={() => {
+                        setOpenDialog(false);
+                      }}
+                    >
+                      Hủy
+                    </Button>
+                    <Button onClick={handleCreateInvoice}>Lưu</Button>
+                  </DialogActions>
+                </Dialog>
+                <TableContainer sx={{ width: "100%", maxHeight: 340 }}>
+                  <Table stickyHeader aria-label="sticky table">
+                    <TableHead>
+                      <TableRow>
+                        {columns.map((column) => (
+                          <TableCell
+                            key={column.id}
+                            align={column.align}
+                            style={{
+                              minWidth: column.minWidth,
+                              backgroundColor: "#c6c8da",
+                            }}
+                          >
+                            {column.label}
+                          </TableCell>
+                        ))}
+                        <TableCell
+                          align="center"
+                          style={{
+                            minWidth: "120",
+                            backgroundColor: "#c6c8da",
+                          }}
+                        >
+                          {" "}
+                          Hành Động
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {invoices.map((row, index) => {
+                        return (
+                          <TableRow
+                            hover
+                            role="checkbox"
+                            tabIndex={-1}
+                            key={row.invoiceId}
+                            onClick={() => {}}
+                          >
+                            <TableCell align="center">
+                              {`Đợt ${index + 1}`}
+                            </TableCell>
+                            <TableCell align="center">
+                              {dayjs
+                                .utc(row.dateStart.toString())
+                                .format("DD/MM/YYYY")}
+                            </TableCell>
+                            <TableCell align="center">
+                              {dayjs
+                                .utc(row.dateEnd.toString())
+                                .format("DD/MM/YYYY")}
+                            </TableCell>
+                            <TableCell align="center">
+                              {dayjs
+                                .utc(row.datePaymentRemind.toString())
+                                .format("DD/MM/YYYY")}
+                            </TableCell>
+                            <TableCell align="center">
+                              {dayjs
+                                .utc(row.datePaymentExpect.toString())
+                                .format("DD/MM/YYYY")}
+                            </TableCell>
+                            <TableCell align="center">
+                              {row.totalReceiver.toString()}
+                            </TableCell>
+                            <TableCell align="center">
+                              {dayjs
+                                .utc(row.datePaymentReal.toString())
+                                .format("DD/MM/YYYY")}
+                            </TableCell>
+                            <TableCell align="center">
+                              {row.totalSend.toString()}
+                            </TableCell>
+                            <TableCell align="center">
+                              {row.receiver.TenTK?.toString()}
+                            </TableCell>
+                            <TableCell align="center">
+                              {row.statusPayment === true ? (
+                                <CheckCircleOutlineIcon color="success" />
+                              ) : (
+                                <RemoveCircleOutlineIcon color="disabled" />
+                              )}
+                            </TableCell>
+
+                            {/* })} */}
+                            <TableCell align="center">
+                              <IconButton
+                              // onClick={() => handleEdit(row.serviceId)}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                              {/* <IconButton
+                              onClick={() => {
+                                setOpenDialogDetele(true);
+                                setSelectedRecord(row.guestId);
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton> */}
+                              {/* <DeleteRecipientDialog
+                              openDialogDelete={openDialogDetele}
+                              handleCloseDialogDelete={handleCloseDialogDatele}
+                              selectedRecord={selectedRecord}
+                              handleDelete={handleDelete}
+                            /> */}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
             </CustomTabPanel>
-            <CustomTabPanel value={valueTab} index={1}></CustomTabPanel>
+            <CustomTabPanel value={valueTab} index={1}>
+              <Button
+                sx={{
+                  alignContent: "right",
+                  margin: " 0 0 0px 800px",
+                }}
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  setOpenDialogService(true);
+                }}
+              >
+                Tạo hợp đồng dịch vụ
+              </Button>
+              <Dialog open={openDialogService} maxWidth="md" fullWidth>
+                <DialogTitle>Tạo hợp đồng dịch vụ mới</DialogTitle>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer components={["DatePicker", "DatePicker"]}>
+                    <DialogContent>
+                      <Autocomplete
+                        value={service !== null ? service : null}
+                        onChange={(event: any, newValue: Service | null) => {
+                          if (newValue) {
+                            setService(newValue);
+                            setServiceContractForm({
+                              ...serviceContractForm,
+                              serviceId: Number(newValue.serviceId),
+                            });
+                          }
+                        }}
+                        inputValue={inputValueService}
+                        onInputChange={(event, newInputValue) => {
+                          setInputValueService(newInputValue);
+                        }}
+                        id="controllable-states-demo"
+                        options={services}
+                        getOptionKey={(option: { serviceId: number }) =>
+                          option.serviceId
+                        }
+                        getOptionLabel={(option) =>
+                          `${option.name}  ${option.description}` ?? ""
+                        }
+                        renderInput={(params) => (
+                          <TextField {...params} label="Dịch vụ" />
+                        )}
+                      />
+                      <TextField
+                        required
+                        margin="dense"
+                        id="duration"
+                        label="Thời hạn (Tháng)"
+                        type="number"
+                        fullWidth
+                        onChange={(e) => {
+                          setServiceContractForm({
+                            ...serviceContractForm,
+                            duration: Number(e.target.value),
+                          });
+                        }}
+                      />
+                      <TextField
+                        required
+                        margin="dense"
+                        id="payCycle"
+                        label="Chu kỳ thanh toán (tháng)"
+                        type="number"
+                        fullWidth
+                        onChange={(e) => {
+                          setServiceContractForm({
+                            ...serviceContractForm,
+                            payCycle: Number(e.target.value),
+                          });
+                        }}
+                      />
+                      <TextField
+                        required
+                        margin="dense"
+                        id="limit"
+                        label="Khoản thu mặc định (nếu có)"
+                        type="number"
+                        fullWidth
+                        inputProps={{
+                          min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                          step: 10000, // Đặt bước nhảy (step)
+                        }}
+                        onChange={(e) => {
+                          setServiceContractForm({
+                            ...serviceContractForm,
+                            limit: Number(e.target.value),
+                          });
+                        }}
+                      />
+                      <DatePicker
+                        sx={{ width: "50%", padding: "7px 0" }}
+                        label="Ngày bắt đầu"
+                        value={dayjs.utc(serviceContractForm?.dateStart)}
+                        onChange={(newValue) => {
+                          if (newValue) {
+                            const temp = newValue?.toDate();
+                            setServiceContractForm({
+                              ...serviceContractForm,
+                              dateStart: temp,
+                            });
+                          }
+                        }}
+                      />
+                      <DatePicker
+                        sx={{ width: "50%", padding: "7px 0" }}
+                        label="Ngày kết thúc"
+                        value={dayjs.utc(serviceContractForm?.dateEnd)}
+                        onChange={(newValue) => {
+                          if (newValue) {
+                            const temp = newValue?.toDate();
+                            setServiceContractForm({
+                              ...serviceContractForm,
+                              dateEnd: temp,
+                            });
+                          }
+                        }}
+                      />
+                    </DialogContent>
+                  </DemoContainer>
+                </LocalizationProvider>
+                <DialogActions>
+                  <Button
+                    onClick={() => {
+                      setOpenDialogService(false);
+                    }}
+                  >
+                    Hủy
+                  </Button>
+                  <Button onClick={handleCreateServiceContract}>Lưu</Button>
+                </DialogActions>
+              </Dialog>
+              <TableContainer
+                sx={{
+                  width: "100%",
+                  maxHeight: 550,
+                  padding: "7px",
+                }}
+              >
+                <Table stickyHeader aria-label="sticky table">
+                  <TableHead>
+                    <TableRow>
+                      {columnService.map((column) => (
+                        <TableCell
+                          key={column.id}
+                          align={column.align}
+                          style={{
+                            minWidth: column.minWidth,
+                            backgroundColor: "#c6c8da",
+                          }}
+                        >
+                          {column.label}
+                        </TableCell>
+                      ))}
+                      <TableCell
+                        align="center"
+                        style={{
+                          minWidth: "120",
+                          backgroundColor: "#c6c8da",
+                        }}
+                      >
+                        {" "}
+                        Hành Động
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {serviceContracts
+                      //   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row, index) => {
+                        return (
+                          <TableRow
+                            hover
+                            role="checkbox"
+                            tabIndex={-1}
+                            key={row.serviceContractId}
+                            // onClick={() =>
+                            //   router.push(`/guest/${row.guestId}`);
+                            // }}
+                          >
+                            <TableCell align="center">
+                              {row.service.name}
+                            </TableCell>
+                            <TableCell align="center">{row.unitCost}</TableCell>
+                            <TableCell align="center">{row.duration}</TableCell>
+                            <TableCell align="center">{row.payCycle}</TableCell>
+                            <TableCell align="center">
+                              {dayjs
+                                .utc(row.dateStart.toString())
+                                .format("DD/MM/YYYY")}
+                            </TableCell>
+                            <TableCell align="center">
+                              {dayjs
+                                .utc(row.dateEnd.toString())
+                                .format("DD/MM/YYYY")}
+                            </TableCell>
+                            <TableCell align="center">
+                              {row.statusContract.toString()}
+                            </TableCell>
+                            <TableCell align="center">
+                              <Tooltip title="Tạo các đợt thanh toán">
+                                <IconButton
+                                  onClick={() =>
+                                    handleOpenDialogServiceInvoice(row)
+                                  }
+                                >
+                                  <AddCircleOutlineIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Tạo các đợt thanh toán">
+                                <IconButton
+                                  onClick={() =>
+                                    fetchSInvoice(row.serviceContractId)
+                                  }
+                                >
+                                  <FeedOutlinedIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Cập nhật">
+                                <IconButton
+                                // onClick={() => handleEdit(row.serviceId)}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Xóa">
+                                <IconButton
+                                // onClick={() => {
+                                //   setOpenDialogDetele(true);
+                                //   setSelectedRecord(row.guestId);
+                                // }}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                              {/* <DeleteRecipientDialog
+                              openDialogDelete={openDialogDetele}
+                              handleCloseDialogDelete={handleCloseDialogDatele}
+                              selectedRecord={selectedRecord}
+                              handleDelete={handleDelete}
+                            /> */}
+                              <Dialog
+                                open={openDialogServiceInvoice}
+                                maxWidth="md"
+                                fullWidth
+                              >
+                                <DialogTitle>
+                                  Tạo thông tin các đợt thanh toán
+                                </DialogTitle>
+                                <DialogContent>
+                                  <Autocomplete
+                                    value={receiver !== null ? receiver : null}
+                                    onChange={(
+                                      event: any,
+                                      newValue: Receiver | null
+                                    ) => {
+                                      if (newValue) {
+                                        setReceiver(newValue);
+                                        setDataCreateInvoice({
+                                          ...dataCreateInvoices,
+                                          receiverId: Number(
+                                            newValue.receiverId
+                                          ),
+                                        });
+                                      }
+                                    }}
+                                    inputValue={inputValue}
+                                    onInputChange={(event, newInputValue) => {
+                                      setInputValue(newInputValue);
+                                    }}
+                                    id="controllable-states-demo"
+                                    options={receivers}
+                                    getOptionKey={(option: {
+                                      receiverId: number;
+                                    }) => option.receiverId}
+                                    getOptionLabel={(option) =>
+                                      `${option.name} - ${option.TenTK} - ${option.STK} - ${option.Nganhang}` ??
+                                      ""
+                                    }
+                                    renderInput={(params) => (
+                                      <TextField
+                                        {...params}
+                                        label="Người nhận"
+                                      />
+                                    )}
+                                  />
+                                  <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    id="totalSend"
+                                    label="Số tiền nộp cho chủ dịch vụ"
+                                    type="number"
+                                    value={dataCreateInvoices.totalSend}
+                                    fullWidth
+                                    InputLabelProps={{
+                                      shrink: true,
+                                    }}
+                                    inputProps={{
+                                      min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                                      step: 100000, // Đặt bước nhảy (step)
+                                    }}
+                                    onChange={(e) => {
+                                      setDataCreateInvoice({
+                                        ...dataCreateInvoices,
+                                        totalSend: Number(e.target.value),
+                                      });
+                                    }}
+                                  />
+                                  <TextField
+                                    autoFocus
+                                    margin="dense"
+                                    id="totalSend"
+                                    label="Số tiền thu từ khách (VND/Tháng)"
+                                    type="number"
+                                    value={dataCreateInvoices.limit}
+                                    fullWidth
+                                    InputLabelProps={{
+                                      shrink: true,
+                                    }}
+                                    inputProps={{
+                                      min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                                      step: 100000, // Đặt bước nhảy (step)
+                                    }}
+                                    onChange={(e) => {
+                                      setDataCreateInvoice({
+                                        ...dataCreateInvoices,
+                                        limit: Number(e.target.value),
+                                      });
+                                    }}
+                                  />
+                                </DialogContent>
+                                <DialogActions>
+                                  <Button
+                                    onClick={() => {
+                                      setOpenDialogServiceInvoice(false);
+                                    }}
+                                  >
+                                    Hủy
+                                  </Button>
+                                  <Button onClick={handleCreateInvoice}>
+                                    Lưu
+                                  </Button>
+                                </DialogActions>
+                              </Dialog>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              {sInvoices.length === 0 ? (
+                ""
+              ) : (
+                <Paper>
+                  <Typography>Danh sách đợt thanh toán</Typography>
+                  <TableContainer sx={{ width: "100%", maxHeight: 340 }}>
+                    <Table stickyHeader aria-label="sticky table">
+                      <TableHead>
+                        <TableRow>
+                          {columns.map((column) => (
+                            <TableCell
+                              key={column.id}
+                              align={column.align}
+                              style={{
+                                minWidth: column.minWidth,
+                                backgroundColor: "#c6c8da",
+                              }}
+                            >
+                              {column.label}
+                            </TableCell>
+                          ))}
+                          <TableCell
+                            align="center"
+                            style={{
+                              minWidth: "120",
+                              backgroundColor: "#c6c8da",
+                            }}
+                          >
+                            {" "}
+                            Hành Động
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {sInvoices.map((row, index) => {
+                          return (
+                            <TableRow
+                              hover
+                              role="checkbox"
+                              tabIndex={-1}
+                              key={row.invoiceId}
+                              onClick={() => {}}
+                            >
+                              <TableCell align="center">
+                                {`Đợt ${index + 1}`}
+                              </TableCell>
+                              <TableCell align="center">
+                                {dayjs
+                                  .utc(row.dateStart.toString())
+                                  .format("DD/MM/YYYY")}
+                              </TableCell>
+                              <TableCell align="center">
+                                {dayjs
+                                  .utc(row.dateEnd.toString())
+                                  .format("DD/MM/YYYY")}
+                              </TableCell>
+                              <TableCell align="center">
+                                {dayjs
+                                  .utc(row.datePaymentRemind.toString())
+                                  .format("DD/MM/YYYY")}
+                              </TableCell>
+                              <TableCell align="center">
+                                {dayjs
+                                  .utc(row.datePaymentExpect.toString())
+                                  .format("DD/MM/YYYY")}
+                              </TableCell>
+                              <TableCell align="center">
+                                {row.totalReceiver.toString()}
+                              </TableCell>
+                              <TableCell align="center">
+                                {dayjs
+                                  .utc(row.datePaymentReal.toString())
+                                  .format("DD/MM/YYYY")}
+                              </TableCell>
+                              <TableCell align="center">
+                                {row.totalSend.toString()}
+                              </TableCell>
+                              <TableCell align="center">
+                                {row.receiver.TenTK?.toString()}
+                              </TableCell>
+                              <TableCell align="center">
+                                {row.statusPayment === true ? (
+                                  <CheckCircleOutlineIcon color="success" />
+                                ) : (
+                                  <RemoveCircleOutlineIcon color="disabled" />
+                                )}
+                              </TableCell>
+
+                              {/* })} */}
+                              <TableCell align="center">
+                                <IconButton
+                                // onClick={() => handleEdit(row.serviceId)}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                                {/* <IconButton
+                              onClick={() => {
+                                setOpenDialogDetele(true);
+                                setSelectedRecord(row.guestId);
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton> */}
+                                {/* <DeleteRecipientDialog
+                              openDialogDelete={openDialogDetele}
+                              handleCloseDialogDelete={handleCloseDialogDatele}
+                              selectedRecord={selectedRecord}
+                              handleDelete={handleDelete}
+                            /> */}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+              )}
+            </CustomTabPanel>
           </Box>
         </Paper>
       </WrapperContainer>

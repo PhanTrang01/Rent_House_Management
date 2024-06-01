@@ -244,7 +244,7 @@ export default function SearchPage() {
                               key={row.homeContractsId}
                             >
                               <TableCell>
-                                {row.home.homeowner.fullname}
+                                {row.home.homeowner?.fullname}
                               </TableCell>
                               <TableCell>{row.guest.fullname}</TableCell>
                               <TableCell>{row.guest.citizenId}</TableCell>
