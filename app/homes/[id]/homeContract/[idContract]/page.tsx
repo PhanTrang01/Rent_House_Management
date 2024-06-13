@@ -289,7 +289,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
   const [openDialog, setOpenDialog] = useState(false);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [receivers, setReceivers] = useState<Receiver[]>([]);
-  const [receiver, setReceiver] = useState<Receiver>();
+  const [receiver, setReceiver] = useState<Receiver | null>(null);
   const [inputValue, setInputValue] = useState("");
   const [isCreatedInvoice, setIsCreatedInvoice] = useState(true);
   const [dataCreateInvoices, setDataCreateInvoice] = useState<InvoiceForm>({
@@ -330,6 +330,13 @@ export default function HomeContracts({ params }: HomeContractsProps) {
       status: StatusContract.ACTIVE,
     });
 
+  const [selectedInvoice, setSelectedInvoice] = useState(0);
+  const [statusPayment, setStatusPayment] = useState(false);
+  const [openDialogUpdateStatusPayment, setOpenDialogUpdateStatusPayment] =
+    useState(false);
+  const [openDialogUpdateServiceInvoice, setOpenDialogUpdateServiceInvoice] =
+    useState(false);
+
   const handleBack = () => {
     route.push(`/homes/${params.id}`);
   };
@@ -367,7 +374,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
     const fetchInvoice = async () => {
       try {
         const response = await axios.get(
-          `/api/invoice?homeContractId=${params.idContract}`
+          `/api/invoice?homeContractId=${params.idContract}&type=HOME`
         );
         setInvoices(response.data);
         if (invoices.length === 0) setIsCreatedInvoice(false);
@@ -491,12 +498,46 @@ export default function HomeContracts({ params }: HomeContractsProps) {
           serviceContractForm
         );
         console.log("Data saved successfully:", response.data);
+        window.location.reload();
       } catch (error) {
         console.error("Error: ", error);
       }
     };
     create();
-    console.log(serviceContractForm);
+  };
+
+  const handleUpdateStatus = () => {
+    const update = async () => {
+      try {
+        const response = await axios.put(`/api/invoice/${selectedInvoice}`, {
+          statusPayment,
+        });
+        console.log("Data updated successfully:", response.data);
+        window.location.reload();
+      } catch (error) {
+        console.error("Error saving data:", error);
+      }
+    };
+    update();
+  };
+
+  const handleUpdateStatusServiceContract = () => {
+    const update = async () => {
+      try {
+        const status = serviceContract?.statusContract;
+        const response = await axios.put(
+          `/api/servicerContract/${serviceContract?.serviceContractId}`,
+          {
+            status,
+          }
+        );
+        console.log("Data updated successfully:", response.data);
+        window.location.reload();
+      } catch (error) {
+        console.error("Error saving data:", error);
+      }
+    };
+    update();
   };
 
   return (
@@ -924,6 +965,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                     <Button
                       onClick={() => {
                         setOpenDialog(false);
+                        setReceiver(null);
                       }}
                     >
                       Hủy
@@ -967,7 +1009,6 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                             role="checkbox"
                             tabIndex={-1}
                             key={row.invoiceId}
-                            onClick={() => {}}
                           >
                             <TableCell align="center">
                               {`Đợt ${index + 1}`}
@@ -1013,28 +1054,15 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                                 <RemoveCircleOutlineIcon color="disabled" />
                               )}
                             </TableCell>
-
-                            {/* })} */}
                             <TableCell align="center">
                               <IconButton
-                              // onClick={() => handleEdit(row.serviceId)}
+                                onClick={() => {
+                                  setSelectedInvoice(row.invoiceId);
+                                  setOpenDialogUpdateStatusPayment(true);
+                                }}
                               >
                                 <EditIcon />
                               </IconButton>
-                              {/* <IconButton
-                              onClick={() => {
-                                setOpenDialogDetele(true);
-                                setSelectedRecord(row.guestId);
-                              }}
-                            >
-                              <DeleteIcon />
-                            </IconButton> */}
-                              {/* <DeleteRecipientDialog
-                              openDialogDelete={openDialogDetele}
-                              handleCloseDialogDelete={handleCloseDialogDatele}
-                              selectedRecord={selectedRecord}
-                              handleDelete={handleDelete}
-                            /> */}
                             </TableCell>
                           </TableRow>
                         );
@@ -1042,13 +1070,51 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                     </TableBody>
                   </Table>
                 </TableContainer>
+                <Dialog open={openDialogUpdateStatusPayment}>
+                  <DialogTitle>Cập nhật trạng thái thanh toán</DialogTitle>
+                  <DialogContent>
+                    <FormControl size="small" variant="standard" fullWidth>
+                      <InputLabel id="status-label">
+                        Trạng thái Thanh toán
+                      </InputLabel>
+                      <Select
+                        labelId="statusPayment"
+                        id="status"
+                        value={statusPayment.toString()}
+                        label="Trạng thái Thanh toán"
+                        onChange={(event: SelectChangeEvent) => {
+                          setStatusPayment(Boolean(event.target.value));
+                        }}
+                      >
+                        <MenuItem value="true">Đã thanh toán</MenuItem>
+                        <MenuItem value="false">Chưa thanh toán</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button
+                      onClick={() => {
+                        setOpenDialogUpdateStatusPayment(false);
+                      }}
+                    >
+                      Hủy
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        handleUpdateStatus();
+                      }}
+                    >
+                      Lưu
+                    </Button>
+                  </DialogActions>
+                </Dialog>
               </Paper>
             </CustomTabPanel>
             <CustomTabPanel value={valueTab} index={1}>
               <Button
                 sx={{
                   alignContent: "right",
-                  margin: " 0 0 0px 800px",
+                  margin: " 0 0 0px 1200px",
                 }}
                 variant="outlined"
                 size="small"
@@ -1248,14 +1314,15 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                             <TableCell align="center">
                               <Tooltip title="Tạo các đợt thanh toán">
                                 <IconButton
-                                  onClick={() =>
-                                    handleOpenDialogServiceInvoice(row)
-                                  }
+                                  onClick={() => {
+                                    handleOpenDialogServiceInvoice(row);
+                                    console.log(row);
+                                  }}
                                 >
                                   <AddCircleOutlineIcon />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Tạo các đợt thanh toán">
+                              <Tooltip title="Xem các đợt thanh toán">
                                 <IconButton
                                   onClick={() =>
                                     fetchSInvoice(row.serviceContractId)
@@ -1266,7 +1333,11 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                               </Tooltip>
                               <Tooltip title="Cập nhật">
                                 <IconButton
-                                // onClick={() => handleEdit(row.serviceId)}
+                                  onClick={() => {
+                                    setServiceContract(row);
+                                    setOpenDialogUpdateServiceInvoice(true);
+                                    console.log(serviceContract);
+                                  }}
                                 >
                                   <EditIcon />
                                 </IconButton>
@@ -1381,11 +1452,75 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                                   <Button
                                     onClick={() => {
                                       setOpenDialogServiceInvoice(false);
+                                      setReceiver(null);
                                     }}
                                   >
                                     Hủy
                                   </Button>
                                   <Button onClick={handleCreateInvoice}>
+                                    Lưu
+                                  </Button>
+                                </DialogActions>
+                              </Dialog>
+                              <Dialog open={openDialogUpdateServiceInvoice}>
+                                <DialogTitle>
+                                  Cập nhật trạng hợp đồng
+                                </DialogTitle>
+                                <DialogContent>
+                                  <FormControl
+                                    size="small"
+                                    variant="standard"
+                                    fullWidth
+                                  >
+                                    <InputLabel id="status-label">
+                                      Trạng thái Hợp đồng
+                                    </InputLabel>
+                                    <Select
+                                      labelId="statusPayment"
+                                      id="status"
+                                      value={
+                                        serviceContract
+                                          ? serviceContract.statusContract
+                                          : StatusContract.DRAFT
+                                      }
+                                      label="Trạng thái Thanh toán"
+                                      onChange={(event: SelectChangeEvent) => {
+                                        if (serviceContract)
+                                          setServiceContract({
+                                            ...serviceContract,
+                                            statusContract:
+                                              StatusContract[
+                                                event.target
+                                                  .value as keyof typeof StatusContract
+                                              ],
+                                          });
+                                      }}
+                                    >
+                                      <MenuItem value={StatusContract.ACTIVE}>
+                                        ACTIVE
+                                      </MenuItem>
+                                      <MenuItem value={StatusContract.FINISH}>
+                                        FINISH
+                                      </MenuItem>
+                                      <MenuItem value={StatusContract.DRAFT}>
+                                        DRAFT
+                                      </MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                </DialogContent>
+                                <DialogActions>
+                                  <Button
+                                    onClick={() => {
+                                      setOpenDialogUpdateServiceInvoice(false);
+                                    }}
+                                  >
+                                    Hủy
+                                  </Button>
+                                  <Button
+                                    onClick={() => {
+                                      handleUpdateStatusServiceContract();
+                                    }}
+                                  >
                                     Lưu
                                   </Button>
                                 </DialogActions>
@@ -1488,24 +1623,65 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                               {/* })} */}
                               <TableCell align="center">
                                 <IconButton
-                                // onClick={() => handleEdit(row.serviceId)}
+                                  onClick={() => {
+                                    setSelectedInvoice(row.invoiceId);
+                                    setOpenDialogUpdateStatusPayment(true);
+                                  }}
                                 >
                                   <EditIcon />
                                 </IconButton>
-                                {/* <IconButton
-                              onClick={() => {
-                                setOpenDialogDetele(true);
-                                setSelectedRecord(row.guestId);
-                              }}
-                            >
-                              <DeleteIcon />
-                            </IconButton> */}
-                                {/* <DeleteRecipientDialog
-                              openDialogDelete={openDialogDetele}
-                              handleCloseDialogDelete={handleCloseDialogDatele}
-                              selectedRecord={selectedRecord}
-                              handleDelete={handleDelete}
-                            /> */}
+                                {/* <Dialog open={openDialogUpdateStatusPayment}>
+                                  <DialogTitle>
+                                    Cập nhật trạng thái thanh toán
+                                  </DialogTitle>
+                                  <DialogContent>
+                                    <FormControl
+                                      size="small"
+                                      variant="standard"
+                                      fullWidth
+                                    >
+                                      <InputLabel id="status-label">
+                                        Trạng thái Thanh toán
+                                      </InputLabel>
+                                      <Select
+                                        labelId="statusPayment"
+                                        id="status"
+                                        value={statusPayment.toString()}
+                                        label="Trạng thái Thanh toán"
+                                        onChange={(
+                                          event: SelectChangeEvent
+                                        ) => {
+                                          setStatusPayment(
+                                            Boolean(event.target.value)
+                                          );
+                                        }}
+                                      >
+                                        <MenuItem value="true">
+                                          Đã thanh toán
+                                        </MenuItem>
+                                        <MenuItem value="false">
+                                          Chưa thanh toán
+                                        </MenuItem>
+                                      </Select>
+                                    </FormControl>
+                                  </DialogContent>
+                                  <DialogActions>
+                                    <Button
+                                      onClick={() => {
+                                        setOpenDialogUpdateStatusPayment(false);
+                                      }}
+                                    >
+                                      Hủy
+                                    </Button>
+                                    <Button
+                                      onClick={() => {
+                                        handleUpdateStatus();
+                                      }}
+                                    >
+                                      Lưu
+                                    </Button>
+                                  </DialogActions>
+                                </Dialog> */}
                               </TableCell>
                             </TableRow>
                           );
@@ -1513,6 +1689,44 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                       </TableBody>
                     </Table>
                   </TableContainer>
+                  <Dialog open={openDialogUpdateStatusPayment}>
+                    <DialogTitle>Cập nhật trạng thái thanh toán</DialogTitle>
+                    <DialogContent>
+                      <FormControl size="small" variant="standard" fullWidth>
+                        <InputLabel id="status-label">
+                          Trạng thái Thanh toán
+                        </InputLabel>
+                        <Select
+                          labelId="statusPayment"
+                          id="status"
+                          value={statusPayment.toString()}
+                          label="Trạng thái Thanh toán"
+                          onChange={(event: SelectChangeEvent) => {
+                            setStatusPayment(Boolean(event.target.value));
+                          }}
+                        >
+                          <MenuItem value="true">Đã thanh toán</MenuItem>
+                          <MenuItem value="false">Chưa thanh toán</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </DialogContent>
+                    <DialogActions>
+                      <Button
+                        onClick={() => {
+                          setOpenDialogUpdateStatusPayment(false);
+                        }}
+                      >
+                        Hủy
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          handleUpdateStatus();
+                        }}
+                      >
+                        Lưu
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
                 </Paper>
               )}
             </CustomTabPanel>

@@ -441,7 +441,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
               justifyContent: "center",
             }}
           >
-            <Grid lg={6}>
+            <Grid item lg={6}>
               <Button
                 hidden={!isDisabled}
                 variant="outlined"
@@ -452,7 +452,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                 Chỉnh sửa
               </Button>
             </Grid>
-            <Grid lg={4}>
+            <Grid item lg={4}>
               <Button
                 hidden={isDisabled}
                 variant="outlined"
@@ -509,6 +509,11 @@ export default function StorePage({ params }: { params: { id: string } }) {
                       role="checkbox"
                       tabIndex={-1}
                       key={row.homeContractsId}
+                      onClick={() => {
+                        route.push(
+                          `/homes/${row.homeId}/homeContract/${row.homeContractsId}`
+                        );
+                      }}
                     >
                       <TableCell align="left">
                         {row.home.homeowner.fullname}

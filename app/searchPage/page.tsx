@@ -34,6 +34,7 @@ import {
 } from "@prisma/client";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { useRouter } from "next/navigation";
 
 dayjs.extend(utc);
 
@@ -143,6 +144,7 @@ function CustomTabPanel(props: TabPanelProps) {
 }
 
 export default function SearchPage() {
+  const route = useRouter();
   const [homeContracts, setHomeContracts] = useState<ContractHome[]>([]);
   const [searchVal, setSearchval] = useState<String>("");
   const [valueTab, setValueTab] = useState(0);
@@ -166,19 +168,9 @@ export default function SearchPage() {
         <WrapperContainer>
           <Header />
           <br />
-          {/* <Typography variant="h5"> Tra cứu hợp đồng </Typography> */}
-          <div>
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <Tabs
-                value={valueTab}
-                onChange={handleChangeTab}
-                aria-label="basic tabs example"
-              >
-                <Tab label="Tra cứu HĐ thuê nhà" value={0} />
-                <Tab label="Tra cứu HĐ dịch vụ" value={1} />
-              </Tabs>
-            </Box>
-            <CustomTabPanel value={valueTab} index={0}>
+          <Paper sx={{ padding: "10px" }}>
+            <Typography variant="h5"> Tra cứu hợp đồng </Typography>
+            <div>
               <Box
                 sx={{
                   maxWidth: "100%",
@@ -242,6 +234,11 @@ export default function SearchPage() {
                               role="checkbox"
                               tabIndex={-1}
                               key={row.homeContractsId}
+                              onClick={() => {
+                                route.push(
+                                  `/homes/${row.homeId}/homeContract/${row.homeContractsId}`
+                                );
+                              }}
                             >
                               <TableCell>
                                 {row.home.homeowner?.fullname}
@@ -279,9 +276,8 @@ export default function SearchPage() {
         onRowsPerPageChange={handleChangeRowsPerPage}
       /> */}
               </Paper>
-            </CustomTabPanel>
-            <CustomTabPanel value={valueTab} index={1}></CustomTabPanel>
-          </div>
+            </div>
+          </Paper>
           <Footer />
         </WrapperContainer>
       </Wrapper>

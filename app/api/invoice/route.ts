@@ -8,6 +8,15 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.nextUrl);
     const homeContractId = searchParams.get("homeContractId") ?? " ";
     const serviceContractId = searchParams.get("serviceContractId") ?? " ";
+    const type = searchParams.get("type") ?? " ";
+
+    let _type: TypeInvoice;
+
+    if (type === "HOME") {
+      _type = TypeInvoice.HOME;
+    } else {
+      _type = TypeInvoice.SERVICE;
+    }
 
     const Homeowners = await prisma.invoicesPayment.findMany({
       include: {
@@ -21,6 +30,7 @@ export async function GET(req: NextRequest) {
           { homeContractId: Number(homeContractId) },
           { serviceContractId: Number(serviceContractId) },
         ],
+        type: _type,
       },
     });
     return NextResponse.json(Homeowners);

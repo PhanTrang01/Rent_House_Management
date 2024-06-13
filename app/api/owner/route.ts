@@ -37,7 +37,15 @@ export async function POST(req: Request) {
       TenTK,
       bank,
     } = await req.json();
-    if (!name || !phone || !citizenId) {
+    if (
+      !name ||
+      !phone ||
+      !email ||
+      !birthday ||
+      !citizenId ||
+      !citizen_ngaycap ||
+      !citizen_noicap
+    ) {
       throw new Error("Invalid name, phone, or citizenId information");
     }
 

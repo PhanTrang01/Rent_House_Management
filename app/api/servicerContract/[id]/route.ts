@@ -27,3 +27,48 @@ export async function GET(
     await prisma.$disconnect();
   }
 }
+
+export async function PUT(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const { status } = await _req.json(); // Đọc dữ liệu từ req.
+
+    const updatedHomeowner = await prisma.serviceContract.update({
+      where: { serviceContractId: Number(id) },
+      data: {
+        statusContract: status as StatusContract,
+      },
+    });
+
+    return NextResponse.json(updatedHomeowner);
+  } catch (error) {
+    console.error("Error updating Home Owner:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const deletedContract = await prisma.serviceContract.delete({
+      where: { serviceContractId: parseInt(id as string, 10) },
+    });
+
+    const deletedInvoice = await prisma.invoicesPayment.deleteMany({
+      where: { serviceContractId: parseInt(id as string, 10) },
+    });
+
+    return NextResponse.json(deletedContract);
+  } catch (error) {
+    console.error("Error read HomeOwner:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
