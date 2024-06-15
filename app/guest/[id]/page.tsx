@@ -556,5 +556,5 @@ const ColorButton = styled(Button)<ButtonProps>(() => ({
 const Item = styled(Paper)(() => ({
   backgroundColor: "#f2e9f8",
   padding: "7px",
-  textAlign: "center",
+  textAlign: "center" as const,
 }));
