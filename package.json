@@ -17,10 +17,13 @@
     "@mui/x-charts": "^6.0.0-alpha.16",
     "@mui/x-date-pickers": "^7.1.1",
     "@prisma/client": "^5.4.2",
+    "@types/bcrypt": "^5.0.2",
     "axios": "^1.6.0",
+    "bcrypt": "^5.1.1",
     "dayjs": "^1.11.10",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-toastify": "^10.0.5"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.4",
