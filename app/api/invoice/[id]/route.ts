@@ -15,18 +15,20 @@ export async function PUT(
 ) {
   try {
     const { id } = params;
-    const { statusPayment } = await _req.json(); // Đọc dữ liệu từ req.
+    const { statusPayment, totalSend, totalReceiver } = await _req.json(); // Đọc dữ liệu từ req.
 
     const updatedHomeowner = await prisma.invoicesPayment.update({
       where: { invoiceId: Number(id) },
       data: {
         statusPayment,
+        totalSend: Number(totalSend),
+        totalReceiver: Number(totalReceiver),
       },
     });
 
     return NextResponse.json(updatedHomeowner);
   } catch (error) {
-    console.error("Error updating Home Owner:", error);
+    console.error("Error updating Invoices", error);
   } finally {
     await prisma.$disconnect();
   }

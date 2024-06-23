@@ -30,10 +30,11 @@ import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Receiver, Service } from "@prisma/client";
 import axios from "axios";
 import DeleteRecipientDialog from "../components/DialogWarnning";
+import { ToastContext } from "@/contexts/ToastContext";
 
 const Wrapper = styled.div`
   display: flex;
@@ -131,6 +132,8 @@ function CustomTabPanel(props: TabPanelProps) {
 
 export default function OtherOption() {
   const [option, setOption] = useState(0);
+  const { notify } = useContext(ToastContext);
+
   const [searchVal, setSearchval] = useState<String>("");
   const [open1, setOpen1] = useState(false);
   const [open2, setOpen2] = useState(false);
@@ -163,20 +166,21 @@ export default function OtherOption() {
   const handleDelete = async (id: number) => {
     try {
       const response = await axios.delete(`/api/serviceO/${id}`);
-      // console.log("Data deleted successfully:", response.data);
-      // Update the state or perform necessary actions to reflect the deletion
-    } catch (error) {
-      console.error("Error deleting data:", error);
+      notify("success", "Delete Successfully");
+    } catch (error: any) {
+      const errorMessage = error.response.data.message;
+      notify("error", errorMessage);
     }
     window.location.reload(); // Consider updating state instead of reloading the page
   };
   const handleDelete2 = async (id: number) => {
     try {
       const response = await axios.delete(`/api/receiver/${id}`);
-      console.log("Data deleted successfully:", response.data);
+      notify("success", "Delete Successfully");
       // Update the state or perform necessary actions to reflect the deletion
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting data:", error);
+      notify("error", error.error.response.data.message);
     }
     window.location.reload(); // Consider updating state instead of reloading the page
   };

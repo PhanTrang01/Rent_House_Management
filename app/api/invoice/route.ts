@@ -9,6 +9,7 @@ export async function GET(req: NextRequest) {
     const homeContractId = searchParams.get("homeContractId") ?? " ";
     const serviceContractId = searchParams.get("serviceContractId") ?? " ";
     const type = searchParams.get("type") ?? " ";
+    const date = searchParams.get("date") ?? " ";
 
     let _type: TypeInvoice;
 
@@ -17,6 +18,8 @@ export async function GET(req: NextRequest) {
     } else {
       _type = TypeInvoice.SERVICE;
     }
+
+    const dateQuery = new Date(date);
 
     const Homeowners = await prisma.invoicesPayment.findMany({
       include: {

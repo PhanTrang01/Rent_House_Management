@@ -8,18 +8,16 @@ const Footer = () => {
       <FooterContainer>
         <FooterText>
           <p>
-            Powered & Designed with 💚 by <span>Phan Trang</span>
+            Đồ án tốt nghiệp 2023.2 - Trường Công nghệ Thông tin và Truyền thông
           </p>
           <Typography>
-            {"Copyright © "}
+            Liên hệ:
             <Link
               color="inherit"
               href="https://www.facebook.com/ThuTrang.Phan0311/"
             >
-              My Website
+              <span>Trang.ptt194691@sis.hust.edu.vn</span>
             </Link>{" "}
-            {new Date().getFullYear()}
-            {"."}
           </Typography>
         </FooterText>
       </FooterContainer>
@@ -29,7 +27,7 @@ const Footer = () => {
 
 const FooterWrapper = styled.div`
   background-color: #9fb1de;
-  margin-top: 50px;
+  /* margin-top: 25px; */
   position: fixed;
   bottom: 0;
   width: 100vw;
@@ -50,7 +48,7 @@ const FooterContainer = styled.div`
 `;
 
 const FooterText = styled.div`
-  padding: 10px 80px;
+  padding: 5px 80px;
   text-align: center;
 `;
 

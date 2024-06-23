@@ -1,6 +1,6 @@
 "use client";
 import styled from "@emotion/styled";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import {
   Guests,
@@ -59,6 +59,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useRouter } from "next/navigation";
+import { ToastContext } from "@/contexts/ToastContext";
 
 dayjs.extend(utc);
 
@@ -119,6 +120,13 @@ type InvoiceForm = {
   rental: number;
   limit: number;
   totalSend: number;
+};
+
+type InvoiceUpdateForm = {
+  invoiceId: number | null;
+  statusPayment: boolean;
+  totalSend: number | null;
+  totalReceiver: number | null;
 };
 
 type Invoice = InvoicesPayment & {
@@ -271,6 +279,8 @@ interface HomeContractsProps {
 
 export default function HomeContracts({ params }: HomeContractsProps) {
   const route = useRouter();
+  const { notify } = useContext(ToastContext);
+
   const [valueTab, setValueTab] = useState(0);
   const [isDisabled, setIsDisabled] = useState(true);
   const [homeContract, setHomeContract] = useState<ContractInfo>();
@@ -332,6 +342,14 @@ export default function HomeContracts({ params }: HomeContractsProps) {
 
   const [selectedInvoice, setSelectedInvoice] = useState(0);
   const [statusPayment, setStatusPayment] = useState(false);
+  const [dataUpdateInvoice, setDataUpdateInvoice] = useState<InvoiceUpdateForm>(
+    {
+      invoiceId: 0,
+      statusPayment: false,
+      totalSend: 0,
+      totalReceiver: 0,
+    }
+  );
   const [openDialogUpdateStatusPayment, setOpenDialogUpdateStatusPayment] =
     useState(false);
   const [openDialogUpdateServiceInvoice, setOpenDialogUpdateServiceInvoice] =
@@ -509,10 +527,12 @@ export default function HomeContracts({ params }: HomeContractsProps) {
   const handleUpdateStatus = () => {
     const update = async () => {
       try {
-        const response = await axios.put(`/api/invoice/${selectedInvoice}`, {
-          statusPayment,
-        });
+        const response = await axios.put(
+          `/api/invoice/${selectedInvoice}`,
+          dataUpdateInvoice
+        );
         console.log("Data updated successfully:", response.data);
+        notify("success", "Update successfully");
         window.location.reload();
       } catch (error) {
         console.error("Error saving data:", error);
@@ -1058,6 +1078,12 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                               <IconButton
                                 onClick={() => {
                                   setSelectedInvoice(row.invoiceId);
+                                  setDataUpdateInvoice({
+                                    invoiceId: row.invoiceId,
+                                    statusPayment: row.statusPayment,
+                                    totalSend: row.totalSend,
+                                    totalReceiver: row.totalReceiver,
+                                  });
                                   setOpenDialogUpdateStatusPayment(true);
                                 }}
                               >
@@ -1080,10 +1106,13 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                       <Select
                         labelId="statusPayment"
                         id="status"
-                        value={statusPayment.toString()}
+                        value={dataUpdateInvoice.statusPayment.toString()}
                         label="Trạng thái Thanh toán"
                         onChange={(event: SelectChangeEvent) => {
-                          setStatusPayment(Boolean(event.target.value));
+                          setDataUpdateInvoice({
+                            ...dataUpdateInvoice,
+                            statusPayment: Boolean(event.target.value),
+                          });
                         }}
                       >
                         <MenuItem value="true">Đã thanh toán</MenuItem>
@@ -1336,7 +1365,6 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                                   onClick={() => {
                                     setServiceContract(row);
                                     setOpenDialogUpdateServiceInvoice(true);
-                                    console.log(serviceContract);
                                   }}
                                 >
                                   <EditIcon />
@@ -1625,6 +1653,12 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                                 <IconButton
                                   onClick={() => {
                                     setSelectedInvoice(row.invoiceId);
+                                    setDataUpdateInvoice({
+                                      invoiceId: row.invoiceId,
+                                      statusPayment: row.statusPayment,
+                                      totalSend: row.totalSend,
+                                      totalReceiver: row.totalReceiver,
+                                    });
                                     setOpenDialogUpdateStatusPayment(true);
                                   }}
                                 >
@@ -1699,16 +1733,65 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                         <Select
                           labelId="statusPayment"
                           id="status"
-                          value={statusPayment.toString()}
+                          value={dataUpdateInvoice.statusPayment.toString()}
                           label="Trạng thái Thanh toán"
                           onChange={(event: SelectChangeEvent) => {
-                            setStatusPayment(Boolean(event.target.value));
+                            setDataUpdateInvoice({
+                              ...dataUpdateInvoice,
+                              statusPayment: Boolean(event.target.value),
+                            });
                           }}
                         >
                           <MenuItem value="true">Đã thanh toán</MenuItem>
                           <MenuItem value="false">Chưa thanh toán</MenuItem>
                         </Select>
                       </FormControl>
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        variant="standard"
+                        id="totalSend"
+                        label="Số tiền nộp cho chủ dịch vụ"
+                        type="number"
+                        value={dataUpdateInvoice.totalSend}
+                        fullWidth
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        inputProps={{
+                          min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                          step: 100000, // Đặt bước nhảy (step)
+                        }}
+                        onChange={(e) => {
+                          setDataUpdateInvoice({
+                            ...dataUpdateInvoice,
+                            totalSend: Number(e.target.value),
+                          });
+                        }}
+                      />
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        variant="standard"
+                        id="totalReceiver"
+                        label="Số tiền thu từ khách (VND/Tháng)"
+                        type="number"
+                        value={dataUpdateInvoice.totalReceiver}
+                        fullWidth
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        inputProps={{
+                          min: 0, // Đặt giá trị tối thiểu là 0 nếu cần
+                          step: 100000, // Đặt bước nhảy (step)
+                        }}
+                        onChange={(e) => {
+                          setDataUpdateInvoice({
+                            ...dataUpdateInvoice,
+                            totalReceiver: Number(e.target.value),
+                          });
+                        }}
+                      />
                     </DialogContent>
                     <DialogActions>
                       <Button

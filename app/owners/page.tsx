@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -29,6 +29,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useRouter } from "next/navigation";
 import DeleteRecipientDialog from "../components/DialogWarnning";
+import { ToastContext } from "@/contexts/ToastContext";
 
 dayjs.extend(utc);
 
@@ -124,6 +125,8 @@ const columns: readonly Column[] = [
 
 export default function Owners() {
   const router = useRouter();
+  const { notify } = useContext(ToastContext);
+
   const [page, setPage] = React.useState(0);
   const [openDialogDetele, setOpenDialogDetele] = useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -207,10 +210,12 @@ export default function Owners() {
     axios
       .post("/api/owner", dataCreateOwner)
       .then(function (response) {
+        notify("success", "Create successfully");
         window.location.reload();
       })
       .catch(function (error) {
-        console.log(error);
+        const errorMessage = error.response.data.message;
+        notify("error", "Creating has a error");
       });
   };
   const handleSubmitUpdate = () => {
@@ -220,7 +225,7 @@ export default function Owners() {
       .put("/api/owner", dataCreateOwner)
       .then(function (response) {
         console.log(dataCreateOwner);
-
+        notify("success", "Update successfully");
         window.location.reload();
       })
       .catch(function (error) {
@@ -276,7 +281,7 @@ export default function Owners() {
                   id="name"
                   label="Tên chủ nhà"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : owner?.fullname}
+                  defaultValue={dataCreateOwner?.name}
                   fullWidth
                   onChange={(e) => {
                     setCreateOwner({
@@ -307,11 +312,7 @@ export default function Owners() {
                   fullWidth
                   id="birthday"
                   label="Ngày Sinh"
-                  value={
-                    selectedRecord === null
-                      ? dayjs("2001-01-01")
-                      : dayjs.utc(dataCreateOwner?.birthday)
-                  }
+                  value={dayjs.utc(dataCreateOwner?.birthday)}
                   onChange={(newValue) => {
                     if (newValue) {
                       const temp = newValue?.toDate();
@@ -329,7 +330,7 @@ export default function Owners() {
                   id="email"
                   label="Email"
                   type="email"
-                  defaultValue={selectedRecord === null ? "" : owner?.email}
+                  defaultValue={dataCreateOwner?.email}
                   fullWidth
                   onChange={(e) => {
                     setCreateOwner({
@@ -344,7 +345,7 @@ export default function Owners() {
                   id="citizen"
                   label="Số CCCD"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : owner?.citizenId}
+                  defaultValue={dataCreateOwner?.citizenId}
                   fullWidth
                   onChange={(e) => {
                     setCreateOwner({
@@ -358,11 +359,7 @@ export default function Owners() {
                   fullWidth
                   id="citizen_ngaycap"
                   label="Ngày cấp CCCD"
-                  value={
-                    selectedRecord === null
-                      ? dayjs("2001-01-01")
-                      : dayjs.utc(dataCreateOwner?.citizen_ngaycap)
-                  }
+                  value={dayjs.utc(dataCreateOwner?.citizen_ngaycap)}
                   // onChange={(newValue) => setValue(newValue)}
                   onChange={(newValue) => {
                     if (newValue) {
@@ -381,9 +378,7 @@ export default function Owners() {
                   id="citizen_noicap"
                   label="Nơi cấp CCCD"
                   type="text"
-                  defaultValue={
-                    selectedRecord === null ? "" : owner?.citizen_noicap
-                  }
+                  defaultValue={dataCreateOwner?.citizen_noicap}
                   fullWidth
                   onChange={(e) => {
                     setCreateOwner({
@@ -397,7 +392,9 @@ export default function Owners() {
                   id="STK"
                   label="Số Tài khoản"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : owner?.STK}
+                  defaultValue={
+                    selectedRecord === null ? "" : dataCreateOwner?.STK
+                  }
                   fullWidth
                   onChange={(e) => {
                     setCreateOwner({
@@ -411,7 +408,9 @@ export default function Owners() {
                   id="TenTK"
                   label="Tên chủ STK"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : owner?.TenTK}
+                  defaultValue={
+                    selectedRecord === null ? "" : dataCreateOwner?.TenTK
+                  }
                   fullWidth
                   onChange={(e) => {
                     setCreateOwner({
@@ -425,7 +424,9 @@ export default function Owners() {
                   id="bank"
                   label="Tên ngân hàng"
                   type="text"
-                  defaultValue={selectedRecord === null ? "" : owner?.bank}
+                  defaultValue={
+                    selectedRecord === null ? "" : dataCreateOwner?.bank
+                  }
                   fullWidth
                   onChange={(e) => {
                     setCreateOwner({
