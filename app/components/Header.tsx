@@ -34,6 +34,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import {
   HomeContract,
+  Homes,
   InvoicesPayment,
   Receiver,
   ServiceContract,
@@ -43,6 +44,7 @@ import axios from "axios";
 dayjs.extend(utc);
 
 type Invoice = InvoicesPayment & {
+  home: Homes;
   receiver: Receiver;
   homeContract: HomeContract;
   serviceContract: ServiceContract;
@@ -50,6 +52,8 @@ type Invoice = InvoicesPayment & {
 interface Column {
   id:
     | "index"
+    | "home"
+    | "type"
     | "dateStart"
     | "dateEnd"
     | "datePaymentRemind"
@@ -67,6 +71,8 @@ interface Column {
 
 const columns: readonly Column[] = [
   { id: "index", label: "STT", minWidth: 40 },
+  { id: "home", label: "Căn hộ", minWidth: 100 },
+  { id: "type", label: "Loại", minWidth: 50 },
   { id: "dateStart", label: "Ngày bắt đầu", minWidth: 100 },
   { id: "dateEnd", label: "Ngày kết thúc", minWidth: 100 },
   {
@@ -208,6 +214,10 @@ export default function Header() {
                           <TableCell align="center">
                             {`Đợt ${index + 1}`}
                           </TableCell>
+                          <TableCell align="center">
+                            {row.home?.apartmentNo}-{row.home?.building}
+                          </TableCell>
+                          <TableCell align="center">{row.type}</TableCell>
                           <TableCell align="center">
                             {dayjs
                               .utc(row.dateStart.toString())

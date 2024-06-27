@@ -28,6 +28,7 @@ export async function GET(req: NextRequest) {
         },
       },
       include: {
+        home: true,
         receiver: true,
         homeContract: true,
         serviceContract: true,

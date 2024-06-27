@@ -61,72 +61,6 @@ type CountInvoice = {
   totalReceiver: number;
 };
 
-interface Column {
-  id:
-    | "index"
-    | "dateStart"
-    | "dateEnd"
-    | "datePaymentRemind"
-    | "datePaymentExpect"
-    | "totalReceiver"
-    | "datePaymentReal"
-    | "totalSend"
-    | "receiver"
-    | "statusPayment";
-  label: string;
-  minWidth?: number;
-  align?: "right" | "center";
-  format?: (value: String) => String;
-}
-
-const columns: readonly Column[] = [
-  { id: "index", label: "STT", minWidth: 40 },
-  { id: "dateStart", label: "Ngày bắt đầu", minWidth: 100 },
-  { id: "dateEnd", label: "Ngày kết thúc", minWidth: 100 },
-  {
-    id: "datePaymentRemind",
-    label: "Ngày nhắc hẹn",
-    minWidth: 130,
-    align: "right",
-  },
-  {
-    id: "datePaymentExpect",
-    label: "Hạn thanh toán",
-    minWidth: 130,
-    align: "right",
-  },
-  {
-    id: "totalReceiver",
-    label: "Số tiền thu",
-    minWidth: 80,
-    align: "center",
-  },
-  {
-    id: "datePaymentReal",
-    label: "Ngày nộp tiền cho chủ nhà/dvu",
-    minWidth: 130,
-    align: "right",
-  },
-  {
-    id: "totalSend",
-    label: "Số tiền nộp (cho chủ nhà/dvu)",
-    minWidth: 80,
-    align: "center",
-  },
-  {
-    id: "receiver",
-    label: "Người nhận",
-    minWidth: 200,
-    align: "center",
-  },
-  {
-    id: "statusPayment",
-    label: "Trạng thái thanh toán",
-    minWidth: 170,
-    align: "right",
-  },
-];
-
 export default function Homepage() {
   const [xLabels, setxLabels] = useState<number[]>([
     1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
@@ -456,29 +390,7 @@ export default function Homepage() {
                           { data: homeInvoiceData, label: "Thanh toán CH" },
                           { data: serviceInvoiceData, label: "Thanh toán DV" },
                         ]}
-                        // width={500}
-                        // height={300}
                       />
-                      {/* <LineChart
-                        series={[
-                          { data: pData, label: "HĐ điện" },
-                          { data: uData, label: "HĐ dịch vụ", color: "blue" },
-                        ]}
-                        xAxis={[
-                          {
-                            scaleType: "point",
-                            data: xLabels,
-                            label: "label-X",
-                          },
-                        ]}
-                        yAxis={[{ label: "VND" }]}
-                        sx={{
-                          [`.${axisClasses.left} .${axisClasses.label}`]: {
-                            transform: "translate(-12px, 0)",
-                          },
-                          marginLeft: "30px",
-                        }}
-                      /> */}
                     </Paper>
                   </Item>
                 </Grid>
@@ -533,93 +445,6 @@ export default function Homepage() {
                     </Grid>
                   </Paper>
                 </Grid>
-                {/* <Grid item xs={12}>
-                  <Paper
-                    sx={{ p: 2, display: "flex", flexDirection: "column" }}
-                  >
-                    <Typography variant="h6">
-                      Các đợt thanh toán trong 7 ngày tới
-                    </Typography>
-                    <TableContainer sx={{ width: "100%", maxHeight: 340 }}>
-                      <Table stickyHeader aria-label="sticky table">
-                        <TableHead>
-                          <TableRow>
-                            {columns.map((column) => (
-                              <TableCell
-                                key={column.id}
-                                align={column.align}
-                                style={{
-                                  minWidth: column.minWidth,
-                                  backgroundColor: "#c6c8da",
-                                }}
-                              >
-                                {column.label}
-                              </TableCell>
-                            ))}
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {/* {sInvoices.map((row, index) => {
-                          return (
-                            <TableRow
-                              hover
-                              role="checkbox"
-                              tabIndex={-1}
-                              key={row.invoiceId}
-                              onClick={() => {}}
-                            >
-                              <TableCell align="center">
-                                {`Đợt ${index + 1}`}
-                              </TableCell>
-                              <TableCell align="center">
-                                {dayjs
-                                  .utc(row.dateStart.toString())
-                                  .format("DD/MM/YYYY")}
-                              </TableCell>
-                              <TableCell align="center">
-                                {dayjs
-                                  .utc(row.dateEnd.toString())
-                                  .format("DD/MM/YYYY")}
-                              </TableCell>
-                              <TableCell align="center">
-                                {dayjs
-                                  .utc(row.datePaymentRemind.toString())
-                                  .format("DD/MM/YYYY")}
-                              </TableCell>
-                              <TableCell align="center">
-                                {dayjs
-                                  .utc(row.datePaymentExpect.toString())
-                                  .format("DD/MM/YYYY")}
-                              </TableCell>
-                              <TableCell align="center">
-                                {row.totalReceiver.toString()}
-                              </TableCell>
-                              <TableCell align="center">
-                                {dayjs
-                                  .utc(row.datePaymentReal.toString())
-                                  .format("DD/MM/YYYY")}
-                              </TableCell>
-                              <TableCell align="center">
-                                {row.totalSend.toString()}
-                              </TableCell>
-                              <TableCell align="center">
-                                {row.receiver.TenTK?.toString()}
-                              </TableCell>
-                              <TableCell align="center">
-                                {row.statusPayment === true ? (
-                                  <CheckCircleOutlineIcon color="success" />
-                                ) : (
-                                  <RemoveCircleOutlineIcon color="disabled" />
-                                )}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })} 
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Paper>
-                </Grid> */}
               </Grid>
             </Container>
           </Box>

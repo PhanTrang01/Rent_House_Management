@@ -36,6 +36,17 @@ export async function DELETE(
   try {
     const { id } = params;
 
+    const existingContract = await prisma.homeContract.findFirst({
+      where: { homeId: Number(id) },
+    });
+    if (existingContract) {
+      // Nếu có, trả về lỗi
+      return NextResponse.json(
+        { message: "Không thể xóa Căn hộ đã phát sinh hợp đồng" },
+        { status: 400 }
+      );
+    }
+
     const deletedHome = await prisma.homes.delete({
       where: { homeId: parseInt(id as string, 10) },
     });

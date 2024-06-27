@@ -29,8 +29,9 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import FilterListIcon from "@mui/icons-material/FilterList";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import {
@@ -40,6 +41,8 @@ import {
   Homes,
   StatusContract,
 } from "@prisma/client";
+import DeleteRecipientDialog from "../components/DialogWarnning";
+import { ToastContext } from "@/contexts/ToastContext";
 
 const Wrapper = styled.div`
   display: flex;
@@ -93,6 +96,8 @@ function CustomTabPanel(props: TabPanelProps) {
 
 export default function HomesList() {
   const router = useRouter();
+  const { notify } = useContext(ToastContext);
+
   const [owners, setOwners] = useState<Homeowners[]>([]);
   const [owner, setOwner] = useState<Homeowners | null>(null);
   const [valueTab, setValueTab] = useState(0);
@@ -101,6 +106,25 @@ export default function HomesList() {
   const [homes, setHomes] = useState<InfoHome[]>([]);
   const [rentedHomes, setRentedHomes] = useState<InfoHome[]>([]);
   const [inputValue, setInputValue] = useState("");
+
+  const [openDialogDetele, setOpenDialogDetele] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<number | null>(null);
+  const handleCloseDialogDatele = () => {
+    setOpenDialogDetele(false);
+    setSelectedRecord(null);
+  };
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await axios.delete(`/api/homes/${id}`);
+      notify("success", "Delete Successfully");
+      // window.location.reload();
+    } catch (error: any) {
+      const errorMessage = error.response.data.message;
+      notify("error", errorMessage);
+      setOpenDialogDetele(false);
+    }
+    // window.location.reload(); // Consider updating state instead of reloading the page
+  };
 
   const [homeForm, setHomeForm] = useState<HomeForm>({
     homeOwnerId: null,
@@ -306,7 +330,7 @@ export default function HomesList() {
           <DialogActions>
             <Button
               onClick={() => {
-                handleClose;
+                handleClose();
               }}
             >
               Hủy
@@ -334,7 +358,10 @@ export default function HomesList() {
                       <TableCell>Tòa nhà</TableCell>
                       <TableCell>Căn hộ</TableCell>
                       <TableCell align="right">Tên Chủ nhà</TableCell>
+                      <TableCell align="right">SĐT Chủ nhà</TableCell>
+                      <TableCell align="right">Số CCCD Chủ nhà</TableCell>
                       <TableCell align="right">Địa chỉ</TableCell>
+                      <TableCell align="right">Ghi chú</TableCell>
                       <TableCell align="right">Hành động</TableCell>
                     </TableRow>
                   </TableHead>
@@ -358,19 +385,26 @@ export default function HomesList() {
                           {row.homeowner?.fullname}
                         </TableCell>
                         <TableCell align="right">
+                          {row.homeowner?.phone}
+                        </TableCell>
+                        <TableCell align="right">
+                          {row.homeowner?.citizenId}
+                        </TableCell>
+                        <TableCell align="right">
                           {row.address} - {row.Ward} - {row.District}
                         </TableCell>
+                        <TableCell align="right">{row.Note}</TableCell>
                         <TableCell align="right">
                           <Tooltip title="Edit">
                             <IconButton>
                               <EditIcon />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Delete">
+                          {/* <Tooltip title="Delete">
                             <IconButton>
                               <DeleteIcon />
                             </IconButton>
-                          </Tooltip>
+                          </Tooltip> */}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -386,7 +420,10 @@ export default function HomesList() {
                       <TableCell>Tòa nhà</TableCell>
                       <TableCell align="left">Căn hộ</TableCell>
                       <TableCell align="right">Tên Chủ nhà</TableCell>
+                      <TableCell align="right">SĐT Chủ nhà</TableCell>
+                      <TableCell align="right">Số CCCD Chủ nhà</TableCell>
                       <TableCell align="right">Địa chỉ</TableCell>
+                      <TableCell align="right">Ghi chú</TableCell>
                       <TableCell align="right">Hành động</TableCell>
                     </TableRow>
                   </TableHead>
@@ -398,9 +435,6 @@ export default function HomesList() {
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
-                        onClick={() => {
-                          router.push(`/homes/${row.homeId}`);
-                        }}
                       >
                         <TableCell component="th" scope="row">
                           {row.building}
@@ -410,19 +444,51 @@ export default function HomesList() {
                           {row.homeowner?.fullname}
                         </TableCell>
                         <TableCell align="right">
-                          {row.address} - {row.Ward} - {row.District}
+                          {row.homeowner?.phone}
                         </TableCell>
                         <TableCell align="right">
-                          <Tooltip title="Edit">
-                            <IconButton>
+                          {row.homeowner?.citizenId}
+                        </TableCell>
+                        <TableCell align="right">
+                          {row.address} - {row.Ward} - {row.District}
+                        </TableCell>
+                        <TableCell align="right">{row.Note}</TableCell>
+                        <TableCell align="right">
+                          <Tooltip title="Xem">
+                            <IconButton
+                              onClick={() => {
+                                router.push(`/homes/${row.homeId}`);
+                              }}
+                            >
+                              <RemoveRedEyeOutlinedIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Chỉnh sửa">
+                            <IconButton
+                              onClick={() => {
+                                router.push(`/homes/${row.homeId}`);
+                              }}
+                            >
                               <EditIcon />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Delete">
-                            <IconButton>
+                          <Tooltip title="Xóa">
+                            <IconButton
+                              onClick={() => {
+                                setOpenDialogDetele(true);
+                                setSelectedRecord(row.homeId);
+                              }}
+                            >
                               <DeleteIcon />
                             </IconButton>
                           </Tooltip>
+                          <DeleteRecipientDialog
+                            openDialogDelete={openDialogDetele}
+                            message="Xác nhân xóa căn hộ đã chọn"
+                            handleCloseDialogDelete={handleCloseDialogDatele}
+                            selectedRecord={selectedRecord}
+                            handleDelete={handleDelete}
+                          />
                         </TableCell>
                       </TableRow>
                     ))}

@@ -162,27 +162,63 @@ export default function OtherOption() {
     note: "",
   });
 
-  const handleEdit = (id: Number) => {};
+  const handleEdit1 = () => {
+    const handleSave = async () => {
+      try {
+        const response = await axios.put(
+          `/api/serviceO/${service.serviceId}`,
+          service
+        );
+        notify("success", "Update service successfully");
+        console.log("Data saved successfully:", response.data);
+        window.location.reload();
+      } catch (error) {
+        console.error("Error saving data:", error);
+        notify("success", "Update failed");
+      }
+    };
+    handleSave();
+  };
+  const handleEdit2 = () => {
+    const handleSave = async () => {
+      try {
+        const response = await axios.put(
+          `/api/receiver/${receiver.receiverId}`,
+          receiver
+        );
+        notify("success", "Update receiver successfully");
+        console.log("Data saved successfully:", response.data);
+        window.location.reload();
+      } catch (error) {
+        console.error("Error saving data:", error);
+        notify("success", "Update failed");
+      }
+    };
+    handleSave();
+  };
+
   const handleDelete = async (id: number) => {
     try {
       const response = await axios.delete(`/api/serviceO/${id}`);
       notify("success", "Delete Successfully");
+      window.location.reload();
     } catch (error: any) {
       const errorMessage = error.response.data.message;
       notify("error", errorMessage);
     }
-    window.location.reload(); // Consider updating state instead of reloading the page
+    // window.location.reload(); // Consider updating state instead of reloading the page
   };
   const handleDelete2 = async (id: number) => {
     try {
       const response = await axios.delete(`/api/receiver/${id}`);
       notify("success", "Delete Successfully");
+      window.location.reload();
       // Update the state or perform necessary actions to reflect the deletion
     } catch (error: any) {
       console.error("Error deleting data:", error);
       notify("error", error.error.response.data.message);
     }
-    window.location.reload(); // Consider updating state instead of reloading the page
+    // Consider updating state instead of reloading the page
   };
 
   const handleClickOpen1 = () => {
@@ -224,12 +260,14 @@ export default function OtherOption() {
       try {
         const response = await axios.post("/api/serviceO", service);
         console.log("Data saved successfully:", response.data);
-      } catch (error) {
-        console.error("Error saving data:", error);
+        notify("success", "Create service successfully");
+        window.location.reload();
+      } catch (error: any) {
+        console.error("Error deleting data:", error);
+        notify("error", error.error.response.data.message);
       }
     };
     handleSave();
-    window.location.reload();
   };
 
   const handleSubmit2 = () => {
@@ -238,12 +276,15 @@ export default function OtherOption() {
       try {
         const response = await axios.post("/api/receiver", receiver);
         console.log("Data saved successfully:", response.data);
-      } catch (error) {
-        console.error("Error saving data:", error);
+        notify("success", "Create receiver successfully");
+        window.location.reload();
+      } catch (error: any) {
+        console.error("Error deleting data:", error);
+        notify("error", error.error.response.data.message);
       }
     };
     handleSave();
-    window.location.reload();
+    // window.location.reload();
   };
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -334,7 +375,7 @@ export default function OtherOption() {
                   id="name"
                   label="Tên dịch vụ"
                   type="text"
-                  defaultValue={selectedRecord1 === null ? "" : service?.name}
+                  defaultValue={service?.name}
                   fullWidth
                   onChange={(e) => {
                     setService({ ...service, name: e.target.value });
@@ -369,7 +410,11 @@ export default function OtherOption() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleClose1}>Hủy</Button>
-                <Button onClick={handleSubmit1}>Lưu</Button>
+                {selectedRecord1 === null ? (
+                  <Button onClick={handleSubmit1}>Lưu</Button>
+                ) : (
+                  <Button onClick={handleEdit1}>Lưu thay đổi</Button>
+                )}
               </DialogActions>
             </Dialog>
             <Dialog open={open2} onClose={handleClose2}>
@@ -483,7 +528,11 @@ export default function OtherOption() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleClose2}>Hủy</Button>
-                <Button onClick={handleSubmit2}>Lưu</Button>
+                {selectedRecord2 === null ? (
+                  <Button onClick={handleSubmit2}>Lưu</Button>
+                ) : (
+                  <Button onClick={handleEdit2}>Lưu thay đổi</Button>
+                )}
               </DialogActions>
             </Dialog>
             <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -550,7 +599,11 @@ export default function OtherOption() {
                               })}
                               <TableCell align="center">
                                 <IconButton
-                                  onClick={() => handleEdit(row.serviceId)}
+                                  onClick={() => {
+                                    setService(row);
+                                    setSelectedRecord1(row.serviceId);
+                                    setOpen1(true);
+                                  }}
                                 >
                                   <EditIcon />
                                 </IconButton>
@@ -564,6 +617,7 @@ export default function OtherOption() {
                                 </IconButton>
                                 <DeleteRecipientDialog
                                   openDialogDelete={openDialogDetele1}
+                                  message="Xác nhân xóa dịch vụ đã chọn"
                                   handleCloseDialogDelete={
                                     handleCloseDialogDatele1
                                   }
@@ -632,11 +686,15 @@ export default function OtherOption() {
                                 );
                               })}
                               <TableCell align="center">
-                                {/* <IconButton
-                                // onClick={() => handleEdit(row.serviceId)}
+                                <IconButton
+                                  onClick={() => {
+                                    setReceiver(row);
+                                    setSelectedRecord2(row.receiverId);
+                                    setOpen2(true);
+                                  }}
                                 >
                                   <EditIcon />
-                                </IconButton> */}
+                                </IconButton>
                                 <IconButton
                                   onClick={() => {
                                     setOpenDialogDetele2(true);
@@ -647,6 +705,7 @@ export default function OtherOption() {
                                 </IconButton>
                                 <DeleteRecipientDialog
                                   openDialogDelete={openDialogDetele2}
+                                  message="Xác nhân xóa người nhận đã chọn"
                                   handleCloseDialogDelete={
                                     handleCloseDialogDatele2
                                   }

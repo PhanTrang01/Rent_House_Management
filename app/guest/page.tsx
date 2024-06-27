@@ -407,6 +407,7 @@ export default function Guest() {
                             </IconButton>
                             <DeleteRecipientDialog
                               openDialogDelete={openDialogDetele}
+                              message="Xác nhận xóa thông tin khách hàng đã chọn"
                               handleCloseDialogDelete={handleCloseDialogDatele}
                               selectedRecord={selectedRecord}
                               handleDelete={handleDelete}

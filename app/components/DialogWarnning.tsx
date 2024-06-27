@@ -10,6 +10,7 @@ import {
 
 interface DeleteRecipientDialogProps {
   openDialogDelete: boolean;
+  message: string;
   handleCloseDialogDelete: () => void;
   selectedRecord: number | null;
   handleDelete: (id: number) => void;
@@ -17,6 +18,7 @@ interface DeleteRecipientDialogProps {
 
 const DeleteRecipientDialog: React.FC<DeleteRecipientDialogProps> = ({
   openDialogDelete,
+  message,
   handleCloseDialogDelete,
   selectedRecord,
   handleDelete,
@@ -32,7 +34,7 @@ const DeleteRecipientDialog: React.FC<DeleteRecipientDialogProps> = ({
         <DialogTitle id="alert-dialog-title">{"Xóa bản ghi?"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Bạn chọn xác nhận để xóa thông tin đã chọn.
+            {message}.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

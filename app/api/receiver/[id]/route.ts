@@ -27,6 +27,37 @@ export async function GET(
   }
 }
 
+export async function PUT(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const { name, phone, email, taxcode, STK, TenTK, Nganhang, note, type } =
+      await _req.json();
+
+    const deleted = await prisma.receiver.update({
+      where: { receiverId: parseInt(id as string, 10) },
+      data: {
+        name,
+        phone,
+        email,
+        taxcode,
+        STK,
+        TenTK,
+        Nganhang,
+        note,
+        type,
+      },
+    });
+    return NextResponse.json(deleted);
+  } catch (error) {
+    console.error("Error Update  Service:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } }

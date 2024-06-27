@@ -474,6 +474,7 @@ export default function Owners() {
                       {column.label}
                     </TableCell>
                   ))}
+                  <TableCell> Hành động</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -521,6 +522,7 @@ export default function Owners() {
                           </IconButton>
                           <DeleteRecipientDialog
                             openDialogDelete={openDialogDetele}
+                            message="Xác nhận xóa thông tin chủ nhà đã chọn"
                             handleCloseDialogDelete={handleCloseDialogDatele}
                             selectedRecord={selectedRecord}
                             handleDelete={handleDelete}

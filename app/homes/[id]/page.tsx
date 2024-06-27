@@ -219,9 +219,11 @@ export default function StorePage({ params }: { params: { id: string } }) {
       const res = await axios.get(`/api/homeContract?homeId=${params.id}`);
       const newContract: ContractInfo[] = res.data;
 
-      if (newContract.length > 0) {
-        setContracts(newContract);
-      }
+      // if (newContract.length > 0) {
+      setContracts(newContract);
+      // } else {
+      //   setContracts([]);
+      // }
     } catch (error) {
       console.error(error);
     }
@@ -230,7 +232,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
   useEffect(() => {
     fetchDataContract();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [params.id]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -318,10 +320,6 @@ export default function StorePage({ params }: { params: { id: string } }) {
             // margin: "10px",
           }}
         >
-          <Alert hidden={!openWarn} severity="error">
-            Căn hộ đang cho thuê không thể tạo hợp đồng mới. Vui lòng kiểm tra
-            lại
-          </Alert>
           <div style={{ display: "flex", textAlign: "center", width: "100%" }}>
             <IconButton
               onClick={() => {

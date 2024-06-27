@@ -27,6 +27,30 @@ export async function GET(
   }
 }
 
+export async function PUT(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+    const { name, unit, description } = await _req.json();
+
+    const deleted = await prisma.service.update({
+      where: { serviceId: parseInt(id as string, 10) },
+      data: {
+        name,
+        unit,
+        description,
+      },
+    });
+    return NextResponse.json(deleted);
+  } catch (error) {
+    console.error("Error Update  Service:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: { id: string } }

@@ -12,21 +12,32 @@ const prisma = new PrismaClient({
 });
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.nextUrl);
+    const { searchParams } = new URL(req.url);
     const searchKey = searchParams.get("q") ?? " ";
     const guestId = searchParams.get("guestId") ?? " ";
     const homeId = searchParams.get("homeId") ?? " ";
 
-    const allRents = await prisma.homeContract.findMany({
-      include: {
-        guest: true,
+    let whereClause = {};
+
+    // If only homeId is provided
+    if (homeId && !searchKey.trim() && !guestId.trim()) {
+      whereClause = {
         home: {
-          include: {
-            homeowner: true,
-          },
+          homeId: Number(homeId),
         },
-      },
-      where: {
+      };
+    }
+    // If only guestId is provided
+    else if (guestId && !searchKey.trim() && !homeId.trim()) {
+      whereClause = {
+        guest: {
+          guestId: Number(guestId),
+        },
+      };
+    }
+    // If other combinations of search parameters are provided
+    else {
+      whereClause = {
         OR: [
           {
             guest: {
@@ -65,9 +76,21 @@ export async function GET(req: NextRequest) {
             },
           },
         ],
+      };
+    }
+
+    const allRents = await prisma.homeContract.findMany({
+      include: {
+        guest: true,
+        home: {
+          include: {
+            homeowner: true,
+          },
+        },
       },
+      where: whereClause,
     });
-    //   console.dir(allUsers, { depth: null });
+
     return NextResponse.json(allRents);
   } catch (error) {
     console.error("Error find Home Contract:", error);
