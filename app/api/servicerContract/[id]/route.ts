@@ -57,11 +57,11 @@ export async function DELETE(
 ) {
   try {
     const { id } = params;
-    const deletedContract = await prisma.serviceContract.delete({
+    const deletedInvoice = await prisma.invoicesPayment.deleteMany({
       where: { serviceContractId: parseInt(id as string, 10) },
     });
 
-    const deletedInvoice = await prisma.invoicesPayment.deleteMany({
+    const deletedContract = await prisma.serviceContract.delete({
       where: { serviceContractId: parseInt(id as string, 10) },
     });
 

@@ -60,6 +60,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useRouter } from "next/navigation";
 import { ToastContext } from "@/contexts/ToastContext";
+import DeleteRecipientDialog from "@/app/components/DialogWarnning";
 
 dayjs.extend(utc);
 
@@ -98,7 +99,7 @@ type ServiceContractForm = {
   homeContractId: number | null;
   homeId: number | null;
   guestId: number | null;
-  serviceId: number;
+  serviceId: number | null;
   duration: number;
   payCycle: number;
   unitCost: number;
@@ -322,7 +323,9 @@ export default function HomeContracts({ params }: HomeContractsProps) {
   const [inputValueService, setInputValueService] = useState("");
   const [service, setService] = useState<Service | null>(null);
   const [services, setServices] = useState<Service[]>([]);
-  const [serviceContract, setServiceContract] = useState<ContractSInfo>();
+  const [serviceContract, setServiceContract] = useState<ContractSInfo | null>(
+    null
+  );
   const [serviceContracts, setServiceContracts] = useState<ContractSInfo[]>([]);
   const [sInvoices, setSInvoices] = useState<Invoice[]>([]);
   const [serviceContractForm, setServiceContractForm] =
@@ -330,7 +333,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
       homeContractId: null,
       homeId: null,
       guestId: null,
-      serviceId: 1,
+      serviceId: null,
       duration: 6,
       payCycle: 1,
       unitCost: 0,
@@ -340,7 +343,10 @@ export default function HomeContracts({ params }: HomeContractsProps) {
       status: StatusContract.ACTIVE,
     });
 
-  const [selectedInvoice, setSelectedInvoice] = useState(0);
+  const [selectedSContract, setSelectedSContract] = useState<number | null>(
+    null
+  );
+  const [selectedInvoice, setSelectedInvoice] = useState<number | null>(null);
   const [statusPayment, setStatusPayment] = useState(false);
   const [dataUpdateInvoice, setDataUpdateInvoice] = useState<InvoiceUpdateForm>(
     {
@@ -353,6 +359,9 @@ export default function HomeContracts({ params }: HomeContractsProps) {
   const [openDialogUpdateStatusPayment, setOpenDialogUpdateStatusPayment] =
     useState(false);
   const [openDialogUpdateServiceInvoice, setOpenDialogUpdateServiceInvoice] =
+    useState(false);
+  const [openDialogDeteleInvoice, setOpenDialogDeteleInvoice] = useState(false);
+  const [openDialogDeteleSContract, setOpenDialogDeteleSContract] =
     useState(false);
 
   const handleBack = () => {
@@ -516,9 +525,12 @@ export default function HomeContracts({ params }: HomeContractsProps) {
           serviceContractForm
         );
         console.log("Data saved successfully:", response.data);
+        notify("success", "Create successfully");
         window.location.reload();
       } catch (error) {
         console.error("Error: ", error);
+        notify("error", "Tạo hợp đồng dịch vụ thất bại");
+        setOpenDialogService(false);
       }
     };
     create();
@@ -536,6 +548,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
         window.location.reload();
       } catch (error) {
         console.error("Error saving data:", error);
+        notify("error", "Cập nhật thất bại");
       }
     };
     update();
@@ -558,6 +571,40 @@ export default function HomeContracts({ params }: HomeContractsProps) {
       }
     };
     update();
+  };
+
+  const handleCloseDialogDateleSContract = () => {
+    setOpenDialogDeteleSContract(false);
+    setServiceContract(null);
+  };
+  const handleDeleteSContract = async (id: number) => {
+    try {
+      const response = await axios.delete(`/api/servicerContract/${id}`);
+      notify("success", "Delete Successfully");
+      window.location.reload();
+    } catch (error: any) {
+      const errorMessage = error.response.data.message;
+      notify("error", errorMessage);
+      setOpenDialogDeteleInvoice(false);
+    }
+    // window.location.reload(); // Consider updating state instead of reloading the page
+  };
+
+  const handleCloseDialogDateleInvoice = () => {
+    setOpenDialogDeteleInvoice(false);
+    setSelectedInvoice(null);
+  };
+  const handleDeleteInvoice = async (id: number) => {
+    try {
+      const response = await axios.delete(`/api/invoice/${id}`);
+      notify("success", "Delete Successfully");
+      window.location.reload();
+    } catch (error: any) {
+      const errorMessage = error.response.data.message;
+      notify("error", errorMessage);
+      setOpenDialogDeteleInvoice(false);
+    }
+    // window.location.reload(); // Consider updating state instead of reloading the page
   };
 
   return (
@@ -1075,20 +1122,41 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                               )}
                             </TableCell>
                             <TableCell align="center">
-                              <IconButton
-                                onClick={() => {
-                                  setSelectedInvoice(row.invoiceId);
-                                  setDataUpdateInvoice({
-                                    invoiceId: row.invoiceId,
-                                    statusPayment: row.statusPayment,
-                                    totalSend: row.totalSend,
-                                    totalReceiver: row.totalReceiver,
-                                  });
-                                  setOpenDialogUpdateStatusPayment(true);
-                                }}
-                              >
-                                <EditIcon />
-                              </IconButton>
+                              <Tooltip title="Chỉnh sửa">
+                                <IconButton
+                                  onClick={() => {
+                                    setSelectedInvoice(row.invoiceId);
+                                    setDataUpdateInvoice({
+                                      invoiceId: row.invoiceId,
+                                      statusPayment: row.statusPayment,
+                                      totalSend: row.totalSend,
+                                      totalReceiver: row.totalReceiver,
+                                    });
+                                    setOpenDialogUpdateStatusPayment(true);
+                                  }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Xóa">
+                                <IconButton
+                                  onClick={() => {
+                                    setOpenDialogDeteleInvoice(true);
+                                    setSelectedInvoice(row.invoiceId);
+                                  }}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <DeleteRecipientDialog
+                                openDialogDelete={openDialogDeteleInvoice}
+                                message="Xác nhân xóa thông tin đợt thanh toán đã chọn"
+                                handleCloseDialogDelete={
+                                  handleCloseDialogDateleInvoice
+                                }
+                                selectedRecord={selectedInvoice}
+                                handleDelete={handleDeleteInvoice}
+                              />
                             </TableCell>
                           </TableRow>
                         );
@@ -1322,7 +1390,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                             // }}
                           >
                             <TableCell align="center">
-                              {row.service.name}
+                              {row.service?.name}
                             </TableCell>
                             <TableCell align="center">{row.unitCost}</TableCell>
                             <TableCell align="center">{row.duration}</TableCell>
@@ -1372,20 +1440,24 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                               </Tooltip>
                               <Tooltip title="Xóa">
                                 <IconButton
-                                // onClick={() => {
-                                //   setOpenDialogDetele(true);
-                                //   setSelectedRecord(row.guestId);
-                                // }}
+                                  onClick={() => {
+                                    setServiceContract(row);
+                                    setOpenDialogDeteleSContract(true);
+                                    setSelectedSContract(row.serviceContractId);
+                                  }}
                                 >
                                   <DeleteIcon />
                                 </IconButton>
                               </Tooltip>
-                              {/* <DeleteRecipientDialog
-                              openDialogDelete={openDialogDetele}
-                              handleCloseDialogDelete={handleCloseDialogDatele}
-                              selectedRecord={selectedRecord}
-                              handleDelete={handleDelete}
-                            /> */}
+                              <DeleteRecipientDialog
+                                openDialogDelete={openDialogDeteleSContract}
+                                message="Xác nhận xóa hợp đồng dịch vụ đã chọn"
+                                handleCloseDialogDelete={
+                                  handleCloseDialogDateleSContract
+                                }
+                                selectedRecord={selectedSContract}
+                                handleDelete={handleDeleteSContract}
+                              />
                               <Dialog
                                 open={openDialogServiceInvoice}
                                 maxWidth="md"
@@ -1650,72 +1722,41 @@ export default function HomeContracts({ params }: HomeContractsProps) {
 
                               {/* })} */}
                               <TableCell align="center">
-                                <IconButton
-                                  onClick={() => {
-                                    setSelectedInvoice(row.invoiceId);
-                                    setDataUpdateInvoice({
-                                      invoiceId: row.invoiceId,
-                                      statusPayment: row.statusPayment,
-                                      totalSend: row.totalSend,
-                                      totalReceiver: row.totalReceiver,
-                                    });
-                                    setOpenDialogUpdateStatusPayment(true);
-                                  }}
-                                >
-                                  <EditIcon />
-                                </IconButton>
-                                {/* <Dialog open={openDialogUpdateStatusPayment}>
-                                  <DialogTitle>
-                                    Cập nhật trạng thái thanh toán
-                                  </DialogTitle>
-                                  <DialogContent>
-                                    <FormControl
-                                      size="small"
-                                      variant="standard"
-                                      fullWidth
-                                    >
-                                      <InputLabel id="status-label">
-                                        Trạng thái Thanh toán
-                                      </InputLabel>
-                                      <Select
-                                        labelId="statusPayment"
-                                        id="status"
-                                        value={statusPayment.toString()}
-                                        label="Trạng thái Thanh toán"
-                                        onChange={(
-                                          event: SelectChangeEvent
-                                        ) => {
-                                          setStatusPayment(
-                                            Boolean(event.target.value)
-                                          );
-                                        }}
-                                      >
-                                        <MenuItem value="true">
-                                          Đã thanh toán
-                                        </MenuItem>
-                                        <MenuItem value="false">
-                                          Chưa thanh toán
-                                        </MenuItem>
-                                      </Select>
-                                    </FormControl>
-                                  </DialogContent>
-                                  <DialogActions>
-                                    <Button
-                                      onClick={() => {
-                                        setOpenDialogUpdateStatusPayment(false);
-                                      }}
-                                    >
-                                      Hủy
-                                    </Button>
-                                    <Button
-                                      onClick={() => {
-                                        handleUpdateStatus();
-                                      }}
-                                    >
-                                      Lưu
-                                    </Button>
-                                  </DialogActions>
-                                </Dialog> */}
+                                <Tooltip title="Chỉnh sửa">
+                                  <IconButton
+                                    onClick={() => {
+                                      setSelectedInvoice(row.invoiceId);
+                                      setDataUpdateInvoice({
+                                        invoiceId: row.invoiceId,
+                                        statusPayment: row.statusPayment,
+                                        totalSend: row.totalSend,
+                                        totalReceiver: row.totalReceiver,
+                                      });
+                                      setOpenDialogUpdateStatusPayment(true);
+                                    }}
+                                  >
+                                    <EditIcon />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Xóa">
+                                  <IconButton
+                                    onClick={() => {
+                                      setOpenDialogDeteleInvoice(true);
+                                      setSelectedInvoice(row.invoiceId);
+                                    }}
+                                  >
+                                    <DeleteIcon />
+                                  </IconButton>
+                                </Tooltip>
+                                <DeleteRecipientDialog
+                                  openDialogDelete={openDialogDeteleInvoice}
+                                  message="Xác nhân xóa thông tin đợt thanh toán đã chọn"
+                                  handleCloseDialogDelete={
+                                    handleCloseDialogDateleInvoice
+                                  }
+                                  selectedRecord={selectedInvoice}
+                                  handleDelete={handleDeleteInvoice}
+                                />
                               </TableCell>
                             </TableRow>
                           );

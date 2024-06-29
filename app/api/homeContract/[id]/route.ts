@@ -88,6 +88,23 @@ export async function DELETE(
   try {
     const { id } = params;
 
+    const SContract = await prisma.serviceContract.findMany({
+      where: {
+        homeContractsId: Number(id),
+      },
+    });
+    if (SContract) {
+      // Nếu có, trả về lỗi
+      return NextResponse.json(
+        { message: "Hợp đồng đã phát sinh hợp đồng dịch vụ không thể xóa" },
+        { status: 400 }
+      );
+    }
+
+    const deletedInvoice = await prisma.invoicesPayment.deleteMany({
+      where: { serviceContractId: parseInt(id as string, 10) },
+    });
+
     const deletedHomeContract = await prisma.homeContract.delete({
       where: { homeContractsId: parseInt(id as string, 10) },
     });

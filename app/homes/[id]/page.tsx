@@ -2,7 +2,7 @@
 import styled from "@emotion/styled";
 import Dashboard from "../../components/Dashboard";
 import Header from "../../components/Header";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import {
   Guests,
@@ -43,11 +43,16 @@ import {
   TableRow,
   TextField,
   TextFieldVariants,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useRouter } from "next/navigation";
+import { ToastContext } from "@/contexts/ToastContext";
+import DeleteRecipientDialog from "@/app/components/DialogWarnning";
 
 dayjs.extend(utc);
 
@@ -141,6 +146,7 @@ const columns: readonly Column[] = [
 export default function StorePage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
+  const { notify } = useContext(ToastContext);
 
   const [home, setHome] = useState<HomeInfo>();
   const [contracts, setContracts] = useState<ContractInfo[]>([]);
@@ -177,6 +183,12 @@ export default function StorePage({ params }: { params: { id: string } }) {
     dateEnd: new Date(),
     status: StatusContract.ACTIVE,
   });
+
+  const [selectedHomeContract, setSelectedHomeContract] = useState<
+    number | null
+  >(null);
+  const [openDialogDeteleHomeContract, setOpenDialogDeteleHomeContract] =
+    useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -267,8 +279,10 @@ export default function StorePage({ params }: { params: { id: string } }) {
           _homeId: params.id,
         });
         console.log("Data updated successfully:", response.data);
+        notify("success", "Cập nhật thành công");
       } catch (error) {
         console.error("Error saving data:", error);
+        notify("error", "Cập nhật thất bại");
       }
     };
     handleSave();
@@ -283,9 +297,11 @@ export default function StorePage({ params }: { params: { id: string } }) {
           homeId: params.id,
         });
         console.log("Data updated successfully:", response.data);
+        notify("success", "Tạo hợp đồng thành công");
         window.location.reload();
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error saving data:", error);
+        setOpen(false);
         if (axios.isAxiosError(error)) {
           // Kiểm tra xem lỗi có phải là lỗi 400 không
           if (
@@ -293,14 +309,32 @@ export default function StorePage({ params }: { params: { id: string } }) {
             error.response.status === 400 &&
             error.response.data.error
           ) {
-            setOpen(false);
-            setOpenWarn(true);
+            const errorMessage = error.response.data.message;
+            notify("error", errorMessage);
           }
+          notify("error", "Tạo hợp đồng thất bại");
         }
       }
     };
 
     handleSave();
+  };
+
+  const handleCloseDialogDeteleHomeContract = () => {
+    setOpenDialogDeteleHomeContract(false);
+    setSelectedHomeContract(null);
+  };
+  const handleDeleteHomeContract = async (id: number) => {
+    try {
+      const response = await axios.delete(`/api/homeContract/${id}`);
+      notify("success", "Delete Successfully");
+      window.location.reload();
+    } catch (error: any) {
+      const errorMessage = error.response.data.message;
+      notify("error", errorMessage);
+      setOpenDialogDeteleHomeContract(false);
+    }
+    // window.location.reload(); // Consider updating state instead of reloading the page
   };
 
   if (loading) {
@@ -811,6 +845,14 @@ export default function StorePage({ params }: { params: { id: string } }) {
                       {column.label}
                     </TableCell>
                   ))}
+                  <TableCell
+                    style={{
+                      backgroundColor: "#c6c8da",
+                    }}
+                  >
+                    {" "}
+                    Hành động
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -821,11 +863,6 @@ export default function StorePage({ params }: { params: { id: string } }) {
                       role="checkbox"
                       tabIndex={-1}
                       key={row.homeContractsId}
-                      onClick={() => {
-                        router.push(
-                          `/homes/${row.homeId}/homeContract/${row.homeContractsId}`
-                        );
-                      }}
                     >
                       <TableCell align="left">
                         {row.home.homeowner?.fullname}
@@ -842,6 +879,38 @@ export default function StorePage({ params }: { params: { id: string } }) {
                         {dayjs.utc(row.dateStart).format("DD/MM/YYYY")}
                       </TableCell>
                       <TableCell align="center">{row.status}</TableCell>
+                      <TableCell>
+                        <Tooltip title="Xem">
+                          <IconButton
+                            onClick={() => {
+                              router.push(
+                                `/homes/${row.homeId}/homeContract/${row.homeContractsId}`
+                              );
+                            }}
+                          >
+                            <RemoveRedEyeOutlinedIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Xóa">
+                          <IconButton
+                            onClick={() => {
+                              setOpenDialogDeteleHomeContract(true);
+                              setSelectedHomeContract(row.homeContractsId);
+                            }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <DeleteRecipientDialog
+                          openDialogDelete={openDialogDeteleHomeContract}
+                          message="Xác nhân xóa thông tin đợt thanh toán đã chọn"
+                          handleCloseDialogDelete={
+                            handleCloseDialogDeteleHomeContract
+                          }
+                          selectedRecord={selectedHomeContract}
+                          handleDelete={handleDeleteHomeContract}
+                        />
+                      </TableCell>
                     </TableRow>
                   );
                 })}

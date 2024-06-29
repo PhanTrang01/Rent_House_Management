@@ -1,0 +1,148 @@
+Date : 2024-06-28 23:04:16
+Directory : e:\GR2\Rent_House\rent_house
+Total : 59 files,  18500 codes, 324 comments, 545 blanks, all 19369 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| JSON               |          2 |      9,907 |          0 |          2 |      9,909 |
+| TypeScript JSX     |         20 |      6,686 |        224 |        283 |      7,193 |
+| TypeScript         |         26 |      1,647 |         73 |        191 |      1,911 |
+| SQL                |          1 |        138 |         20 |         29 |        187 |
+| Markdown           |          1 |         37 |          0 |         22 |         59 |
+| JavaScript         |          4 |         33 |          7 |         12 |         52 |
+| JSON with Comments |          2 |         30 |          0 |          2 |         32 |
+| CSS                |          1 |         20 |          0 |          4 |         24 |
+| XML                |          2 |          2 |          0 |          0 |          2 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                   |         59 |     18,500 |        324 |        545 |     19,369 |
+| . (Files)                                                                           |         10 |     10,026 |          7 |         40 |     10,073 |
+| app                                                                                 |         45 |      8,286 |        297 |        466 |      9,049 |
+| app (Files)                                                                         |          4 |         71 |          1 |         17 |         89 |
+| app\api                                                                             |         24 |      1,620 |         72 |        185 |      1,877 |
+| app\api (Files)                                                                     |          1 |         12 |         17 |          4 |         33 |
+| app\api\guest                                                                       |          2 |        134 |          2 |         14 |        150 |
+| app\api\guest (Files)                                                               |          1 |         51 |          2 |          6 |         59 |
+| app\api\guest\[id]                                                                  |          1 |         83 |          0 |          8 |         91 |
+| app\api\homeContract                                                                |          2 |        241 |          5 |         19 |        265 |
+| app\api\homeContract (Files)                                                        |          1 |        149 |          5 |         10 |        164 |
+| app\api\homeContract\[id]                                                           |          1 |         92 |          0 |          9 |        101 |
+| app\api\homepage                                                                    |          4 |        213 |         27 |         33 |        273 |
+| app\api\homepage (Files)                                                            |          1 |         45 |          9 |          8 |         62 |
+| app\api\homepage\countContract                                                      |          1 |         53 |          7 |          9 |         69 |
+| app\api\homepage\countInvoice                                                       |          1 |         79 |          7 |         10 |         96 |
+| app\api\homepage\remind                                                             |          1 |         36 |          4 |          6 |         46 |
+| app\api\homes                                                                       |          2 |        159 |          2 |         16 |        177 |
+| app\api\homes (Files)                                                               |          1 |        107 |          1 |          9 |        117 |
+| app\api\homes\[id]                                                                  |          1 |         52 |          1 |          7 |         60 |
+| app\api\invoice                                                                     |          2 |        201 |         15 |         23 |        239 |
+| app\api\invoice (Files)                                                             |          1 |        154 |         15 |         16 |        185 |
+| app\api\invoice\[id]                                                                |          1 |         47 |          0 |          7 |         54 |
+| app\api\listRent                                                                    |          1 |         48 |          2 |          5 |         55 |
+| app\api\login                                                                       |          1 |         50 |          0 |          9 |         59 |
+| app\api\owner                                                                       |          2 |        170 |          2 |         17 |        189 |
+| app\api\owner (Files)                                                               |          1 |        127 |          2 |         13 |        142 |
+| app\api\owner\[id]                                                                  |          1 |         43 |          0 |          4 |         47 |
+| app\api\receiver                                                                    |          2 |        118 |          0 |         11 |        129 |
+| app\api\receiver (Files)                                                            |          1 |         46 |          0 |          5 |         51 |
+| app\api\receiver\[id]                                                               |          1 |         72 |          0 |          6 |         78 |
+| app\api\register                                                                    |          1 |         38 |          0 |          8 |         46 |
+| app\api\serviceO                                                                    |          2 |        104 |          0 |         11 |        115 |
+| app\api\serviceO (Files)                                                            |          1 |         39 |          0 |          5 |         44 |
+| app\api\serviceO\[id]                                                               |          1 |         65 |          0 |          6 |         71 |
+| app\api\servicerContract                                                            |          2 |        132 |          0 |         15 |        147 |
+| app\api\servicerContract (Files)                                                    |          1 |         67 |          0 |          5 |         72 |
+| app\api\servicerContract\[id]                                                       |          1 |         65 |          0 |         10 |         75 |
+| app\components                                                                      |          7 |        633 |         60 |         39 |        732 |
+| app\guest                                                                           |          2 |        939 |         22 |         37 |        998 |
+| app\guest (Files)                                                                   |          1 |        409 |         13 |         15 |        437 |
+| app\guest\[id]                                                                      |          1 |        530 |          9 |         22 |        561 |
+| app\homepage                                                                        |          1 |        428 |         11 |         24 |        463 |
+| app\homes                                                                           |          3 |      3,021 |        107 |         87 |      3,215 |
+| app\homes (Files)                                                                   |          1 |        480 |          8 |         17 |        505 |
+| app\homes\[id]                                                                      |          2 |      2,541 |         99 |         70 |      2,710 |
+| app\homes\[id] (Files)                                                              |          1 |        824 |         16 |         32 |        872 |
+| app\homes\[id]\homeContract                                                         |          1 |      1,717 |         83 |         38 |      1,838 |
+| app\homes\[id]\homeContract\[idContract]                                            |          1 |      1,717 |         83 |         38 |      1,838 |
+| app\login                                                                           |          1 |         87 |          0 |         10 |         97 |
+| app\otherOption                                                                     |          1 |        705 |          9 |         26 |        740 |
+| app\owners                                                                          |          1 |        524 |          1 |         26 |        551 |
+| app\searchPage                                                                      |          1 |        258 |         14 |         15 |        287 |
+| contexts                                                                            |          1 |         48 |          0 |         10 |         58 |
+| prisma                                                                              |          1 |        138 |         20 |         29 |        187 |
+| prisma\migrations                                                                   |          1 |        138 |         20 |         29 |        187 |
+| prisma\migrations\20240615173457_init_db                                            |          1 |        138 |         20 |         29 |        187 |
+| public                                                                              |          2 |          2 |          0 |          0 |          2 |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                            | language           | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| e:\GR2\Rent_House\rent_house\.eslintrc.json                                         | JSON with Comments |          3 |          0 |          1 |          4 |
+| e:\GR2\Rent_House\rent_house\README.md                                              | Markdown           |         37 |          0 |         22 |         59 |
+| e:\GR2\Rent_House\rent_house\app\api\guest\[id]\route.ts                            | TypeScript         |         83 |          0 |          8 |         91 |
+| e:\GR2\Rent_House\rent_house\app\api\guest\route.ts                                 | TypeScript         |         51 |          2 |          6 |         59 |
+| e:\GR2\Rent_House\rent_house\app\api\homeContract\[id]\route.ts                     | TypeScript         |         92 |          0 |          9 |        101 |
+| e:\GR2\Rent_House\rent_house\app\api\homeContract\route.ts                          | TypeScript         |        149 |          5 |         10 |        164 |
+| e:\GR2\Rent_House\rent_house\app\api\homepage\countContract\route.ts                | TypeScript         |         53 |          7 |          9 |         69 |
+| e:\GR2\Rent_House\rent_house\app\api\homepage\countInvoice\route.ts                 | TypeScript         |         79 |          7 |         10 |         96 |
+| e:\GR2\Rent_House\rent_house\app\api\homepage\remind\route.ts                       | TypeScript         |         36 |          4 |          6 |         46 |
+| e:\GR2\Rent_House\rent_house\app\api\homepage\route.ts                              | TypeScript         |         45 |          9 |          8 |         62 |
+| e:\GR2\Rent_House\rent_house\app\api\homes\[id]\route.ts                            | TypeScript         |         52 |          1 |          7 |         60 |
+| e:\GR2\Rent_House\rent_house\app\api\homes\route.ts                                 | TypeScript         |        107 |          1 |          9 |        117 |
+| e:\GR2\Rent_House\rent_house\app\api\invoice\[id]\route.ts                          | TypeScript         |         47 |          0 |          7 |         54 |
+| e:\GR2\Rent_House\rent_house\app\api\invoice\route.ts                               | TypeScript         |        154 |         15 |         16 |        185 |
+| e:\GR2\Rent_House\rent_house\app\api\listRent\route.ts                              | TypeScript         |         48 |          2 |          5 |         55 |
+| e:\GR2\Rent_House\rent_house\app\api\login\route.ts                                 | TypeScript         |         50 |          0 |          9 |         59 |
+| e:\GR2\Rent_House\rent_house\app\api\owner\[id]\route.ts                            | TypeScript         |         43 |          0 |          4 |         47 |
+| e:\GR2\Rent_House\rent_house\app\api\owner\route.ts                                 | TypeScript         |        127 |          2 |         13 |        142 |
+| e:\GR2\Rent_House\rent_house\app\api\receiver\[id]\route.ts                         | TypeScript         |         72 |          0 |          6 |         78 |
+| e:\GR2\Rent_House\rent_house\app\api\receiver\route.ts                              | TypeScript         |         46 |          0 |          5 |         51 |
+| e:\GR2\Rent_House\rent_house\app\api\register\route.ts                              | TypeScript         |         38 |          0 |          8 |         46 |
+| e:\GR2\Rent_House\rent_house\app\api\route.ts                                       | TypeScript         |         12 |         17 |          4 |         33 |
+| e:\GR2\Rent_House\rent_house\app\api\serviceO\[id]\route.ts                         | TypeScript         |         65 |          0 |          6 |         71 |
+| e:\GR2\Rent_House\rent_house\app\api\serviceO\route.ts                              | TypeScript         |         39 |          0 |          5 |         44 |
+| e:\GR2\Rent_House\rent_house\app\api\servicerContract\[id]\route.ts                 | TypeScript         |         65 |          0 |         10 |         75 |
+| e:\GR2\Rent_House\rent_house\app\api\servicerContract\route.ts                      | TypeScript         |         67 |          0 |          5 |         72 |
+| e:\GR2\Rent_House\rent_house\app\components\Dashboard.tsx                           | TypeScript JSX     |        116 |         45 |          8 |        169 |
+| e:\GR2\Rent_House\rent_house\app\components\DialogError.tsx                         | TypeScript JSX     |         43 |          2 |          4 |         49 |
+| e:\GR2\Rent_House\rent_house\app\components\DialogWarnning.tsx                      | TypeScript JSX     |         49 |          0 |          4 |         53 |
+| e:\GR2\Rent_House\rent_house\app\components\Footer.tsx                              | TypeScript JSX     |         50 |          0 |          6 |         56 |
+| e:\GR2\Rent_House\rent_house\app\components\Header.tsx                              | TypeScript JSX     |        310 |          9 |         13 |        332 |
+| e:\GR2\Rent_House\rent_house\app\components\ListItem.tsx                            | TypeScript JSX     |         65 |          4 |          3 |         72 |
+| e:\GR2\Rent_House\rent_house\app\components\draft.tsx                               | TypeScript JSX     |          0 |          0 |          1 |          1 |
+| e:\GR2\Rent_House\rent_house\app\globals.css                                        | CSS                |         20 |          0 |          4 |         24 |
+| e:\GR2\Rent_House\rent_house\app\guest\[id]\page.tsx                                | TypeScript JSX     |        530 |          9 |         22 |        561 |
+| e:\GR2\Rent_House\rent_house\app\guest\page.tsx                                     | TypeScript JSX     |        409 |         13 |         15 |        437 |
+| e:\GR2\Rent_House\rent_house\app\homepage\page.tsx                                  | TypeScript JSX     |        428 |         11 |         24 |        463 |
+| e:\GR2\Rent_House\rent_house\app\homes\[id]\homeContract\[idContract]\page.tsx      | TypeScript JSX     |      1,717 |         83 |         38 |      1,838 |
+| e:\GR2\Rent_House\rent_house\app\homes\[id]\page.tsx                                | TypeScript JSX     |        824 |         16 |         32 |        872 |
+| e:\GR2\Rent_House\rent_house\app\homes\page.tsx                                     | TypeScript JSX     |        480 |          8 |         17 |        505 |
+| e:\GR2\Rent_House\rent_house\app\layout.tsx                                         | TypeScript JSX     |         27 |          0 |          4 |         31 |
+| e:\GR2\Rent_House\rent_house\app\login\page.tsx                                     | TypeScript JSX     |         87 |          0 |         10 |         97 |
+| e:\GR2\Rent_House\rent_house\app\middleware.ts                                      | TypeScript         |          8 |          1 |          4 |         13 |
+| e:\GR2\Rent_House\rent_house\app\otherOption\page.tsx                               | TypeScript JSX     |        705 |          9 |         26 |        740 |
+| e:\GR2\Rent_House\rent_house\app\owners\page.tsx                                    | TypeScript JSX     |        524 |          1 |         26 |        551 |
+| e:\GR2\Rent_House\rent_house\app\page.tsx                                           | TypeScript JSX     |         16 |          0 |          5 |         21 |
+| e:\GR2\Rent_House\rent_house\app\searchPage\page.tsx                                | TypeScript JSX     |        258 |         14 |         15 |        287 |
+| e:\GR2\Rent_House\rent_house\contexts\ToastContext.tsx                              | TypeScript JSX     |         48 |          0 |         10 |         58 |
+| e:\GR2\Rent_House\rent_house\jest.config.mjs                                        | JavaScript         |          8 |          6 |          5 |         19 |
+| e:\GR2\Rent_House\rent_house\next.config.js                                         | JavaScript         |          2 |          1 |          2 |          5 |
+| e:\GR2\Rent_House\rent_house\package-lock.json                                      | JSON               |      9,857 |          0 |          1 |      9,858 |
+| e:\GR2\Rent_House\rent_house\package.json                                           | JSON               |         50 |          0 |          1 |         51 |
+| e:\GR2\Rent_House\rent_house\postcss.config.js                                      | JavaScript         |          6 |          0 |          1 |          7 |
+| e:\GR2\Rent_House\rent_house\prisma\migrations\20240615173457_init_db\migration.sql | SQL                |        138 |         20 |         29 |        187 |
+| e:\GR2\Rent_House\rent_house\public\next.svg                                        | XML                |          1 |          0 |          0 |          1 |
+| e:\GR2\Rent_House\rent_house\public\vercel.svg                                      | XML                |          1 |          0 |          0 |          1 |
+| e:\GR2\Rent_House\rent_house\register.js                                            | JavaScript         |         17 |          0 |          4 |         21 |
+| e:\GR2\Rent_House\rent_house\tailwind.config.ts                                     | TypeScript         |         19 |          0 |          2 |         21 |
+| e:\GR2\Rent_House\rent_house\tsconfig.json                                          | JSON with Comments |         27 |          0 |          1 |         28 |
+| Total                                                                               |                    |     18,500 |        324 |        545 |     19,369 |
++-------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

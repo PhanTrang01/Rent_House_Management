@@ -40,7 +40,14 @@ export async function POST(req: Request) {
       dateEnd,
       dateStart,
     } = await req.json();
-    if (!homeId || !guestId || !duration || !serviceId || !dateStart) {
+    if (
+      !homeId ||
+      !guestId ||
+      !duration ||
+      !serviceId ||
+      !dateStart ||
+      !homeContractId
+    ) {
       throw new Error("Invalid information");
     }
 

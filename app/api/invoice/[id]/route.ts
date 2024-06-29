@@ -33,3 +33,21 @@ export async function PUT(
     await prisma.$disconnect();
   }
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params;
+
+    const deletedInvoice = await prisma.invoicesPayment.delete({
+      where: { invoiceId: parseInt(id as string, 10) },
+    });
+    return NextResponse.json(deletedInvoice);
+  } catch (error) {
+    console.error("Error Delete Invoice:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+}

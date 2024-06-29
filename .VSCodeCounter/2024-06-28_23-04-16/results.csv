@@ -1,0 +1,61 @@
+"filename", "language", "TypeScript", "TypeScript JSX", "JSON with Comments", "CSS", "JavaScript", "JSON", "Markdown", "XML", "SQL", "comment", "blank", "total"
+"e:\GR2\Rent_House\rent_house\.eslintrc.json", "JSON with Comments", 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 4
+"e:\GR2\Rent_House\rent_house\README.md", "Markdown", 0, 0, 0, 0, 0, 0, 37, 0, 0, 0, 22, 59
+"e:\GR2\Rent_House\rent_house\app\api\guest\[id]\route.ts", "TypeScript", 83, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 91
+"e:\GR2\Rent_House\rent_house\app\api\guest\route.ts", "TypeScript", 51, 0, 0, 0, 0, 0, 0, 0, 0, 2, 6, 59
+"e:\GR2\Rent_House\rent_house\app\api\homeContract\[id]\route.ts", "TypeScript", 92, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 101
+"e:\GR2\Rent_House\rent_house\app\api\homeContract\route.ts", "TypeScript", 149, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 164
+"e:\GR2\Rent_House\rent_house\app\api\homepage\countContract\route.ts", "TypeScript", 53, 0, 0, 0, 0, 0, 0, 0, 0, 7, 9, 69
+"e:\GR2\Rent_House\rent_house\app\api\homepage\countInvoice\route.ts", "TypeScript", 79, 0, 0, 0, 0, 0, 0, 0, 0, 7, 10, 96
+"e:\GR2\Rent_House\rent_house\app\api\homepage\remind\route.ts", "TypeScript", 36, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 46
+"e:\GR2\Rent_House\rent_house\app\api\homepage\route.ts", "TypeScript", 45, 0, 0, 0, 0, 0, 0, 0, 0, 9, 8, 62
+"e:\GR2\Rent_House\rent_house\app\api\homes\[id]\route.ts", "TypeScript", 52, 0, 0, 0, 0, 0, 0, 0, 0, 1, 7, 60
+"e:\GR2\Rent_House\rent_house\app\api\homes\route.ts", "TypeScript", 107, 0, 0, 0, 0, 0, 0, 0, 0, 1, 9, 117
+"e:\GR2\Rent_House\rent_house\app\api\invoice\[id]\route.ts", "TypeScript", 47, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 54
+"e:\GR2\Rent_House\rent_house\app\api\invoice\route.ts", "TypeScript", 154, 0, 0, 0, 0, 0, 0, 0, 0, 15, 16, 185
+"e:\GR2\Rent_House\rent_house\app\api\listRent\route.ts", "TypeScript", 48, 0, 0, 0, 0, 0, 0, 0, 0, 2, 5, 55
+"e:\GR2\Rent_House\rent_house\app\api\login\route.ts", "TypeScript", 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 59
+"e:\GR2\Rent_House\rent_house\app\api\owner\[id]\route.ts", "TypeScript", 43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 47
+"e:\GR2\Rent_House\rent_house\app\api\owner\route.ts", "TypeScript", 127, 0, 0, 0, 0, 0, 0, 0, 0, 2, 13, 142
+"e:\GR2\Rent_House\rent_house\app\api\receiver\[id]\route.ts", "TypeScript", 72, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 78
+"e:\GR2\Rent_House\rent_house\app\api\receiver\route.ts", "TypeScript", 46, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 51
+"e:\GR2\Rent_House\rent_house\app\api\register\route.ts", "TypeScript", 38, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 46
+"e:\GR2\Rent_House\rent_house\app\api\route.ts", "TypeScript", 12, 0, 0, 0, 0, 0, 0, 0, 0, 17, 4, 33
+"e:\GR2\Rent_House\rent_house\app\api\serviceO\[id]\route.ts", "TypeScript", 65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 71
+"e:\GR2\Rent_House\rent_house\app\api\serviceO\route.ts", "TypeScript", 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 44
+"e:\GR2\Rent_House\rent_house\app\api\servicerContract\[id]\route.ts", "TypeScript", 65, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 75
+"e:\GR2\Rent_House\rent_house\app\api\servicerContract\route.ts", "TypeScript", 67, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 72
+"e:\GR2\Rent_House\rent_house\app\components\Dashboard.tsx", "TypeScript JSX", 0, 116, 0, 0, 0, 0, 0, 0, 0, 45, 8, 169
+"e:\GR2\Rent_House\rent_house\app\components\DialogError.tsx", "TypeScript JSX", 0, 43, 0, 0, 0, 0, 0, 0, 0, 2, 4, 49
+"e:\GR2\Rent_House\rent_house\app\components\DialogWarnning.tsx", "TypeScript JSX", 0, 49, 0, 0, 0, 0, 0, 0, 0, 0, 4, 53
+"e:\GR2\Rent_House\rent_house\app\components\Footer.tsx", "TypeScript JSX", 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 6, 56
+"e:\GR2\Rent_House\rent_house\app\components\Header.tsx", "TypeScript JSX", 0, 310, 0, 0, 0, 0, 0, 0, 0, 9, 13, 332
+"e:\GR2\Rent_House\rent_house\app\components\ListItem.tsx", "TypeScript JSX", 0, 65, 0, 0, 0, 0, 0, 0, 0, 4, 3, 72
+"e:\GR2\Rent_House\rent_house\app\components\draft.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"e:\GR2\Rent_House\rent_house\app\globals.css", "CSS", 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 4, 24
+"e:\GR2\Rent_House\rent_house\app\guest\[id]\page.tsx", "TypeScript JSX", 0, 530, 0, 0, 0, 0, 0, 0, 0, 9, 22, 561
+"e:\GR2\Rent_House\rent_house\app\guest\page.tsx", "TypeScript JSX", 0, 409, 0, 0, 0, 0, 0, 0, 0, 13, 15, 437
+"e:\GR2\Rent_House\rent_house\app\homepage\page.tsx", "TypeScript JSX", 0, 428, 0, 0, 0, 0, 0, 0, 0, 11, 24, 463
+"e:\GR2\Rent_House\rent_house\app\homes\[id]\homeContract\[idContract]\page.tsx", "TypeScript JSX", 0, 1717, 0, 0, 0, 0, 0, 0, 0, 83, 38, 1838
+"e:\GR2\Rent_House\rent_house\app\homes\[id]\page.tsx", "TypeScript JSX", 0, 824, 0, 0, 0, 0, 0, 0, 0, 16, 32, 872
+"e:\GR2\Rent_House\rent_house\app\homes\page.tsx", "TypeScript JSX", 0, 480, 0, 0, 0, 0, 0, 0, 0, 8, 17, 505
+"e:\GR2\Rent_House\rent_house\app\layout.tsx", "TypeScript JSX", 0, 27, 0, 0, 0, 0, 0, 0, 0, 0, 4, 31
+"e:\GR2\Rent_House\rent_house\app\login\page.tsx", "TypeScript JSX", 0, 87, 0, 0, 0, 0, 0, 0, 0, 0, 10, 97
+"e:\GR2\Rent_House\rent_house\app\middleware.ts", "TypeScript", 8, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4, 13
+"e:\GR2\Rent_House\rent_house\app\otherOption\page.tsx", "TypeScript JSX", 0, 705, 0, 0, 0, 0, 0, 0, 0, 9, 26, 740
+"e:\GR2\Rent_House\rent_house\app\owners\page.tsx", "TypeScript JSX", 0, 524, 0, 0, 0, 0, 0, 0, 0, 1, 26, 551
+"e:\GR2\Rent_House\rent_house\app\page.tsx", "TypeScript JSX", 0, 16, 0, 0, 0, 0, 0, 0, 0, 0, 5, 21
+"e:\GR2\Rent_House\rent_house\app\searchPage\page.tsx", "TypeScript JSX", 0, 258, 0, 0, 0, 0, 0, 0, 0, 14, 15, 287
+"e:\GR2\Rent_House\rent_house\contexts\ToastContext.tsx", "TypeScript JSX", 0, 48, 0, 0, 0, 0, 0, 0, 0, 0, 10, 58
+"e:\GR2\Rent_House\rent_house\jest.config.mjs", "JavaScript", 0, 0, 0, 0, 8, 0, 0, 0, 0, 6, 5, 19
+"e:\GR2\Rent_House\rent_house\next.config.js", "JavaScript", 0, 0, 0, 0, 2, 0, 0, 0, 0, 1, 2, 5
+"e:\GR2\Rent_House\rent_house\package-lock.json", "JSON", 0, 0, 0, 0, 0, 9857, 0, 0, 0, 0, 1, 9858
+"e:\GR2\Rent_House\rent_house\package.json", "JSON", 0, 0, 0, 0, 0, 50, 0, 0, 0, 0, 1, 51
+"e:\GR2\Rent_House\rent_house\postcss.config.js", "JavaScript", 0, 0, 0, 0, 6, 0, 0, 0, 0, 0, 1, 7
+"e:\GR2\Rent_House\rent_house\prisma\migrations\20240615173457_init_db\migration.sql", "SQL", 0, 0, 0, 0, 0, 0, 0, 0, 138, 20, 29, 187
+"e:\GR2\Rent_House\rent_house\public\next.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+"e:\GR2\Rent_House\rent_house\public\vercel.svg", "XML", 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1
+"e:\GR2\Rent_House\rent_house\register.js", "JavaScript", 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 4, 21
+"e:\GR2\Rent_House\rent_house\tailwind.config.ts", "TypeScript", 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 21
+"e:\GR2\Rent_House\rent_house\tsconfig.json", "JSON with Comments", 0, 0, 27, 0, 0, 0, 0, 0, 0, 0, 1, 28
+"Total", "-", 1647, 6686, 30, 20, 33, 9907, 37, 2, 138, 324, 545, 19369

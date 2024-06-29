@@ -134,7 +134,7 @@ export async function POST(req: Request) {
     if (existingActiveContract) {
       // Nếu có hợp đồng ACTIVE, trả về lỗi
       return NextResponse.json(
-        { error: "An active contract already exists for this homeId" },
+        { message: "An active contract already exists for this homeId" },
         { status: 400 }
       );
     }
