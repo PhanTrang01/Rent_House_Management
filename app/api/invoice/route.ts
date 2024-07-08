@@ -71,7 +71,7 @@ export async function POST(req: Request) {
       if (existingInvoice) {
         // Nếu có, trả về lỗi
         return NextResponse.json(
-          { error: "Invoice already exists for this homeContractId" },
+          { error: "Hợp đồng đã được  sinh đợt thanh toán" },
           { status: 400 }
         );
       }
@@ -119,18 +119,18 @@ export async function POST(req: Request) {
       return NextResponse.json(lastInvoice);
     } else if (serviceContractId && type === TypeInvoice.SERVICE) {
       // Kiểm tra xem có hóa đơn nào với ServiceContractId này không
-      const existingInvoice = await prisma.invoicesPayment.findFirst({
-        where: {
-          serviceContractId: Number(serviceContractId),
-        },
-      });
-      if (existingInvoice) {
-        // Nếu có, trả về lỗi
-        return NextResponse.json(
-          { error: "Invoice already exists for this ServiceContractId" },
-          { status: 401 }
-        );
-      }
+      // const existingInvoice = await prisma.invoicesPayment.findFirst({
+      //   where: {
+      //     serviceContractId: Number(serviceContractId),
+      //   },
+      // });
+      // if (existingInvoice) {
+      //   // Nếu có, trả về lỗi
+      //   return NextResponse.json(
+      //     { message: "Hợp đồng dịch vụ đã được sinh đợt thanh toán" },
+      //     { status: 401 }
+      //   );
+      // }
       const times = duration / cycle;
       const totalPay = limit * cycle;
       for (let index = 0; index < times; index++) {

@@ -123,7 +123,7 @@ export default function Dashboard() {
             px: [1],
           }}
         >
-          <IconButton onClick={toggleDrawer}>
+          <IconButton color="inherit" onClick={toggleDrawer}>
             <ChevronLeftIcon
               sx={{
                 ...(!open && { display: "none" }),

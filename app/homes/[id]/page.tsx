@@ -64,7 +64,7 @@ const WrapperContainer = styled.div`
   flex-grow: 1;
 `;
 type HomeInfo = Homes & {
-  owner: Homeowners;
+  homeowner: Homeowners;
 };
 
 type ContractInfo = HomeContract & {
@@ -189,6 +189,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
   >(null);
   const [openDialogDeteleHomeContract, setOpenDialogDeteleHomeContract] =
     useState(false);
+  const [ownerName, setOwnerName] = useState<String>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -197,15 +198,19 @@ export default function StorePage({ params }: { params: { id: string } }) {
         const res = await axios.get(`/api/homes/${params.id}`);
         const newHome: HomeInfo = res.data;
         if (newHome) {
+          console.log("124", newHome.homeowner);
           setHome(newHome);
-          setOwner(newHome.owner);
-          const { createdAt, updatedAt, homeId, owner, ...newHomeForm } =
+          setOwner(newHome.homeowner);
+          const { createdAt, updatedAt, homeId, homeowner, ...newHomeForm } =
             newHome;
           setHomeForm(newHomeForm);
           setInputValueOwner(
-            newHome.owner
-              ? `${newHome.owner.fullname} - ${newHome.owner.citizenId}`
+            newHome.homeowner
+              ? `${newHome.homeowner.fullname} - ${newHome.homeowner.citizenId}`
               : ""
+          );
+          setOwnerName(
+            `${newHome.homeowner.fullname} - ${newHome.homeowner.citizenId}`
           );
         }
 
@@ -219,12 +224,6 @@ export default function StorePage({ params }: { params: { id: string } }) {
     };
     fetchData();
   }, [params.id]);
-
-  // useEffect(() => {
-  //   axios.get("/api/owner").then(function (response) {
-  //     setOwners(response.data);
-  //   });
-  // }, []);
 
   const fetchDataContract = async () => {
     try {
@@ -378,10 +377,33 @@ export default function StorePage({ params }: { params: { id: string } }) {
           >
             <Grid item lg={10}>
               <Item>
+                {/* {isDisabled === true ? (
+                  <TextField
+                    // disabled
+                    id="owner"
+                    label="Tên chủ nhà"
+                    type="text"
+                    fullWidth
+                    value={ownerName}
+                    size="small"
+                    variant="standard"
+                    // InputLabelProps={{
+                    //   shrink: true,
+                    // }}
+                    // InputProps={{
+                    //   readOnly: true,
+                    // }}
+                    onChange={(e) => {
+                      setOwnerName(e.target.value);
+                    }}
+                  />
+                ) : ( */}
                 <Autocomplete
                   disabled={isDisabled}
+                  // hidden={isDisabled}
                   size="small"
                   value={owner}
+                  defaultValue={owner as Homeowners}
                   onChange={(event: any, newValue: Homeowners | null) => {
                     if (newValue) {
                       setOwner(newValue);
@@ -417,6 +439,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                     />
                   )}
                 />
+                {/* )} */}
               </Item>
             </Grid>
             <Grid item lg={4}>

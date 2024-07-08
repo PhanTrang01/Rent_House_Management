@@ -2,7 +2,7 @@
 import styled from "@emotion/styled";
 import Dashboard from "../../components/Dashboard";
 import Header from "../../components/Header";
-import { useState, useEffect, JSX } from "react";
+import { useState, useEffect, JSX, useContext } from "react";
 import axios from "axios";
 import { Guests, HomeContract, Homeowners, Homes } from "@prisma/client";
 import dayjs, { Dayjs } from "dayjs";
@@ -34,6 +34,7 @@ import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { DateField, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useRouter } from "next/navigation";
+import { ToastContext } from "@/contexts/ToastContext";
 
 dayjs.extend(utc);
 
@@ -111,6 +112,8 @@ const columns: readonly Column[] = [
 
 export default function StorePage({ params }: { params: { id: string } }) {
   const route = useRouter();
+  const { notify } = useContext(ToastContext);
+
   const [guest, setGuest] = useState<Guests>();
   const [contracts, setContracts] = useState<ContractInfo[]>([]);
   const [isDisabled, setIsDisabled] = useState(true);
@@ -186,8 +189,10 @@ export default function StorePage({ params }: { params: { id: string } }) {
       try {
         const response = await axios.put(`/api/guest/${params.id}`, guestForm);
         console.log("Data updated successfully:", response.data);
+        notify("success", "Update Successfully");
       } catch (error) {
         console.error("Error saving data:", error);
+        notify("error", "Update Failed");
       }
     };
     handleSave();
@@ -297,7 +302,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                       label="Email"
                       type="text"
                       fullWidth
-                      value={guest?.email}
+                      value={guestForm.email}
                       size="small"
                       variant="standard"
                       InputLabelProps={{
@@ -320,7 +325,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                       label="Số CCCD"
                       type="text"
                       fullWidth
-                      value={guest?.citizenId}
+                      value={guestForm.citizenId}
                       size="small"
                       variant="standard"
                       InputLabelProps={{
@@ -365,7 +370,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                       label="Nơi cấp CCCD"
                       type="text"
                       fullWidth
-                      defaultValue={guest?.citizen_noicap}
+                      defaultValue={guestForm.citizen_noicap}
                       size="small"
                       variant="standard"
                       InputLabelProps={{
@@ -388,7 +393,7 @@ export default function StorePage({ params }: { params: { id: string } }) {
                       label="Quê quán"
                       type="text"
                       fullWidth
-                      value={guest?.hometown}
+                      value={guestForm.hometown}
                       size="small"
                       variant="standard"
                       InputLabelProps={{
@@ -526,7 +531,9 @@ export default function StorePage({ params }: { params: { id: string } }) {
                         {row.home.District}
                       </TableCell>
                       <TableCell align="center">{row.duration} tháng</TableCell>
-                      <TableCell align="center">{row.rental}</TableCell>
+                      <TableCell align="center">
+                        {row.rental.toLocaleString("en-EN")}
+                      </TableCell>
                       <TableCell align="center">
                         {dayjs.utc(row.dateStart).format("DD/MM/YYYY")}
                       </TableCell>

@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { log } from "console";
 
 const prisma = new PrismaClient({
   datasources: {
@@ -78,6 +79,22 @@ export async function DELETE(
 ) {
   try {
     const { id } = params;
+
+    const Contract = await prisma.homeContract.findMany({
+      where: {
+        guestId: Number(id),
+      },
+    });
+    if (Contract.length > 0) {
+      // Nếu có, trả về lỗi
+      return NextResponse.json(
+        {
+          message: "Khách hàng đã phát sinh hợp đồng thuê căn hộ không thể xóa",
+        },
+        { status: 400 }
+      );
+    }
+
     const deletedHomeowner = await prisma.guests.delete({
       where: { guestId: Number(id) },
     });

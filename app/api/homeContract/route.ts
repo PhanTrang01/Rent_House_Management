@@ -19,8 +19,12 @@ export async function GET(req: NextRequest) {
 
     let whereClause = {};
 
+    // If no parameters are provided, return all contracts
+    if (!searchKey.trim() && !guestId.trim() && !homeId.trim()) {
+      whereClause = {};
+    }
     // If only homeId is provided
-    if (homeId && !searchKey.trim() && !guestId.trim()) {
+    else if (homeId && !searchKey.trim() && !guestId.trim()) {
       whereClause = {
         home: {
           homeId: Number(homeId),
@@ -42,7 +46,6 @@ export async function GET(req: NextRequest) {
           {
             guest: {
               OR: [
-                { guestId: Number(guestId) },
                 {
                   fullname: {
                     contains: String(searchKey),
@@ -59,15 +62,26 @@ export async function GET(req: NextRequest) {
           {
             home: {
               OR: [
-                { homeId: Number(homeId) },
                 {
-                  address: {
+                  apartmentNo: {
+                    contains: String(searchKey),
+                  },
+                },
+                {
+                  building: {
                     contains: String(searchKey),
                   },
                 },
                 {
                   homeowner: {
                     fullname: {
+                      contains: String(searchKey),
+                    },
+                  },
+                },
+                {
+                  homeowner: {
+                    citizenId: {
                       contains: String(searchKey),
                     },
                   },

@@ -65,6 +65,7 @@ type ContractService = ServiceContract & {
 interface Column {
   id:
     | "owner"
+    | "CCCD_owner"
     | "guest"
     | "CCCD_Guest"
     | "address"
@@ -80,6 +81,7 @@ interface Column {
 
 const columns: readonly Column[] = [
   { id: "owner", label: "Tên chủ nhà", minWidth: 170 },
+  { id: "CCCD_owner", label: "Số CCCD chủ nhà", minWidth: 170 },
   { id: "guest", label: "Tên khách thuê", minWidth: 170 },
   {
     id: "CCCD_Guest",
@@ -243,10 +245,13 @@ export default function SearchPage() {
                               <TableCell>
                                 {row.home.homeowner?.fullname}
                               </TableCell>
+                              <TableCell>
+                                {row.home.homeowner?.citizenId}
+                              </TableCell>
                               <TableCell>{row.guest.fullname}</TableCell>
                               <TableCell>{row.guest.citizenId}</TableCell>
                               <TableCell align="right">
-                                {row.home.address}
+                                {row.home.apartmentNo} -{row.home.building}
                               </TableCell>
                               <TableCell align="right">
                                 {row.duration}

@@ -128,6 +128,7 @@ type InvoiceUpdateForm = {
   statusPayment: boolean;
   totalSend: number | null;
   totalReceiver: number | null;
+  dateRemind: Date | null;
 };
 
 type Invoice = InvoicesPayment & {
@@ -203,8 +204,8 @@ const columns: readonly Column[] = [
   {
     id: "datePaymentReal",
     label: "Ngày nộp tiền cho chủ nhà/dvu",
-    minWidth: 130,
-    align: "right",
+    minWidth: 110,
+    align: "center",
   },
   {
     id: "totalSend",
@@ -215,14 +216,14 @@ const columns: readonly Column[] = [
   {
     id: "receiver",
     label: "Người nhận",
-    minWidth: 200,
+    minWidth: 220,
     align: "center",
   },
   {
     id: "statusPayment",
     label: "Trạng thái thanh toán",
-    minWidth: 170,
-    align: "right",
+    minWidth: 80,
+    align: "center",
   },
 ];
 
@@ -354,6 +355,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
       statusPayment: false,
       totalSend: 0,
       totalReceiver: 0,
+      dateRemind: null,
     }
   );
   const [openDialogUpdateStatusPayment, setOpenDialogUpdateStatusPayment] =
@@ -483,13 +485,16 @@ export default function HomeContracts({ params }: HomeContractsProps) {
       try {
         const response = await axios.post("/api/invoice", dataCreateInvoices);
         console.log("Data saved successfully:", response.data);
-      } catch (error) {
+        notify("success", "Tạo các đợt thanh toán thành công");
+        window.location.reload();
+      } catch (error: any) {
         console.error("Error: ", error);
+        notify("error", error.response.data.error);
+        setOpenDialog(false);
       }
     };
     create();
-    console.log("data: ", dataCreateInvoices);
-    window.location.reload();
+    // window.location.reload();
   };
 
   const handleEdit = () => {
@@ -509,8 +514,10 @@ export default function HomeContracts({ params }: HomeContractsProps) {
           homeContractForm
         );
         console.log("Data updated successfully:", response.data);
+        notify("success", "Cập nhật hợp đồng căn hộ thành công");
       } catch (error) {
         console.error("Error saving data:", error);
+        notify("error", "Cập nhật hợp đồng căn hộ thất bại");
       }
     };
     handleSave();
@@ -565,9 +572,12 @@ export default function HomeContracts({ params }: HomeContractsProps) {
           }
         );
         console.log("Data updated successfully:", response.data);
+        notify("success", "Update successfully");
         window.location.reload();
       } catch (error) {
         console.error("Error saving data:", error);
+        setOpenDialogUpdateStatusPayment(false);
+        notify("error", "Cập nhật thất bại");
       }
     };
     update();
@@ -1059,7 +1069,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                         <TableCell
                           align="center"
                           style={{
-                            minWidth: "120",
+                            minWidth: "130",
                             backgroundColor: "#c6c8da",
                           }}
                         >
@@ -1101,7 +1111,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                                 .format("DD/MM/YYYY")}
                             </TableCell>
                             <TableCell align="center">
-                              {row.totalReceiver.toString()}
+                              {row.totalReceiver.toLocaleString("en-EN")}
                             </TableCell>
                             <TableCell align="center">
                               {dayjs
@@ -1109,10 +1119,12 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                                 .format("DD/MM/YYYY")}
                             </TableCell>
                             <TableCell align="center">
-                              {row.totalSend.toString()}
+                              {row.totalSend.toLocaleString("en-EN")}
                             </TableCell>
                             <TableCell align="center">
-                              {row.receiver.TenTK?.toString()}
+                              {row.receiver?.TenTK?.toString()} -{" "}
+                              {row.receiver?.STK?.toString()}-
+                              {row.receiver?.Nganhang?.toString()}
                             </TableCell>
                             <TableCell align="center">
                               {row.statusPayment === true ? (
@@ -1131,6 +1143,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                                       statusPayment: row.statusPayment,
                                       totalSend: row.totalSend,
                                       totalReceiver: row.totalReceiver,
+                                      dateRemind: row.datePaymentRemind,
                                     });
                                     setOpenDialogUpdateStatusPayment(true);
                                   }}
@@ -1699,7 +1712,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                                   .format("DD/MM/YYYY")}
                               </TableCell>
                               <TableCell align="center">
-                                {row.totalReceiver.toString()}
+                                {row.totalReceiver.toLocaleString("en-EN")}
                               </TableCell>
                               <TableCell align="center">
                                 {dayjs
@@ -1707,10 +1720,12 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                                   .format("DD/MM/YYYY")}
                               </TableCell>
                               <TableCell align="center">
-                                {row.totalSend.toString()}
+                                {row.totalSend.toLocaleString("en-EN")}
                               </TableCell>
                               <TableCell align="center">
-                                {row.receiver.TenTK?.toString()}
+                                {row.receiver?.TenTK?.toString()} -{" "}
+                                {row.receiver?.STK?.toString()}-
+                                {row.receiver?.Nganhang?.toString()}
                               </TableCell>
                               <TableCell align="center">
                                 {row.statusPayment === true ? (
@@ -1731,6 +1746,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                                         statusPayment: row.statusPayment,
                                         totalSend: row.totalSend,
                                         totalReceiver: row.totalReceiver,
+                                        dateRemind: row.datePaymentRemind,
                                       });
                                       setOpenDialogUpdateStatusPayment(true);
                                     }}
@@ -1765,7 +1781,7 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                     </Table>
                   </TableContainer>
                   <Dialog open={openDialogUpdateStatusPayment}>
-                    <DialogTitle>Cập nhật trạng thái thanh toán</DialogTitle>
+                    <DialogTitle>Cập nhật thông tin đợt thanh toán</DialogTitle>
                     <DialogContent>
                       <FormControl size="small" variant="standard" fullWidth>
                         <InputLabel id="status-label">
@@ -1833,6 +1849,24 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                           });
                         }}
                       />
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={["DatePicker"]}>
+                          <DatePicker
+                            sx={{ width: "100%", padding: "7px 0" }}
+                            label="Ngày nhắc hẹn"
+                            value={dayjs.utc(dataUpdateInvoice?.dateRemind)}
+                            onChange={(newValue) => {
+                              if (newValue) {
+                                const temp = newValue?.toDate();
+                                setDataUpdateInvoice({
+                                  ...dataUpdateInvoice,
+                                  dateRemind: temp,
+                                });
+                              }
+                            }}
+                          />
+                        </DemoContainer>
+                      </LocalizationProvider>
                     </DialogContent>
                     <DialogActions>
                       <Button

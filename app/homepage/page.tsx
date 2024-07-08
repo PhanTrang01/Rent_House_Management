@@ -139,16 +139,12 @@ export default function Homepage() {
           value1: resFalse.data.length,
           value2: resTrue.data.length,
         });
-        console.log({
-          value1: resFalse.data.length,
-          value2: resTrue.data.length,
-        });
       } catch (error) {
         console.error(error);
       }
     };
     fetchData();
-    console.log(dataPlot2);
+    // console.log(dataPlot2);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -400,7 +396,10 @@ export default function Homepage() {
                       p: 2,
                     }}
                   >
-                    <Typography variant="h5"> Tổng giá trị HĐ</Typography>
+                    <Typography variant="h5">
+                      {" "}
+                      Tổng giá trị HĐ đến hiện tại
+                    </Typography>
                     <Grid container spacing={2}>
                       <Grid item lg={4}>
                         <Item>

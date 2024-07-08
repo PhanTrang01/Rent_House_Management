@@ -183,10 +183,12 @@ export default function Owners() {
     axios
       .delete(`/api/owner/${id}`)
       .then(function (response) {
+        notify("success", "Delete Successfully");
         window.location.reload();
       })
       .catch(function (error) {
         console.error("Error delete owner data:", error);
+        notify("error", "Delete Failed");
       });
   };
 
@@ -469,12 +471,18 @@ export default function Owners() {
                     <TableCell
                       key={column.id}
                       align={column.align}
-                      style={{ minWidth: column.minWidth }}
+                      style={{
+                        minWidth: column.minWidth,
+                        backgroundColor: "#c6c8da",
+                      }}
                     >
                       {column.label}
                     </TableCell>
                   ))}
-                  <TableCell> Hành động</TableCell>
+                  <TableCell style={{ backgroundColor: "#c6c8da" }}>
+                    {" "}
+                    Hành động
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

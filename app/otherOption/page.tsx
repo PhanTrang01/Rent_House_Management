@@ -325,7 +325,7 @@ export default function OtherOption() {
                   margin: "0 10px",
                 }}
                 size="small"
-                label="Tìm kiếm hợp đồng"
+                label="Tìm kiếm"
                 id="search"
                 onChange={(e) => {
                   setSearchval(e.target.value);

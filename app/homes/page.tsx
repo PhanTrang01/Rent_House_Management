@@ -117,7 +117,7 @@ export default function HomesList() {
     try {
       const response = await axios.delete(`/api/homes/${id}`);
       notify("success", "Delete Successfully");
-      // window.location.reload();
+      window.location.reload();
     } catch (error: any) {
       const errorMessage = error.response.data.message;
       notify("error", errorMessage);
@@ -139,14 +139,25 @@ export default function HomesList() {
   });
 
   useEffect(() => {
-    axios.get(`/api/homes?status=${typeStatusHome}`).then(function (response) {
-      if (typeStatusHome) setHomes(response.data);
-      else {
-        setRentedHomes(response.data);
+    const fetchData = async () => {
+      try {
+        const resTrue = await axios.get(`/api/homes?status=true`);
+        setHomes(resTrue.data);
+        const resFalse = await axios.get(`/api/homes?status=false`);
+        setRentedHomes(resFalse.data);
+      } catch (error) {
+        console.error(error);
       }
-    });
+    };
+    fetchData();
+    // axios.get(`/api/homes?status=${typeStatusHome}`).then(function (response) {
+    //   if (typeStatusHome) setHomes(response.data);
+    //   else {
+    //     setRentedHomes(response.data);
+    //   }
+    // });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [typeStatusHome]);
+  }, []);
 
   useEffect(() => {
     axios.get("/api/owner").then(function (response) {
@@ -182,12 +193,15 @@ export default function HomesList() {
       try {
         const response = await axios.post("/api/homes", homeForm);
         console.log("Data saved successfully:", response.data);
+        notify("success", "Create Successfully");
+        window.location.reload();
       } catch (error) {
         console.error("Error saving data:", error);
+        notify("error", "Create Failed");
+        setOpen(false);
       }
     };
     handleSave();
-    window.location.reload();
   };
 
   return (

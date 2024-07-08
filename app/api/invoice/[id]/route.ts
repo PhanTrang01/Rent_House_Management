@@ -15,7 +15,14 @@ export async function PUT(
 ) {
   try {
     const { id } = params;
-    const { statusPayment, totalSend, totalReceiver } = await _req.json(); // Đọc dữ liệu từ req.
+    const { statusPayment, totalSend, totalReceiver, dateRemind } =
+      await _req.json(); // Đọc dữ liệu từ req.
+
+    const newdatePaymentExpect = new Date(dateRemind);
+    newdatePaymentExpect.setDate(newdatePaymentExpect.getDate() + 5);
+
+    const newdatePaymentReal = new Date(dateRemind);
+    newdatePaymentReal.setDate(newdatePaymentReal.getDate() + 7);
 
     const updatedHomeowner = await prisma.invoicesPayment.update({
       where: { invoiceId: Number(id) },
@@ -23,6 +30,9 @@ export async function PUT(
         statusPayment,
         totalSend: Number(totalSend),
         totalReceiver: Number(totalReceiver),
+        datePaymentRemind: new Date(dateRemind),
+        datePaymentExpect: newdatePaymentExpect,
+        datePaymentReal: newdatePaymentReal,
       },
     });
 

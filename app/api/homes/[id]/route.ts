@@ -16,6 +16,9 @@ export async function GET(
   try {
     const { id: homeId } = params;
     const home = await prisma.homes.findUniqueOrThrow({
+      include: {
+        homeowner: true,
+      },
       where: {
         homeId: Number(homeId),
       },

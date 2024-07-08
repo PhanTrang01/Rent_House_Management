@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { Guests } from "@prisma/client";
 import dayjs, { Dayjs } from "dayjs";
@@ -34,6 +34,7 @@ import { DateField, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import DeleteRecipientDialog from "../components/DialogWarnning";
+import { ToastContext } from "@/contexts/ToastContext";
 
 dayjs.extend(utc);
 
@@ -64,7 +65,8 @@ interface Column {
     | "email"
     | "citizenId"
     | "citizen_ngaycap"
-    | "citizen_noicap";
+    | "citizen_noicap"
+    | "hometown";
   label: string;
   minWidth?: number;
   align?: "right";
@@ -98,10 +100,18 @@ const columns: readonly Column[] = [
     minWidth: 170,
     align: "right",
   },
+  {
+    id: "hometown",
+    label: "Quê quán",
+    minWidth: 170,
+    align: "right",
+  },
 ];
 
 export default function Guest() {
   const router = useRouter();
+  const { notify } = useContext(ToastContext);
+
   const [open, setOpen] = useState(false);
   const [guests, setGuests] = useState<Guests[]>([]);
   const [value, setValue] = useState<Dayjs | null>();
@@ -148,8 +158,10 @@ export default function Guest() {
       try {
         const response = await axios.post("/api/guest", guestForm);
         console.log("Data saved successfully:", response.data);
+        notify("success", "Create Successfully");
       } catch (error) {
         console.error("Error saving data:", error);
+        notify("error", "Create Failed");
       }
     };
     handleSave();
@@ -160,10 +172,14 @@ export default function Guest() {
     axios
       .delete(`/api/guest/${id}`)
       .then(function (response) {
+        notify("success", "Delete Successfully");
         window.location.reload();
       })
       .catch(function (error) {
         console.error("Error delete guest data:", error);
+        const errorMessage = error.response.data.message;
+        notify("error", errorMessage);
+        setOpenDialogDetele(false);
       });
   };
 
@@ -369,13 +385,13 @@ export default function Guest() {
                           role="checkbox"
                           tabIndex={-1}
                           key={row.guestId}
-                          onClick={() => {
-                            localStorage.setItem(
-                              "guestData",
-                              JSON.stringify(row)
-                            );
-                            router.push(`/guest/${row.guestId}`);
-                          }}
+                          // onClick={() => {
+                          //   localStorage.setItem(
+                          //     "guestData",
+                          //     JSON.stringify(row)
+                          //   );
+                          //   router.push(`/guest/${row.guestId}`);
+                          // }}
                         >
                           {columns.map((column) => {
                             let value: string | Date | boolean = row[column.id];
@@ -393,7 +409,9 @@ export default function Guest() {
                           })}
                           <TableCell align="center">
                             <IconButton
-                            // onClick={() => handleEdit(row.serviceId)}
+                              onClick={() => {
+                                router.push(`/guest/${row.guestId}`);
+                              }}
                             >
                               <EditIcon />
                             </IconButton>
