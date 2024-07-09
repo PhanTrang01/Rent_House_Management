@@ -194,6 +194,7 @@ export default function HomesList() {
         const response = await axios.post("/api/homes", homeForm);
         console.log("Data saved successfully:", response.data);
         notify("success", "Create Successfully");
+        setOpen(false);
         window.location.reload();
       } catch (error) {
         console.error("Error saving data:", error);

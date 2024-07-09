@@ -239,7 +239,7 @@ export default function Header() {
                               .format("DD/MM/YYYY")}
                           </TableCell>
                           <TableCell align="center">
-                            {row.totalReceiver.toString()}
+                            {row.totalReceiver.toLocaleString("en-EN")}
                           </TableCell>
                           <TableCell align="center">
                             {dayjs
@@ -247,7 +247,7 @@ export default function Header() {
                               .format("DD/MM/YYYY")}
                           </TableCell>
                           <TableCell align="center">
-                            {row.totalSend.toString()}
+                            {row.totalSend.toLocaleString("en-EN")}
                           </TableCell>
                           <TableCell align="center">
                             {row.receiver.TenTK?.toString()}

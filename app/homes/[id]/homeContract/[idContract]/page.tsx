@@ -1405,7 +1405,9 @@ export default function HomeContracts({ params }: HomeContractsProps) {
                             <TableCell align="center">
                               {row.service?.name}
                             </TableCell>
-                            <TableCell align="center">{row.unitCost}</TableCell>
+                            <TableCell align="center">
+                              {row.limit?.toLocaleString("en-EN")}
+                            </TableCell>
                             <TableCell align="center">{row.duration}</TableCell>
                             <TableCell align="center">{row.payCycle}</TableCell>
                             <TableCell align="center">

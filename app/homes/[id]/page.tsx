@@ -278,14 +278,15 @@ export default function StorePage({ params }: { params: { id: string } }) {
           _homeId: params.id,
         });
         console.log("Data updated successfully:", response.data);
-        notify("success", "Cập nhật thành công");
+        await notify("success", "Cập nhật thành công");
+        window.location.reload();
       } catch (error) {
         console.error("Error saving data:", error);
         notify("error", "Cập nhật thất bại");
+        window.location.reload();
       }
     };
     handleSave();
-    window.location.reload();
   };
 
   const handleSubmitContract = () => {
