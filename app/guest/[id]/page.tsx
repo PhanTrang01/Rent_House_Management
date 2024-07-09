@@ -190,13 +190,13 @@ export default function StorePage({ params }: { params: { id: string } }) {
         const response = await axios.put(`/api/guest/${params.id}`, guestForm);
         console.log("Data updated successfully:", response.data);
         notify("success", "Update Successfully");
+        route.push("/guest");
       } catch (error) {
         console.error("Error saving data:", error);
         notify("error", "Update Failed");
       }
     };
     handleSave();
-    route.push("/guest");
   };
   return (
     <Wrapper>
