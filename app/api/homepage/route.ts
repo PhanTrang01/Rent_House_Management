@@ -10,7 +10,7 @@ import { prisma } from "@/lib/prisma";
 //     },
 //   },
 // });
-
+export const fetchCache = "force-no-store";
 export async function GET(req: NextRequest) {
   try {
     // Fetch the total number of homes
