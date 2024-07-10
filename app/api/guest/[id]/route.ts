@@ -1,14 +1,15 @@
 import { NextResponse, NextRequest } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { log } from "console";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL, // Make sure this URL is correctly set
-    },
-  },
-});
+// const prisma = new PrismaClient({
+//   datasources: {
+//     db: {
+//       url: process.env.DATABASE_URL, // Make sure this URL is correctly set
+//     },
+//   },
+// });
 
 export async function GET(
   _req: NextRequest,
